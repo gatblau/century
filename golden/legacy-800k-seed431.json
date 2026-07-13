@@ -1,0 +1,45 @@
+{
+  "N": 800000,
+  "seed": 431,
+  "legacy": true,
+  "outcomes": {
+    "aligned_abundance": 23.17,
+    "oligarchic_prosperity": 4.96,
+    "turbulent_transition": 1.93,
+    "constrained_flourishing": 4.95,
+    "muddling_degraded": 0.31,
+    "disempowerment": 44.43,
+    "lockin": 2.0,
+    "collapse": 2.8,
+    "extinction": 15.44
+  },
+  "aggregates": {
+    "good(broadly acceptable)": 33.1,
+    "aligned_abundance_only": 23.2,
+    "irreversible_bad": 64.7,
+    "extinction_or_collapse": 18.2
+  },
+  "agi": {
+    "p_agi_by_2126": 94.1,
+    "median_year": 2036,
+    "p10_year": 2031,
+    "p90_year": 2050,
+    "p_by_2035": 42.3,
+    "p_by_2040": 66.0,
+    "p_by_2050": 85.4,
+    "p_by_2075": 93.2
+  },
+  "gap_at_agi": {
+    "median": 0.376,
+    "p_controlled(gap<0.15)": 10.8,
+    "p_contested(0.15-0.35)": 32.0,
+    "p_uncontrolled(>0.35)": 57.2
+  },
+  "events_per_world": {
+    "nuclear_war": 0.406,
+    "eng_pandemic": 0.34,
+    "nat_pandemic": 1.369,
+    "warning_shot": 3.737,
+    "regional_war": 2.832
+  }
+}

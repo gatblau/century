@@ -1,0 +1,51 @@
+{
+  "_comment": "Likelihood estimates for the THIRD reported view of the ensemble ('the realistic bet'). The unweighted tables answer 'what happens IF the world makes each good choice' under flat, agnostic priors (the headline); the anchors.json weights answer 'what do outside-view forecasters expect of outcomes' (the outside view); this file answers 'how likely is each choice to actually happen before the crossing'. UNLIKE anchors.json, these are NOT published external estimates - no survey asks 'will a major economy share the AI gains by 2035'. Each entry is a judgement-based probability range for a named, observable real-world event, with the reasoning written down so it can be argued with and replaced; edit the p_range values and rerun to encode your own view. calibrate_century.py --levers reweights the v2 ensemble toward these; CENTURY_LEVER_WEIGHTS=<weights> then makes century_sim.py report the lever-weighted outcome tables alongside the unweighted and anchor-weighted ones. Drafted 2026-07-11.",
+  "_event_definition": "Each lever's event is the world landing in the strong quarter of that lever's sampled range - the same top/bottom-quartile regions the sensitivity tables (strategy.md, docs/future.md) use for the lever swings. By construction the unweighted chance of every event is 25 %, so each p_range reads directly as 'how much more or less likely than the flat prior's 25 % is the real world to get there before the median AGI crossing (~2036)'. The max-entropy tilt matches each probability to the MIDDLE of its range, the central estimate, so the reported view sits on the stated belief rather than on a friendly or harsh corner of it.",
+  "levers": [
+    {
+      "lever": "redist_will",
+      "feature": "p_gains_shared",
+      "strong_end": "top",
+      "quantile": 0.75,
+      "p_range": [0.05, 0.20],
+      "real_world_event": "By ~2035 at least one major economy has a broad-ownership or automation-dividend scheme in force that reaches a majority of citizens and has survived at least one change of government",
+      "rationale": "Judgement call. Large new redistributive institutions are historically rare in advanced economies (Alaska-fund-class schemes are the exception, and none yet exists at major-economy scale for automation gains), and the obstacles named in docs/levers-and-preparedness.md Part 2 - concentrated wealth resists sharing, permanence is harder than legislation, comfort hides the danger - all argue this is materially less likely than the flat prior's 25 %."
+    },
+    {
+      "lever": "respond",
+      "feature": "p_institutions_react",
+      "strong_end": "top",
+      "quantile": 0.75,
+      "p_range": [0.08, 0.22],
+      "real_world_event": "By ~2035 a jurisdiction covering at least one frontier developer has statutory pre-agreed triggers, mandatory incident reporting and evaluation-gated deployment in force, with at least one enforcement action on record",
+      "rationale": "Judgement call. Real momentum exists (national AI safety institutes, the EU AI Act), which keeps the lower edge well above zero, but nowhere are pre-agreed triggers plus mandatory reporting enforced today, and the Part 3 obstacles - ambiguous warnings, regulatory capture, institutions moving in years while capability moves in months - argue below the flat prior."
+    },
+    {
+      "lever": "safety_eff",
+      "feature": "p_safety_funded",
+      "strong_end": "top",
+      "quantile": 0.75,
+      "p_range": [0.04, 0.15],
+      "real_world_event": "By ~2035 global alignment/interpretability/control research is funded and staffed at a level that bears comparison with frontier capability spending, rather than a small fraction of it",
+      "rationale": "Judgement call. Today the two budgets are wildly out of balance (docs/levers-and-preparedness.md Part 4), the talent pool is shared with better-paid capability work, and closing an order-of-magnitude funding gap within a decade has few precedents outside wartime mobilisation."
+    },
+    {
+      "lever": "assist",
+      "feature": "p_ai_helps_safety",
+      "strong_end": "top",
+      "quantile": 0.75,
+      "p_range": [0.20, 0.50],
+      "real_world_event": "By the crossing, frontier developers routinely convert a large share of new capability into readiness by using their systems for alignment work (automated review, test generation, internals-flagging) as standard practice",
+      "rationale": "Judgement call. This is the one choice labs can make alone, in their own commercial interest, and it is already happening; the likelihood sits at or above the flat prior, so the range straddles 0.25 and the tilt leaves it alone unless the reader narrows it."
+    },
+    {
+      "lever": "race",
+      "feature": "p_race_cooled",
+      "strong_end": "bottom",
+      "quantile": 0.25,
+      "p_range": [0.03, 0.12],
+      "real_world_event": "Before the crossing, a verification-based agreement between the leading states/developers (compute accounting or equivalent) is in force and observed, holding race intensity to the calm quarter of its range",
+      "rationale": "Judgement call. This is the only choice that needs rivals' agreement (docs/levers-and-preparedness.md Part 6: high value, low feasibility). Verification-based arms-control agreements concluded during an active great-power rivalry, before a visible catastrophe forces the issue, are historically rare, and AI verification is technically harder than counting silos."
+    }
+  ]
+}
