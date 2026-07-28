@@ -1,6 +1,6 @@
 # The realistic bet: how likely are the good choices?
 
-*The other documents show that a handful of choices, made in time, turn the century from a coin flip into a clearly good bet. This page asks the awkward follow-up: how likely is the world to make those choices at all? It gives an honest estimate for each one, shows what those estimates do to the odds, and explains how to disagree and rerun.*
+*The other documents show that a handful of choices, made in time, turn a century that leans the wrong way into a clearly good bet. This page asks the awkward follow-up: how likely is the world to make those choices at all? It gives an honest estimate for each one, shows what those estimates do to the odds, and explains how to disagree and rerun.*
 
 ---
 
@@ -10,15 +10,17 @@ The model plays out 800,000 possible futures. Those futures can be counted three
 
 | Reading | The question it answers | Good century | Bad century |
 |---|---|---:|---:|
-| The headline | what could happen, if every choice stays open? | 44.1 % | 41.9 % |
-| The outside view | what do professional forecasters expect? | 49.4 % | 33.0 % |
-| The realistic bet | where is the century actually heading? | 39.5 % | 45.4 % |
+| The headline | what could happen, if every choice stays open? | 39.0 % | 48.9 % |
+| The outside view | what do professional forecasters expect? | 45.3 % | 39.1 % |
+| The realistic bet | where is the century actually heading? | 34.3 % | 52.8 % |
 
 The headline is the number the rest of this repository leads with. It treats every choice as open, so it describes potential. The outside view adjusts the totals to match published expert forecasts about things like extinction risk. The realistic bet, this page, applies an honest likelihood to each choice and reads off what is left. If you want one number for "where are we actually heading", it is the last row.
 
 A doctor would put the difference this way: with the treatment, your odds are good; knowing how rarely patients actually take the treatment, your odds today are worse. Same disease, same medicine. One number describes the possibility, the other the path we are on.
 
 The headline and realistic-bet figures come from the full 800,000-world run, the same one every other document quotes. The outside view is built at the 50,000-world calibration size, so its row is a touch less precise.
+
+The headline row itself has a companion the model reports beside it. It assumes that testing and containment work goes stale as capability grows, which is the model's default; pin that decay to zero and the same worlds give 44.2 % good against 41.8 % bad. Nothing anyone has published fixes how fast the decay runs, so the two readings are both live and this page uses the default throughout ([`future.md`](future.md) §3).
 
 ## 2. The hidden guess in the headline number
 
@@ -56,18 +58,18 @@ The adjustment sets each probability to the middle of its range, which is the es
 
 | Outcome | The headline | The realistic bet |
 |---|---:|---:|
-| Good century | 44.1 % | 39.5 % |
-| The best ending (aligned abundance) | 19.4 % | 13.3 % |
-| Humans lose control quietly (disempowerment) | 27.5 % | 30.0 % |
-| Irreversibly bad century | 41.9 % | 45.4 % |
+| Good century | 39.0 % | 34.3 % |
+| The best ending (aligned abundance) | 17.4 % | 11.8 % |
+| Humans lose control quietly (disempowerment) | 33.3 % | 36.2 % |
+| Irreversibly bad century | 48.9 % | 52.8 % |
 
-The century stops being a coin flip and starts leaning the wrong way: roughly 39 good against 45 irreversibly bad. Three things stand out.
+The century leans further the wrong way: roughly 34 good against 53 irreversibly bad. Three things stand out.
 
-First, where the loss goes. The odds get worse mainly through the quiet ending, where humans stay alive but stop steering, and the best ending pays most of the bill (19.4 % falls to 13.3 %). That fits: the choices in section 4 are exactly the ones that block the quiet path, so doubting them puts probability back on it.
+First, where the loss goes. The odds get worse mainly through the quiet ending, where humans stay alive but stop steering, and the best ending pays most of the bill (17.4 % falls to 11.8 %). That fits: the choices in section 4 are exactly the ones that block the quiet path, so doubting them puts probability back on it.
 
-Second, the conclusion is not hanging on one harsh guess. Rerun the adjustment against the friendliest edge of every range instead of the middle and the good share still only reaches about 41 %. Anywhere inside the stated ranges, the realistic bet lands below the headline. The coin flip was the optimistic reading of current politics, not the neutral one.
+Second, the conclusion is not hanging on one harsh guess. Rerun the adjustment against the friendliest edge of every range instead of the middle and the good share still only reaches about 37 %. Anywhere inside the stated ranges, the realistic bet lands below the headline, which makes the headline the optimistic reading of current politics rather than the neutral one.
 
-Third, the size of the prize. With the choices actually made, the model's good share is about 71 in 100. At the estimated likelihoods it is 39.5. That gap of more than 30 points is not blocked by physics or by any rival. It is only unlikely, and unlikely is a thing a decision can change.
+Third, the size of the prize. With the choices actually made, the model's good share is about 67 in 100. At the estimated likelihoods it is 34.3. That gap of more than 30 points is not blocked by physics or by any rival. It is only unlikely, and unlikely is a thing a decision can change.
 
 ## 6. How to run it and change it
 

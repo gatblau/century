@@ -28,7 +28,7 @@ Each row is one dial, and they are sorted with the biggest mover at the top. The
 
 There are two bars per dial. The blue bar is the effect the dial has on its own. The red bar is the total effect once you also count the times it works together with other dials. When the red bar is much longer than the blue one, that dial mostly matters in combination with others rather than by itself.
 
-The headline is hard to miss: capability speed, labelled `k`, is the single biggest mover on both the good ending and the bad one. How much safety effort a world puts in, how hard it races, and how responsive its institutions are come next. The dials near the bottom barely change the result whatever you do to them.
+The headline is hard to miss: capability speed, labelled `k`, is the single biggest mover on both the good ending and the bad one. Next come the political dials, how willing a world is to share the gains and how concentrated its wealth already is, then how much safety effort it puts in and how hard it races. In the middle of the pack sits `erode_mag`, how fast rising capability makes existing testing and containment work out of date. The dials near the bottom barely change the result whatever you do to them.
 
 ## How each dial changes the odds
 

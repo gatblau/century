@@ -4,4 +4,6 @@ __pycache__/
 CLAUDE.md
 .idea
 weights-*.npz
+runs
+docs/wip
 

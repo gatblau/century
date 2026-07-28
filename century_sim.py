@@ -79,10 +79,10 @@ REC_REACT    = _recovery or bool(int(os.environ.get("CENTURY_REACT", "0")))     
 # v2 mechanical corrections (Phase 3 of the accuracy-upgrade plan). Each fixes a
 # known modelling error and is individually attributable; CENTURY_V2=1 enables
 # all of them. Phase 12 flipped the default: v2 is now the engine path, and
-# CENTURY_LEGACY=1 restores the original pre-plan model (all corrections off),
+# CENTURY_BASELINE=1 restores the original pre-plan model (all corrections off),
 # which stays bit-identical at seed 431. CENTURY_V2=1 still forces v2 explicitly.
-LEGACY = bool(int(os.environ.get("CENTURY_LEGACY", "0")))                        # restore the pre-plan legacy model
-_v2 = (not LEGACY) or bool(int(os.environ.get("CENTURY_V2", "0")))              # umbrella: v2 is the default path
+BASELINE = bool(int(os.environ.get("CENTURY_BASELINE", "0")))                   # restore the pre-plan baseline model
+_v2 = (not BASELINE) or bool(int(os.environ.get("CENTURY_V2", "0")))            # umbrella: v2 is the default path
 V2_HAZMASK = _v2 or bool(int(os.environ.get("CENTURY_V2_HAZMASK", "0")))        # absorbed worlds drop out of later same-year hazards
 V2_NUKE_R  = _v2 or bool(int(os.environ.get("CENTURY_V2_NUKE_R", "0")))         # nuclear exchange degrades readiness R
 V2_NATPAND = _v2 or bool(int(os.environ.get("CENTURY_V2_NATPAND", "0")))        # natural-pandemic rate scales with capability x biodefence
@@ -98,6 +98,7 @@ POLICY_SCALE = float(os.environ.get("CENTURY_POLICY_SCALE", "1"))               
 V2_XHAZ    = _v2 or bool(int(os.environ.get("CENTURY_V2_XHAZ", "0")))           # unknown-unknowns catch-all absorbing hazard
 V2_REBUILD = _v2 or bool(int(os.environ.get("CENTURY_V2_REBUILD", "0")))        # collapse becomes non-absorbing (rebuild + recover)
 V2_BIOUP   = _v2 or bool(int(os.environ.get("CENTURY_V2_BIOUP", "0")))          # post-AGI bio-offence uplift (AGI-grade biotool misuse)
+V2_ERODE   = _v2 or bool(int(os.environ.get("CENTURY_V2_ERODE", "0")))          # capability growth erodes containment/evaluation readiness
 AUDIT = bool(int(os.environ.get("CENTURY_AUDIT", "0")))                         # emit HAZMASK + saturation diagnostic counters
 CRN = bool(int(os.environ.get("CENTURY_CRN", "0")))                             # common random numbers: pre-draw the stochastic stream (for sobol_century.py)
 
@@ -111,13 +112,16 @@ CRN = bool(int(os.environ.get("CENTURY_CRN", "0")))                             
 # the reported aggregation differs.
 WEIGHTS_FPR = json.dumps({
     "seed": SEED,
-    "legacy": LEGACY,
+    "baseline": BASELINE,
     "rec": [REC_DIVIDEND, REC_WINDOW, REC_REACT],
     "v2": [V2_HAZMASK, V2_NUKE_R, V2_NATPAND, V2_GAPNORM, V2_SUBSTEP, V2_SOFT, V2_STRUCT,
-           V2_CORR, V2_DEMO, V2_CLIMATE, V2_POLICY, V2_XHAZ, V2_REBUILD, V2_BIOUP],
+           V2_CORR, V2_DEMO, V2_CLIMATE, V2_POLICY, V2_XHAZ, V2_REBUILD, V2_BIOUP, V2_ERODE],
     "policy_scale": POLICY_SCALE,
     "crn": CRN,
     "struct_p_flat": os.environ.get("CENTURY_STRUCT_P_FLAT", "0.5"),
+    "erode_max": os.environ.get("CENTURY_ERODE_MAX", "0.30"),
+    "erode_damp": os.environ.get("CENTURY_ERODE_DAMP", "0.60"),
+    "shot_ref": os.environ.get("CENTURY_SHOT_REF", "1.0"),
     "overrides": os.environ.get("CENTURY_OVERRIDES", ""),
     "corr_json": os.environ.get("CENTURY_CORR_JSON", ""),
     "param_npz": bool(os.environ.get("CENTURY_PARAM_NPZ", "")),
@@ -156,8 +160,8 @@ LEVER_WEIGHTS = _load_weights("CENTURY_LEVER_WEIGHTS")
 # v2 sampled structure (Phase 5): promote the three binary REC_* structure switches
 # to per-world sampled quantities, so "which structural prior you hold" becomes an
 # axis of one ensemble rather than two rival documents. Drawn only when V2_STRUCT is
-# on (legacy draws nothing, so the seed-431 stream is unchanged) and before the
-# override loop so a run can pin any of these to a legacy corner (e.g. struct_flat=1
+# on (baseline draws nothing, so the seed-431 stream is unchanged) and before the
+# override loop so a run can pin any of these to a baseline corner (e.g. struct_flat=1
 # reproduces persistent risk). Priors are judgement calls, documented here inline,
 # each a single constant to adjust.
 STRUCT_P_FLAT = float(os.environ.get("CENTURY_STRUCT_P_FLAT", "0.5"))
@@ -177,15 +181,15 @@ GAPNORM_REF = 0.80     # reference AGI threshold for V2_GAPNORM: the gap is scal
                        # of high/low-threshold worlds, not the absolute hazard level (FU-007).
 if V2_STRUCT:
     P["struct_flat"]  = (rng.random(N) < STRUCT_P_FLAT).astype(float)   # 1 = flat window (no deadline)
-    P["tau_window"]   = rng.lognormal(np.log(10.0), 0.5, N)             # takeover-window timescale, yr (legacy corner = 10)
-    P["lethal_share"] = rng.beta(3.0, 7.0, N)                           # takeover lethal fraction, mean 0.30 (legacy constant)
-    P["dividend_mag"] = rng.uniform(0.0, 0.012, N)                      # readiness dividend coeff (legacy off=0, on=0.012)
-    P["react_scale"]  = rng.uniform(0.0, 1.0, N)                        # reactive-governance magnitude (legacy off=0, on=1)
+    P["tau_window"]   = rng.lognormal(np.log(10.0), 0.5, N)             # takeover-window timescale, yr (baseline corner = 10)
+    P["lethal_share"] = rng.beta(3.0, 7.0, N)                           # takeover lethal fraction, mean 0.30 (baseline constant)
+    P["dividend_mag"] = rng.uniform(0.0, 0.012, N)                      # readiness dividend coeff (baseline off=0, on=0.012)
+    P["react_scale"]  = rng.uniform(0.0, 1.0, N)                        # reactive-governance magnitude (baseline off=0, on=1)
 
 # v2 climate recalibration (Phase 9): per-world climate-sensitivity multiplier on the
 # warming increment, plus an optional sampled tipping feedback above a sampled threshold,
 # widening the 2126 warming spread toward the published ~1.8-4 degC envelope. Sampled only
-# when V2_CLIMATE is on (legacy draws nothing); abatement coupling is retained below.
+# when V2_CLIMATE is on (baseline draws nothing); abatement coupling is retained below.
 if V2_CLIMATE:
     P["clim_sens"]     = rng.lognormal(0.0, 0.30, N)     # equilibrium-sensitivity multiplier, median 1.0 (~+/-35%)
     P["tip_threshold"] = rng.uniform(2.0, 3.5, N)        # warming (degC) above which a tipping feedback engages
@@ -215,11 +219,53 @@ if V2_DEMO:
 #     bad tail needs its own channel. The rate above is therefore a NET-BAD residual, and
 #     that is a further reason it must stay small.
 # Collapse recovery: a collapsed world rebuilds over a sampled period and re-enters with
-# degraded institutions. Sampled only when the switch is on (legacy draws nothing).
+# degraded institutions. Sampled only when the switch is on (baseline draws nothing).
 if V2_XHAZ:
     P["xhaz_rate"] = rng.uniform(0.0, 0.0007, N)         # unknown-unknowns absorbing hazard, /yr (net-bad residual)
 if V2_REBUILD:
     P["rebuild_period"] = rng.uniform(5.0, 20.0, N)      # years a collapsed world takes to re-enter
+
+# v2 readiness erosion (plan-28). Before this correction the readiness update was a sum of
+# non-negative terms, so R rose monotonically in every world for a century and capability
+# growth fed it only positively (via ai_assist). The one thing that could reduce R anywhere
+# in the model was a nuclear exchange (V2_NUKE_R). That asymmetry says containment and
+# evaluation capacity never expire, which is indefensible: an evaluation harness built for
+# one capability level is invalidated by a system that exceeds it, and a sandbox is only as
+# isolated as its weakest dependency. This is a DYNAMICS correction, not a new hazard
+# channel — agentic AI risk stays in the takeover hazard, which the C-R gap already drives.
+# Three calibration notes:
+#   * MAGNITUDE. The competing term is assist * (1 - 0.45*race) * 0.6 * max(dC, 0), where
+#     assist is Beta(1.6, 2.4) * 0.65 (mean ~0.26), so its coefficient on capability growth
+#     has mean ~0.156 before the race discount. A U(0, 0.30) prior has mean 0.15, putting
+#     the median world close to readiness-neutral on capability growth and letting the sign
+#     be decided by race and respond rather than assumed. The lower bound of zero reproduces
+#     the pre-correction model, so the old assumption stays inside the ensemble instead of
+#     being replaced by its opposite. Same maximum-entropy stance as STRUCT_P_FLAT above.
+#   * GATING. Damping is gated on accumulated warning-shot memory, so institutions
+#     re-validate their evaluations only after an incident. Nothing else in this model
+#     improves readiness in the absence of a warning shot (respond is defined as
+#     "institutional responsiveness to warning shots" and the reactive-governance block
+#     fires only on a shot); unconditional damping would have been the first such mechanism
+#     and the most optimistic assumption in the file. Erosion is therefore UNDAMPED before
+#     a world's first incident, which front-loads severity into fast-takeoff worlds that
+#     cross the threshold before accumulating warnings. That is intended.
+#   * SHOT_REF. shot_hist decays at POLICY_SHOT_DECAY (0.92)/yr and gains 1.0 per shot, so a
+#     sustained rate of lambda/yr settles at lambda/0.08 = 12.5*lambda. The shot rate is
+#     clip(0.02 + 0.10*(C - 0.5), 0, 0.15), so late-century high-capability worlds settle
+#     near 1.9 and mid-capability worlds near 0.6. SHOT_REF = 1.0 puts saturation at a
+#     sustained 0.08/yr: worlds with repeated near-misses get there, worlds with one or two
+#     never do. Driving SHOT_REF toward 0 recovers the rejected unconditional variant.
+# Sampled only when the switch is on (baseline draws nothing), and before the override loop so
+# a run can pin erode_mag to any corner (0 = the pre-correction dynamics).
+# All three are env-overridable (and fingerprinted in WEIGHTS_FPR) so plan-28 Phase D can
+# sweep them without editing the source, matching how STRUCT_P_FLAT and POLICY_SCALE work.
+ERODE_MAX  = float(os.environ.get("CENTURY_ERODE_MAX", "0.30"))    # ceiling of the per-world containment-decay coefficient
+ERODE_DAMP = float(os.environ.get("CENTURY_ERODE_DAMP", "0.60"))   # share of erosion a saturated, maximally responsive
+                       # world removes. Bounded below 1: no institution re-validates against
+                       # capability that has not appeared yet.
+SHOT_REF   = float(os.environ.get("CENTURY_SHOT_REF", "1.0"))      # warning-shot memory at which institutional learning saturates
+if V2_ERODE:
+    P["erode_mag"] = rng.uniform(0.0, ERODE_MAX, N)      # containment-decay coeff on capability growth
 
 # optional fixed overrides for named-scenario runs: CENTURY_OVERRIDES='{"race":0.9,...}'
 _ov = json.loads(os.environ.get("CENTURY_OVERRIDES", "{}"))
@@ -237,7 +283,7 @@ dec_rows = []
 # copula, preserving every marginal exactly via Iman-Conover rank reordering (NumPy
 # only, no SciPy). Independent sampling overweights incoherent worlds and distorts
 # the tails and the lever ranking strategy.md is built on. Drawn only when V2_CORR is
-# on (legacy draws nothing, so the seed-431 stream is unchanged) and after overrides
+# on (baseline draws nothing, so the seed-431 stream is unchanged) and after overrides
 # so a pinned parameter stays constant. Default correlation signs are fixed by the
 # plan; magnitudes were signed off on 2026-07-06. CENTURY_CORR_JSON overrides the
 # pairs for experiments ('identity' or 'off' forces independence with an equal draw).
@@ -268,19 +314,30 @@ if V2_CORR:
         _rank = np.argsort(np.argsort(_Zc[_i]))              # 0..N-1 rank of each world in the latent score
         P[_nm] = np.sort(P[_nm])[_rank]                      # reorder marginal to that rank; the marginal set is unchanged
 
-# Phase 8 Sobol driver hook: CENTURY_PARAM_NPZ points at an (N, 13) matrix of the
-# continuous parameters (CORR_VARS order) that sobol_century.py injects to drive the
-# world-step as a function of a Saltelli sample. It overrides the internally-sampled
-# (and copula-reordered) continuous priors while leaving plateau, the sampled structure
-# and the yearly shocks internally drawn — so at fixed seed/N those nuisance draws are
-# common across the Saltelli evaluations (partial common-random-numbers). Loading draws
-# no RNG; the hook is a no-op when the env var is unset, so legacy runs are untouched.
+# Phase 8 Sobol driver hook: CENTURY_PARAM_NPZ points at a matrix of the continuous
+# parameters (CORR_VARS order) that sobol_century.py injects to drive the world-step as a
+# function of a Saltelli sample. It overrides the internally-sampled (and copula-reordered)
+# continuous priors while leaving plateau, the sampled structure and the yearly shocks
+# internally drawn — so at fixed seed/N those nuisance draws are common across the Saltelli
+# evaluations (partial common-random-numbers). Loading draws no RNG; the hook is a no-op
+# when the env var is unset, so baseline runs are untouched.
+#
+# Two widths are accepted. (N, 13) is the original form and leaves erode_mag at its
+# internally-sampled value. Under V2_ERODE the matrix may instead carry a 14th column,
+# erode_mag, so the containment-decay coefficient varies BETWEEN the Saltelli evaluations
+# rather than only within them; in the narrow form it is drawn once per world at seed 431
+# and is therefore identical across A, B and every AB_i, which puts its contribution in the
+# variance denominator and in none of the numerators (plan-28 Phase G). The narrow form is
+# still accepted so a caller predating the correction keeps working unchanged.
 _pnpz = os.environ.get("CENTURY_PARAM_NPZ", "")
 if _pnpz:
     _pm = np.load(_pnpz).astype(float)
-    if _pm.shape != (N, len(CORR_VARS)):
-        raise ValueError("CENTURY_PARAM_NPZ shape %s != (%d, %d)" % (_pm.shape, N, len(CORR_VARS)))
-    for _i, _nm in enumerate(CORR_VARS):
+    _inject = list(CORR_VARS) + (["erode_mag"] if V2_ERODE else [])
+    _widths = {len(CORR_VARS), len(_inject)}
+    if _pm.ndim != 2 or _pm.shape[0] != N or _pm.shape[1] not in _widths:
+        raise ValueError("CENTURY_PARAM_NPZ shape %s != (%d, %s)"
+                         % (_pm.shape, N, " or ".join(str(w) for w in sorted(_widths))))
+    for _i, _nm in enumerate(_inject[:_pm.shape[1]]):
         P[_nm] = _pm[:, _i].copy()
 
 # ----------------------------------------------------------------------------
@@ -345,7 +402,7 @@ def soft(x, dx):
 
 def hazard_mask(u, row, p, live_idx, alive_now, hazmask):
     # Which loop-start-live worlds (positions aligned to live_idx) fire this hazard.
-    # Legacy: positional uniform vs probability, drawn at (6, n_live). v2 HAZMASK:
+    # Baseline: positional uniform vs probability, drawn at (6, n_live). v2 HAZMASK:
     # the fixed-shape (6, N) uniform is sliced to live_idx and gated by *current*
     # alive, so a world absorbed by an earlier same-year hazard neither rolls for
     # nor is counted by any later hazard this year. Both branches return a mask of
@@ -360,9 +417,28 @@ DEC_YEARS = set(range(2030, 2121, 10))
 dec_snap = {}                           # year -> {var: float32 array}, state frozen at absorption for dead worlds
 reg_drag = np.zeros(N)                  # accumulated regulation drag on k
 safety_bonus = np.zeros(N)              # accumulated post-warning-shot safety effort
+shot_hist = np.zeros(N)                 # decayed warning-shot memory per world (plan-28: hoisted out
+                                        # of the V2_POLICY block, which used to own it, because V2_ERODE
+                                        # also reads it; maintained unconditionally, consumed only by
+                                        # whichever of the two switches is on)
 audit_pandemic_post_absorption = 0      # HAZMASK diagnostic: pandemic events on worlds absorbed earlier the same year
 audit_pinned = {nm: 0 for nm in ["W", "Rd", "G", "Tr", "H"]}  # saturation diagnostic: survivor-years within 0.01 of a bound
 audit_alive_years = 0                   # denominator for audit_pinned (total survivor-years)
+# v2 ERODE audit accumulators (plan-28 Phase B, consumed by check_century.py --erosion-audit).
+# These are taken at the readiness update, so the denominator is the set of worlds the erode
+# term was applied to. audit_alive_years above is counted later in the year, after the hazards
+# have absorbed some of those worlds, so the two denominators are close but not the same and
+# should not be substituted for one another.
+ero_years = ero_pre_years = 0           # survivor-years at the readiness update; pre-crossing subset
+ero_erode_sum = ero_assist_sum = 0.0    # summed erode and ai_assist over ero_years
+ero_learn_sum = ero_pre_learn_sum = 0.0 # summed realised damping factor, all years and pre-crossing
+ero_learn_zero = ero_pre_learn_zero = 0 # survivor-years with no warning shot yet on record
+ero_net_losing = 0                      # survivor-years where erode exceeded ai_assist
+ero_dR_neg = 0                          # survivor-years where readiness fell outright
+ero_R_min = float("inf")                # lowest realised R across survivor-years
+ero_R_floor = 0                         # survivor-years with R within 0.01 of the clip floor. R could
+                                        # only rise from AI-side causes before this correction, so the
+                                        # existing audit_pinned set never watched it at the bottom.
 rebuild_timer = np.zeros(N)             # v2 REBUILD: years left before a collapsed world re-enters (0 = none)
 ever_collapsed = np.zeros(N, dtype=bool)  # v2 REBUILD: world has collapsed at least once
 recovered = np.zeros(N, dtype=bool)     # v2 REBUILD: world collapsed and re-entered
@@ -384,7 +460,6 @@ if V2_POLICY:
     se_t = P["safety_eff"].copy()       # time-varying safety effort
     race_t = P["race"].copy()           # time-varying race intensity
     resp_t = P["respond"].copy()        # time-varying responsiveness
-    shot_hist = np.zeros(N)             # decayed warning-shot memory per world
     pol_se_sum = np.zeros(N)            # accumulators for the realised-safety-effort audit
     pol_se_cnt = np.zeros(N)
     pol_bounds = {"se_t": [np.inf, -np.inf], "race_t": [np.inf, -np.inf], "resp_t": [np.inf, -np.inf]}
@@ -395,7 +470,7 @@ if V2_POLICY:
 # identical across evaluations that differ only in the injected parameters. This makes
 # P(good)/P(disempowerment) a deterministic function of the parameters — the condition
 # the Saltelli/Sobol total-order estimator needs. POP-only draws (which do not enter the
-# classification) stay in-loop. CRN changes the v2 stream; legacy (CRN off) is untouched.
+# classification) stay in-loop. CRN changes the v2 stream; baseline (CRN off) is untouched.
 if CRN:
     _crnC = rng.normal(0, 0.008, (T, N))       # 3.1 capability noise
     _crnR = rng.normal(0, 0.004, (T, N))        # 3.2 readiness noise
@@ -476,12 +551,39 @@ for ti, year in enumerate(YEARS):
     # a share of this year's capability growth, plus an ongoing dividend from
     # already-deployed capability (aligned-ish systems doing safety research).
     # Race intensity degrades both (corners cut, results hoarded).
-    # dividend coefficient: v2 STRUCT samples it per world; legacy is the on/off constant
+    # dividend coefficient: v2 STRUCT samples it per world; baseline is the on/off constant
     div_mag = P["dividend_mag"][a] if V2_STRUCT else (0.012 if REC_DIVIDEND else 0.0)
     ai_assist = P["assist"][a] * (1 - 0.45 * race_a) * \
                 (0.6 * np.maximum(dC, 0) + div_mag * C[a] * (0.4 + 0.6 * R[a]))
-    dR = safety_eff_a * (0.5 + G[a]) + ai_assist + safety_bonus[a]
+    # v2 ERODE: each year's new capability invalidates part of the evaluation and containment
+    # harness built for last year's, so capability growth now has a SIGNED net effect on
+    # readiness instead of a guaranteed positive one. Scales with the same np.maximum(dC, 0)
+    # as ai_assist, so the two offset directly, and vanishes under plateau without any
+    # special-casing (a stalled paradigm leaves the harness valid). Damping is gated on
+    # decayed warning-shot memory: respond_a sets how hard a world reacts, shot_hist sets how
+    # much there has been to react to, so a world with no incidents on record gets no damping
+    # however responsive it is on paper. No RNG is drawn, so the stream is unchanged.
+    if V2_ERODE:
+        learn = respond_a * np.minimum(shot_hist[a] / SHOT_REF, 1.0)
+        erode = P["erode_mag"][a] * np.maximum(dC, 0) * (1.0 - ERODE_DAMP * learn)
+    else:
+        erode = 0.0
+    dR = safety_eff_a * (0.5 + G[a]) + ai_assist + safety_bonus[a] - erode
     R[a] = clip(R[a] + dR + (_crnR[ti][a] if CRN else rng.normal(0, 0.004, a.sum())))
+    if AUDIT and V2_ERODE:
+        # Counted here rather than at the end of the year so the denominator is exactly the
+        # set of worlds erode was applied to. `agi_year[a] < 0` still reads as pre-crossing
+        # because this year's crossing is recorded in 3.3 below, not above.
+        _epre = agi_year[a] < 0
+        ero_years += int(a.sum()); ero_pre_years += int(_epre.sum())
+        ero_erode_sum += float(erode.sum()); ero_assist_sum += float(ai_assist.sum())
+        ero_learn_sum += float(learn.sum()); ero_pre_learn_sum += float(learn[_epre].sum())
+        ero_learn_zero += int((learn <= 0.0).sum())
+        ero_pre_learn_zero += int((learn[_epre] <= 0.0).sum())
+        ero_net_losing += int((erode > ai_assist).sum())
+        ero_dR_neg += int((dR < 0).sum())
+        ero_R_min = min(ero_R_min, float(R[a].min()))
+        ero_R_floor += int((R[a] <= 0.01).sum())
 
     # ---------- 3.3 AGI crossing ---------------------------------------------
     crossed = a & (agi_year < 0) & (C >= P["threshold"])
@@ -547,13 +649,15 @@ for ti, year in enumerate(YEARS):
     shot = (_crnShot[ti][a] if CRN else rng.random(a.sum())) < p_shot
     idx = np.where(a)[0][shot]
     ev["warning_shot"][idx] += 1
-    if V2_POLICY:
-        # accumulate decayed warning-shot memory that drives next year's endogenous levers
-        shot_hist *= POLICY_SHOT_DECAY
-        shot_hist[idx] += 1.0
+    # accumulate decayed warning-shot memory. Drives next year's endogenous levers under
+    # V2_POLICY and the erosion damping under V2_ERODE; maintained unconditionally so the
+    # two switches stay separable (plan-28 Phase A step 3). Draws no RNG, and with both
+    # switches off nothing reads it, so an unswitched run is unchanged.
+    shot_hist *= POLICY_SHOT_DECAY
+    shot_hist[idx] += 1.0
     # reactive: regulation drag + safety investment, scaled by responsiveness.
     # v2 STRUCT applies it always but with a per-world sampled magnitude react_scale
-    # (0 reproduces the legacy off corner, 1 the on corner); legacy keeps the binary.
+    # (0 reproduces the baseline off corner, 1 the on corner); baseline keeps the binary.
     if V2_STRUCT:
         _rs = P["react_scale"][idx]
         reg_drag[idx] = np.minimum(reg_drag[idx] + 0.15 * _rs * P["respond"][idx], 0.7)
@@ -565,7 +669,7 @@ for ti, year in enumerate(YEARS):
     # ---------- 3.8 hazard processes ------------------------------------------
     live_idx = np.where(a)[0]
     n_live = live_idx.size
-    # legacy draws the six hazard uniforms sized to the live count; v2 HAZMASK draws
+    # baseline draws the six hazard uniforms sized to the live count; v2 HAZMASK draws
     # them at fixed shape (6, N) so the RNG stream is independent of how many worlds
     # remain alive (stream discipline — see hazard_mask above).
     u = _crnU[ti] if CRN else (rng.random((6, N)) if V2_HAZMASK else rng.random((6, n_live)))
@@ -623,7 +727,7 @@ for ti, year in enumerate(YEARS):
         # the uplifted regime, and the existing capability x readiness x biodefence
         # defence term still gates it, so well-governed worlds stay protected. This is
         # the MISUSE channel — agentic AI risk stays in the takeover hazard. No RNG is
-        # drawn, so the stream is unchanged; legacy keeps the saturating offence + 2% cap.
+        # drawn, so the stream is unchanged; baseline keeps the saturating offence + 2% cap.
         offence = offence + 0.012 * clip((C[a] - P["threshold"][a]) / 0.60)
         p_bio = clip(offence * (1 - 0.8 * defence), 0, 0.04)
     else:
@@ -632,7 +736,7 @@ for ti, year in enumerate(YEARS):
     bidx = live_idx[m]
     if AUDIT:
         # HAZMASK invariant: a world absorbed earlier this year must receive no
-        # engineered-pandemic event. Legacy counts them (bug); HAZMASK yields 0.
+        # engineered-pandemic event. Baseline counts them (bug); HAZMASK yields 0.
         audit_pandemic_post_absorption += int((~alive[bidx]).sum())
     if bidx.size:
         ev["eng_pandemic"][bidx] += 1
@@ -697,7 +801,7 @@ for ti, year in enumerate(YEARS):
     tidx = tidx[fate[tidx] == 0]
     if tidx.size:
         sev = _crnTakeSev[ti][tidx] if CRN else rng.random(tidx.size)
-        # extinction-grade vs permanent disempowerment. Legacy is the fixed 30% the
+        # extinction-grade vs permanent disempowerment. Baseline is the fixed 30% the
         # documents flag as the one parameter nothing softens; v2 STRUCT samples it
         # per world (Beta mean 0.30).
         lethal = P["lethal_share"][tidx] if V2_STRUCT else 0.30
@@ -758,7 +862,7 @@ for ti, year in enumerate(YEARS):
     if AUDIT:
         # saturation diagnostic (consumed by check_century.py --pinned-audit): for each
         # bounded variable, count the still-alive worlds sitting within 0.01 of a [0, 1]
-        # bound this year. The legacy clip rails H/Rd/G/Tr near 1.0 post-2070; V2_SOFT
+        # bound this year. The baseline clip rails H/Rd/G/Tr near 1.0 post-2070; V2_SOFT
         # keeps them off the bounds.
         _ay = alive
         audit_alive_years += int(_ay.sum())
@@ -782,7 +886,7 @@ no_agi = surv & (agi_year < 0)
 # among post-AGI survivors: abundance vs oligarchic vs fragile
 #
 # CUTOFF VALIDATION against the soft dynamics (plan-27 FU-008). These cutoffs were
-# originally tuned to the legacy clip dynamics, where survivor H/Rd/G rail near ~1.0
+# originally tuned to the baseline clip dynamics, where survivor H/Rd/G rail near ~1.0
 # and W deconcentrates to ~0.2 by 2126. Under the soft (logistic) dynamics the
 # stationary distributions differ: survivor H settles near ~0.78 (not 1.0), and W
 # does not deconcentrate (the late-century fall to ~0.2 is a clip artefact). The
@@ -796,7 +900,7 @@ no_agi = surv & (agi_year < 0)
 # abundance ~38.7% / oligarchic ~44.5% / fragile ~16.7% of post-AGI survivors. The
 # H > 0.62 / H > 0.40 / Rd > 0.35 gates admit the bulk of survivors (soft H ~0.78,
 # Rd median ~0.71). Cutoffs are therefore KEPT (validated, not merely unchanged); the
-# legacy path stays bit-identical because classification runs only on v2 survivors.
+# baseline path stays bit-identical because classification runs only on v2 survivors.
 abundant = agi_ok & (H > 0.62) & (Rd > 0.35) & (W < 0.62)
 oligarch = agi_ok & ~abundant & (W >= 0.62) & (H > 0.40)
 fragile  = agi_ok & ~abundant & ~oligarch
@@ -824,7 +928,7 @@ def pct(x):
     # Guard degenerate quantile/override subsets: a statistic over an empty mask
     # has no defined share, so report it as null rather than let np.mean warn and
     # emit NaN. Non-empty masks keep the exact numpy computation (byte-identical
-    # legacy output). Emitted with allow_nan=False below so any NaN is a hard error.
+    # baseline output). Emitted with allow_nan=False below so any NaN is a hard error.
     x = np.asarray(x)
     return None if x.size == 0 else 100.0 * np.mean(x)
 
@@ -843,7 +947,7 @@ def swing(hi, lo):
 order = ["aligned_abundance", "oligarchic_prosperity", "turbulent_transition",
          "constrained_flourishing", "muddling_degraded",
          "disempowerment", "lockin", "collapse", "extinction"]
-# New v2 outcome classes are appended only when their switch is on, so the legacy
+# New v2 outcome classes are appended only when their switch is on, so the baseline
 # outcomes block keeps its exact nine keys (the golden regression gate depends on it).
 if V2_XHAZ:
     order.append("unknown_catastrophe")
@@ -996,10 +1100,17 @@ if os.environ.get("CENTURY_CUTOFF_AUDIT"):
     }
 
 # ---- sensitivity: P(good) by parameter quartile -----------------------------
+SENS_NAMES = ["assist", "race", "respond", "alpha", "k", "safety_eff", "R0",
+              "redist_will", "bio_defense", "fragility", "threshold", "climate_eff",
+              "concentration0"]
+# erode_mag is only drawn when its switch is on, so registering it unconditionally would
+# KeyError on the baseline path. Appended the same way V2_XHAZ appends its outcome class, which
+# also keeps the baseline sensitivity block at its exact original key set.
+if V2_ERODE:
+    SENS_NAMES.append("erode_mag")
+
 sens = {}
-for name in ["assist", "race", "respond", "alpha", "k", "safety_eff", "R0",
-             "redist_will", "bio_defense", "fragility", "threshold", "climate_eff",
-             "concentration0"]:
+for name in SENS_NAMES:
     v = P[name].astype(float)
     qs = np.quantile(v, [0.25, 0.5, 0.75])
     lo = v <= qs[0]; hi = v >= qs[2]
@@ -1026,9 +1137,7 @@ out["sensitivity_note"] = ("quartile swings are marginal-only and, under V2_CORR
 
 disw = final == "disempowerment"
 sens_d = {}
-for name in ["assist", "race", "respond", "alpha", "k", "safety_eff", "R0",
-             "redist_will", "bio_defense", "fragility", "threshold", "climate_eff",
-             "concentration0"]:
+for name in SENS_NAMES:
     v = P[name].astype(float)
     qs = np.quantile(v, [0.25, 0.75])
     lo = v <= qs[0]; hi = v >= qs[1]
@@ -1199,7 +1308,7 @@ if DECADAL:
 if AUDIT:
     # HAZMASK diagnostic (consumed by check_century.py --hazmask-audit): worlds that
     # received a pandemic event while already absorbed earlier the same year. The
-    # HAZMASK correction drives this to 0; the legacy path leaves it positive.
+    # HAZMASK correction drives this to 0; the baseline path leaves it positive.
     out["audit_pandemic_post_absorption"] = int(audit_pandemic_post_absorption)
     out["audit_pinned_fraction"] = {
         nm: (round(audit_pinned[nm] / audit_alive_years, 4) if audit_alive_years else None)
@@ -1238,6 +1347,30 @@ if AUDIT:
             "resp_t_bounds": [round(pol_bounds["resp_t"][0], 4), round(pol_bounds["resp_t"][1], 4)],
             "safety_effort_top_ws_quartile": round(float(_semean[_top].mean()), 5),
             "safety_effort_bottom_ws_quartile": round(float(_semean[_bot].mean()), 5),
+        }
+    if V2_ERODE:
+        # readiness-erosion diagnostic (consumed by check_century.py --erosion-audit). The mean
+        # erode against the mean ai_assist on the same denominator says whether capability
+        # growth is net positive or net negative for readiness, which is the whole claim the
+        # correction makes. The learn figures say how much damping the warning-shot gate
+        # withholds, split at the AGI crossing because that is where the gate binds hardest:
+        # a world that has seen no incident by the time it crosses gets no damping at all.
+        _ed = max(ero_years, 1)
+        _edp = max(ero_pre_years, 1)
+        out["audit_erosion"] = {
+            "survivor_years": ero_years,
+            "survivor_years_pre_agi": ero_pre_years,
+            "mean_erode_per_yr": round(ero_erode_sum / _ed, 6),
+            "mean_ai_assist_per_yr": round(ero_assist_sum / _ed, 6),
+            "share_erode_exceeds_assist": round(ero_net_losing / _ed, 4),
+            "n_years_readiness_fell": ero_dR_neg,
+            "share_years_readiness_fell": round(ero_dR_neg / _ed, 4),
+            "min_realised_R": (round(ero_R_min, 5) if ero_years else None),
+            "share_R_at_floor": round(ero_R_floor / _ed, 6),
+            "mean_learn": round(ero_learn_sum / _ed, 5),
+            "share_learn_zero": round(ero_learn_zero / _ed, 4),
+            "mean_learn_pre_agi": round(ero_pre_learn_sum / _edp, 5),
+            "share_learn_zero_pre_agi": round(ero_pre_learn_zero / _edp, 4),
         }
     if V2_XHAZ or V2_REBUILD:
         # hazard-completeness diagnostic (consumed by check_century.py --hazard-audit): the

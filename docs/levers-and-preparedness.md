@@ -8,11 +8,13 @@
 
 The model behind this paper plays out the next hundred years, from 2026 to 2126, across 800,000 imagined versions of the world. Each version makes slightly different guesses about how fast AI improves, how likely wars and pandemics are, and how well governments cope. At the end it counts how the worlds turned out: how many ended well, how many ended badly, and, the useful part, which choices moved those numbers.
 
-The headline is close to a coin flip. With no special effort, about **44 in 100** worlds end broadly well and about **42 in 100** end irreversibly badly. The single most common ending is neither extinction nor utopia. It is a quiet loss of control: humans survive, often comfortably, but no longer steer their own future. The model calls this **disempowerment**, and it happens in roughly **27 in 100** worlds.
+The headline leans the wrong way. With no special effort, about **39 in 100** worlds end broadly well and about **49 in 100** end irreversibly badly. The single most common ending is neither extinction nor utopia. It is a quiet loss of control: humans survive, often comfortably, but no longer steer their own future. The model calls this **disempowerment**, and it happens in roughly **33 in 100** worlds.
 
-Here is the central finding. If you make only the social and political choices a real actor can already reach, such as sharing the gains, building institutions that react, funding safety work and cooperating instead of racing, and you leave the pace of the technology completely untouched, the share of good worlds rises from **44 to 71 in 100**, and the share of bad worlds falls from **42 to 21**. The technology still arrives at almost exactly the same time. What changes is how ready the world is when it does.
+Those figures assume that the work of testing and containing an AI system goes stale as the system gets stronger, which it does: a test written for last year's model is weaker evidence about this year's. Nobody has measured how fast that happens, so the model also reports the century on the opposite assumption, that containment holds and nothing goes stale. On that reading it is **44 good in 100 against 42 bad**, a coin flip. The truth is somewhere between, and this document uses the first reading throughout.
 
-In one sentence: being prepared, rather than slowing the machines down, is what flips the century from a coin toss to a clearly good bet, and every choice that does the flipping is social or political rather than a scientific breakthrough.
+Here is the central finding, and it survives either reading. If you make only the social and political choices a real actor can already reach, such as sharing the gains, building institutions that react, funding safety work and cooperating instead of racing, and you leave the pace of the technology completely untouched, the share of good worlds rises from **39 to 67 in 100**, and the share of bad worlds falls from **49 to 26**. The technology still arrives at almost exactly the same time. What changes is how ready the world is when it does.
+
+In one sentence: being prepared, rather than slowing the machines down, is what turns the century from a losing bet into a clearly good one, and every choice that does that is social or political rather than a scientific breakthrough.
 
 The rest of Part 1 explains a few ideas you will need. Parts 2 to 8 take each choice in turn. Part 9 explains the deepest uncertainty, which is not a choice at all but changes what the choices are worth. Part 10 lays the foundations of a readiness system that turns all of this into something an institution can actually do and measure.
 
@@ -33,7 +35,7 @@ In the model, the typical world crosses the AGI line around **2036**. Half of al
 
 ## Part 2: Share the gains early
 
-**In the model:** `redist_will`, the political capacity to spread the benefits of automation instead of letting them pile up in a few hands. This is the strongest choice any single actor can make. Moving it from its weak end to its strong end raises the good-ending share by about **+21 points**, and it is the choice that closes off the slow, drift-driven road into the quiet loss-of-control ending: the roughly one-in-five share of those worlds where control is lost through concentration and delegation rather than seizure.
+**In the model:** `redist_will`, the political capacity to spread the benefits of automation instead of letting them pile up in a few hands. This is the strongest choice any single actor can make. Moving it from its weak end to its strong end raises the good-ending share by about **+21 points**, and it is the choice that closes off the slow, drift-driven road into the quiet loss-of-control ending: the roughly one-in-four share of those worlds where control is lost through concentration and delegation rather than seizure.
 
 ### What it means in plain terms
 
@@ -59,7 +61,7 @@ Sharing the gains does not stop a rogue AI from seizing control. What it does is
 
 ## Part 3: Build institutions that react
 
-**In the model:** `respond`, how strongly a society's institutions react when they get a warning. Its swing is about **+21 points**, level with sharing the gains near the very top of the board. It is special for a second reason: beyond its own swing, it is the model's reactive-governance assumption (`react_scale`) made real, one of the background beliefs about how the world works that move the results more than any single dial. Part 10 turns this choice into concrete machinery.
+**In the model:** `respond`, how strongly a society's institutions react when they get a warning. Its swing is about **+20 points**, level with sharing the gains near the very top of the board. It is special for a second reason: beyond its own swing, it is the model's reactive-governance assumption (`react_scale`) made real, one of the background beliefs about how the world works that move the results more than any single dial. Part 10 turns this choice into concrete machinery.
 
 ### What it means in plain terms
 
@@ -83,7 +85,7 @@ Between now and the crossing, the world will get warnings. The model calls them 
 
 ## Part 4: Fund the safety work now
 
-**In the model:** `safety_eff`, human-paced progress on alignment, interpretability and control, funded and staffed at the scale of the capability effort itself. Its swing is about **+14 points**, but its true importance is larger than that number looks, because much of its effect works through combinations the simple swing cannot see. It is the strongest choice that is purely a matter of spending. One government, company or funder can do it alone, needing no one else's agreement.
+**In the model:** `safety_eff`, human-paced progress on alignment, interpretability and control, funded and staffed at the scale of the capability effort itself. Its swing is about **+15 points**, but its true importance is larger than that number looks, because much of its effect works through combinations the simple swing cannot see. It is the strongest choice that is purely a matter of spending. One government, company or funder can do it alone, needing no one else's agreement.
 
 ### What it means in plain terms
 
@@ -107,7 +109,7 @@ This is the research that shrinks the gap directly: work on giving machines goal
 
 ## Part 5: Point AI at its own alignment
 
-**In the model:** `assist`, the share of each year's capability growth that can be turned back into readiness by using today's AI systems to help solve the alignment of tomorrow's. Its swing is about **+8 points**. It is real and worth doing, but it is an add-on rather than a foundation.
+**In the model:** `assist`, the share of each year's capability growth that can be turned back into readiness by using today's AI systems to help solve the alignment of tomorrow's. Its swing is about **+7 points**. It is real and worth doing, but it is an add-on rather than a foundation.
 
 ### What it means in plain terms
 
@@ -127,7 +129,7 @@ As AI gets more capable, one hopeful idea is to turn some of that capability tow
 
 ## Part 6: Cool the race
 
-**In the model:** `race`, how hard nations and companies race each other to the frontier. Turning the race down raises the good-ending share by about **+16 points** (racing hard costs you that much). But it is a hard one to reach, high value and low feasibility, because no single actor can cool a race alone.
+**In the model:** `race`, how hard nations and companies race each other to the frontier. Turning the race down raises the good-ending share by about **+15 points** (racing hard costs you that much). But it is a hard one to reach, high value and low feasibility, because no single actor can cool a race alone.
 
 ### What it means in plain terms
 
@@ -149,7 +151,7 @@ Racing does a rare double damage. It speeds capability up and it eats into the s
 
 ## Part 7: Govern the pace (compute governance)
 
-**In the model:** `k`, the raw speed of capability growth, is the single biggest driver of the whole outcome, bigger than any social choice. But you can only reach it partly, and only through coordination, mainly by governing the specialised computing hardware that frontier AI needs. Restraining the pace changes outcomes strongly (the growth rate's swing is about **−18 points**, meaning faster growth costs you that much), at the price of delay.
+**In the model:** `k`, the raw speed of capability growth, is the single biggest driver of the whole outcome, bigger than any social choice. But you can only reach it partly, and only through coordination, mainly by governing the specialised computing hardware that frontier AI needs. Restraining the pace changes outcomes strongly (the growth rate's swing is about **−18 points**, meaning faster growth costs you that much, and it costs a little more than it used to now that faster growth also stales more of the existing containment work), at the price of delay.
 
 ### What it means in plain terms
 
@@ -164,8 +166,8 @@ The most powerful AI systems are trained using enormous quantities of specialise
 ### What gets in the way, and why the plan does not lean on it
 
 - **It needs coordination, so no one can do it alone.** Like cooling the race, this depends on others playing along; a lone country restricting compute simply cedes the frontier to those who do not.
-- **It buys a modest extra improvement at a high price.** In the model, adding pace restraint on top of the feasible social choices trims the bad share from about 21 to 15 in 100 and lifts the good share from 71 to about 76, but it costs roughly six years of delay, and it still lands below what the social choices reach on their own when pushed to their extremes (about 78 in 100). The social choices make the decisive move; governing the pace trims the tail at the price of time.
-- **The honest reading:** worth doing where you can get it, because it buys years of readiness-building, but a plan cannot be built on it, and the good outcome does not need it. The technology can keep racing ahead at full speed and the good share still climbs to 71 in 100 once the social choices are made.
+- **It buys a modest extra improvement at a high price.** In the model, adding pace restraint on top of the feasible social choices trims the bad share from about 26 to 17 in 100 and lifts the good share from 67 to about 75, but it costs roughly six years of delay, and it still lands just below what the social choices reach on their own when pushed to their extremes (about 76 in 100). The social choices make the decisive move; governing the pace trims the tail at the price of time.
+- **The honest reading:** worth doing where you can get it, because it buys years of readiness-building, but a plan cannot be built on it, and the good outcome does not need it. The technology can keep racing ahead at full speed and the good share still climbs to 67 in 100 once the social choices are made.
 
 ---
 
@@ -176,20 +178,20 @@ The choices are not equally reachable, and a good plan sorts them honestly. Here
 | Priority | Choice | What it buys | Who can make it |
 |---|---|---|---|
 | 1 | **Share the gains early** (Part 2) | Strongest reachable lever; about +21 points; blocks the quiet loss-of-control road | One country, at home, alone |
-| 2 | **Fund the safety work now** (Part 4) | About +14 points; shrinks the gap directly; pure spending | One government, lab or funder, alone |
-| 3 | **Build institutions that react** (Part 3) | About +21 points; doubles as insurance against the hidden worst case | Buildable today; already begun |
-| 4 | **Point AI at its own alignment** (Part 5) | About +8 points; a multiplier, never a foundation | Labs, alone |
+| 2 | **Fund the safety work now** (Part 4) | About +15 points; shrinks the gap directly; pure spending | One government, lab or funder, alone |
+| 3 | **Build institutions that react** (Part 3) | About +20 points; doubles as insurance against the hidden worst case | Buildable today; already begun |
+| 4 | **Point AI at its own alignment** (Part 5) | About +7 points; a multiplier, never a foundation | Labs, alone |
 | 5 | **Govern the pace** (Part 7) | Highest raw value but only partly reachable; buys time | Needs coordination |
-| 6 | **Cool the race** (Part 6) | About +16 points; high value, low feasibility | Needs rivals' agreement |
+| 6 | **Cool the race** (Part 6) | About +15 points; high value, low feasibility | Needs rivals' agreement |
 
 **What the plan must not do:**
 
 - **Do not wait for the technology to stall on its own.** The model contains worlds where AI progress simply hits a wall, and those worlds end well, but no choice you make produces that wall, and you do not need it. Betting on it is betting on luck. Prepare as if the machines keep improving at full speed, because in most worlds they do.
 - **Do not spend the safety budget on the wrong risks and expect it to help here.** Biodefence and climate effort are worth doing on their own merits, but in the model biodefence barely touches the AI outcome, and climate effort works only through the warming it prevents. They protect against other dangers; they do not shrink the gap.
 
-**The honest ceiling.** Even all-out preparation leaves a bad tail of about one in five. Preparation changes the outcome a very long way, from a coin flip to a clearly good bet, but it never buys certainty. What sits behind that stubborn remaining risk is the subject of Part 9, and it is the reason the readiness system in Part 10 matters so much.
+**The honest ceiling.** Even all-out preparation leaves a bad tail of about one in four. Preparation changes the outcome a very long way, from a losing bet to a clearly good one, but it never buys certainty. What sits behind that stubborn remaining risk is the subject of Part 9, and it is the reason the readiness system in Part 10 matters so much.
 
-**How likely is any of this to happen?** Everything above prices these as choices: make one and the outcome changes. Whether the world will actually make them is a different question, and the model answers that too, as a third reading of the same worlds. A companion file (`lever-anchors.json`) gives each choice an honest, written-down likelihood, based on the obstacles listed in Parts 2 to 7. Reweighting the worlds by those likelihoods produces a second outcome table beside the plain one, and because the obstacles are real, that reading lands a few points below the coin flip rather than above it: about 39 good worlds in 100 instead of 44. Read it the right way round: a choice's low likelihood is the size of the unclaimed opportunity, since the whole distance between that table and the 71-in-100 prepared world belongs to whoever acts first. The reasoning behind each likelihood, and the numbers they produce, are worked through in [`realistic-bet.md`](realistic-bet.md).
+**How likely is any of this to happen?** Everything above prices these as choices: make one and the outcome changes. Whether the world will actually make them is a different question, and the model answers that too, as a third reading of the same worlds. A companion file (`lever-anchors.json`) gives each choice an honest, written-down likelihood, based on the obstacles listed in Parts 2 to 7. Reweighting the worlds by those likelihoods produces a second outcome table beside the plain one, and because the obstacles are real, that reading lands a few points below the plain count rather than above it: about 34 good worlds in 100 instead of 39. Read it the right way round: a choice's low likelihood is the size of the unclaimed opportunity, since the whole distance between that table and the 67-in-100 prepared world belongs to whoever acts first. The reasoning behind each likelihood, and the numbers they produce, are worked through in [`realistic-bet.md`](realistic-bet.md).
 
 ---
 
@@ -204,7 +206,7 @@ Suppose a misaligned superintelligence exists, a system more capable than us who
 - **Front-loaded ("there is a deadline").** The danger is greatest in the first years after AGI arrives, and fades as time passes. As we use these systems we get better at watching and understanding them, so a rogue system that does not grab control while its lead is largest watches that lead shrink. On this view, getting safely through the first decade is real evidence that our safeguards work.
 - **Flat ("there is no deadline").** A superintelligence does not age and does not die. It loses almost nothing by waiting. The clever move for a misaligned system that is not yet sure it would win is to look aligned, quietly build up resources and position, and strike only when success is certain. On this view, a calm and prosperous decade after AGI proves nothing. It is exactly what a patient rogue system would produce.
 
-The model refuses to pick. It flips a coin for each world: half get a deadline, half do not. And this single unknown swings the results more than anything else. In the "no deadline" worlds, about **53 in 100** end irreversibly badly. In the fastest "deadline" worlds, that falls to about **26 in 100**. That is a bigger swing than the entire plan from Parts 2 to 8.
+The model refuses to pick. It flips a coin for each world: half get a deadline, half do not. And this single unknown swings the results more than anything else. In the "no deadline" worlds, about **61 in 100** end irreversibly badly. In the fastest "deadline" worlds, that falls to about **30 in 100**. That is a bigger swing than the entire plan from Parts 2 to 8.
 
 ### Why it cannot be settled today
 
@@ -325,8 +327,8 @@ In the spirit of the model, the open questions are named rather than smoothed ov
 
 ## In one page
 
-- The century is close to a coin flip, and its most likely single ending is neither extinction nor utopia but a quiet, comfortable loss of human control.
-- Making only the social and political choices a real actor can already reach, **without slowing the technology at all**, turns that coin flip into a clearly good bet, from about 44 good worlds in 100 to about 71.
+- The century leans slightly the wrong way, and its most likely single ending is neither extinction nor utopia but a quiet, comfortable loss of human control.
+- Making only the social and political choices a real actor can already reach, **without slowing the technology at all**, turns that into a clearly good bet, from about 39 good worlds in 100 to about 67.
 - The reachable choices, in order: **share the gains early**, **fund safety work now**, **build institutions that react**, **point AI at its own alignment**, and, where cooperation allows, **govern the pace** and **cool the race**. The first four can each be made by a single actor, alone, today.
 - Every choice with real force works before AGI arrives, and the model puts that arrival around the mid-2030s. The window is measured in years.
 - Behind all of them sits one unanswered question, does a rogue AI have a deadline, that swings the outcome further than any choice. We cannot yet answer it, but we can partly build the deadline it asks about, through interpretability and control work, and we can fund the research that would tell us which world we are in.

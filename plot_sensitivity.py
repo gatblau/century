@@ -55,7 +55,9 @@ import sobol_century as sob
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.join(HERE, "notes")
 
-CORR_VARS = sob.CORR_VARS
+# The injected column order, 13 copula parameters plus erode_mag. Labels and column
+# lookups both use this so the figures stay aligned with sobol_century.py's design.
+SOBOL_VARS = sob.SOBOL_VARS
 
 # Outcome aggregates, matching century_sim.py: okset (good) at line 872 and the
 # _bad_classes list at line 875 (extinction / collapse / lockin / disempowerment,
@@ -66,14 +68,17 @@ BAD = ["extinction", "collapse", "lockin", "disempowerment", "unknown_catastroph
 
 
 def run_engine(param_matrix, tmp_path):
-    """Inject the (N, 13) parameter matrix and exec the v2 engine; return the per-world
+    """Inject the (N, 14) parameter matrix and exec the v2 engine; return the per-world
     `final` fate array. Mirrors sobol_century.eval_engine's env harness exactly, but
     returns the full fate vector so any aggregate (good / bad / disempowerment) can be
     computed. Nuisance draws are seeded, so they are common across calls at equal N."""
     np.save(tmp_path, param_matrix)
     env_saved = dict(os.environ)
     argv_saved = sys.argv
-    for _k in ("CENTURY_WEIGHTS", "CENTURY_AUDIT", "CENTURY_DECADAL", "CENTURY_OVERRIDES"):
+    # Hermetic: drop every ambient CENTURY_* variable, then set only what this run intends.
+    # Matches sobol_century.py and check_century.py; the previous allowlist missed
+    # CENTURY_BASELINE among others.
+    for _k in [_k for _k in os.environ if _k.startswith("CENTURY_")]:
         os.environ.pop(_k, None)
     os.environ["CENTURY_V2"] = "1"
     os.environ["CENTURY_CRN"] = "1"
@@ -99,9 +104,9 @@ def marginal_ranges(rng, m=200000):
     """Per-parameter (1st, 99th) percentile of the calibrated marginals, used as the
     sweep range for partial-dependence grids. For the uniform priors this is the true
     support trimmed by 1%; for k (lognormal) and assist (beta) it trims the long tail."""
-    big = sob.sample_marginals(m, rng)
+    big = sob.sample_marginals(m, rng, rng)
     return {name: (float(np.quantile(big[:, i], 0.01)), float(np.quantile(big[:, i], 0.99)))
-            for i, name in enumerate(CORR_VARS)}
+            for i, name in enumerate(SOBOL_VARS)}
 
 
 # ---------------------------------------------------------------------------
@@ -109,13 +114,13 @@ def marginal_ranges(rng, m=200000):
 # ---------------------------------------------------------------------------
 def plot_sobol(base, out_path):
     print("[sobol] engine Sobol at base N=%d (this runs the engine %d times) ..."
-          % (base, 2 + len(CORR_VARS)))
+          % (base, 2 + len(SOBOL_VARS)))
     res = sob.engine_sobol(base)
     fig, axes = plt.subplots(1, 2, figsize=(13, 7), sharey=False)
     panels = [("P(good)", res["good"]), ("P(irreversibly bad): disempowerment only*", res["disemp"])]
     for ax, (title, (S, ST)) in zip(axes, panels):
         order = np.argsort(ST)  # ascending, so largest ends up on top of a barh
-        names = [CORR_VARS[i] for i in order]
+        names = [SOBOL_VARS[i] for i in order]
         y = np.arange(len(order))
         ax.barh(y + 0.19, ST[order], height=0.36, color="#c44", label="S_Ti (total)")
         ax.barh(y - 0.19, S[order], height=0.36, color="#48c", label="S_i (first-order)")
@@ -144,8 +149,8 @@ def plot_sobol(base, out_path):
 # ---------------------------------------------------------------------------
 def plot_partial_dependence(params, n, points, out_path, rng):
     ranges = marginal_ranges(rng)
-    base = sob.sample_marginals(n, rng)  # shared background sample (CRN across grid points)
-    idx = {name: CORR_VARS.index(name) for name in params}
+    base = sob.sample_marginals(n, rng, rng)  # shared background sample (CRN across grid points)
+    idx = {name: SOBOL_VARS.index(name) for name in params}
     ncol = 3
     nrow = int(np.ceil(len(params) / ncol))
     fig, axes = plt.subplots(nrow, ncol, figsize=(5.0 * ncol, 3.6 * nrow), squeeze=False)
@@ -179,7 +184,7 @@ def plot_partial_dependence(params, n, points, out_path, rng):
         for pos in range(len(params), nrow * ncol):
             axes[pos // ncol][pos % ncol].axis("off")
     fig.suptitle("One-way partial dependence: outcome vs each parameter\n"
-                 "(parameter pinned across its 1-99%% range; other twelve drawn from their "
+                 "(parameter pinned across its 1-99%% range; other thirteen drawn from their "
                  "marginals, N=%d per point)" % n, fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.93))
     fig.savefig(out_path, dpi=130)
@@ -192,8 +197,8 @@ def plot_partial_dependence(params, n, points, out_path, rng):
 # ---------------------------------------------------------------------------
 def plot_heatmap(xvar, yvar, n, res, out_path, rng):
     ranges = marginal_ranges(rng)
-    base = sob.sample_marginals(n, rng)
-    xi, yi = CORR_VARS.index(xvar), CORR_VARS.index(yvar)
+    base = sob.sample_marginals(n, rng, rng)
+    xi, yi = SOBOL_VARS.index(xvar), SOBOL_VARS.index(yvar)
     xlo, xhi = ranges[xvar]
     ylo, yhi = ranges[yvar]
     xgrid = np.linspace(xlo, xhi, res)
@@ -224,7 +229,7 @@ def plot_heatmap(xvar, yvar, n, res, out_path, rng):
         ax.set_ylabel(yvar)
         ax.set_title(title, fontsize=11)
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    fig.suptitle("Interaction: outcome over %s x %s (other eleven drawn, N=%d per cell)"
+    fig.suptitle("Interaction: outcome over %s x %s (other twelve drawn, N=%d per cell)"
                  % (xvar, yvar, n), fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.93))
     fig.savefig(out_path, dpi=130)
@@ -257,8 +262,8 @@ def main(argv=None):
         args.heat_res = min(args.heat_res, 8)
 
     for name in args.pd_params + [args.heat_x, args.heat_y]:
-        if name not in CORR_VARS:
-            ap.error("unknown parameter %r; choose from %s" % (name, ", ".join(CORR_VARS)))
+        if name not in SOBOL_VARS:
+            ap.error("unknown parameter %r; choose from %s" % (name, ", ".join(SOBOL_VARS)))
 
     os.makedirs(OUT_DIR, exist_ok=True)
     rng = np.random.default_rng(args.seed)

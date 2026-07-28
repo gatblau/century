@@ -1,7 +1,7 @@
 {
   "N": 800000,
   "seed": 431,
-  "legacy": true,
+  "baseline": true,
   "outcomes": {
     "aligned_abundance": 23.17,
     "oligarchic_prosperity": 4.96,

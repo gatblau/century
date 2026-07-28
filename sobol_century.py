@@ -9,11 +9,11 @@ P(good) and P(disempowerment), estimated with a hand-rolled Saltelli design (Sal
 first-order, Jansen 1999 total-order estimators) — NumPy only, no SciPy.
 
 The estimator is validated against the analytic Ishigami indices before it is used on the
-engine (--self-test). On the engine, each Saltelli sample is a matrix of the 13 continuous
-parameters (CORR_VARS order) injected via CENTURY_PARAM_NPZ; plateau, the sampled structure
-and the yearly shocks stay internally drawn, so at fixed seed/N those nuisance draws are
-COMMON across the (2 + k) evaluations (partial common-random-numbers), which is what makes
-the indices converge.
+engine (--self-test). On the engine, each Saltelli sample is a matrix of the 14 continuous
+parameters (SOBOL_VARS order: the 13 copula parameters plus erode_mag) injected via
+CENTURY_PARAM_NPZ; plateau, the sampled structure and the yearly shocks stay internally
+drawn, so at fixed seed/N those nuisance draws are COMMON across the (2 + k) evaluations
+(partial common-random-numbers), which is what makes the indices converge.
 
 Usage:
   python3 sobol_century.py --self-test           # validate the estimator on Ishigami
@@ -42,13 +42,30 @@ NOTES_PATH = os.path.join(HERE, "notes", "sobol.md")
 CORR_VARS = ["alpha", "k", "threshold", "R0", "safety_eff", "assist", "race", "respond",
              "concentration0", "redist_will", "bio_defense", "climate_eff", "fragility"]
 
+# erode_mag is drawn outside the copula in the engine, so it is not in CORR_VARS, but it is
+# a continuous prior like the rest and belongs in the design: left out, it varies within the
+# A and B samples without varying between them, which puts it in the variance denominator
+# and in none of the numerators. The engine's hook accepts it as a 14th column.
+SOBOL_VARS = CORR_VARS + ["erode_mag"]
+
+# Matches century_sim.py's ERODE_MAX so a swept engine and this driver sample the same prior.
+ERODE_MAX = float(os.environ.get("CENTURY_ERODE_MAX", "0.30"))
+
 with open(ENGINE) as _f:
     _ENGINE_SRC = compile(_f.read(), "<century_sim>", "exec")
 
 
-def sample_marginals(m, rng):
-    """Draw an (m, 13) sample from the engine's independent marginal priors (CORR_VARS
-    order). Columns are independent, so a Saltelli column-swap yields a valid sample."""
+def sample_marginals(m, rng, erode_rng):
+    """Draw an (m, 14) sample from the engine's independent marginal priors (SOBOL_VARS
+    order). Columns are independent, so a Saltelli column-swap yields a valid sample.
+
+    erode_mag is drawn from its own generator rather than from `rng`. Taking it from the
+    shared stream would shift every subsequent draw and reshuffle the other 13 columns, so
+    the before-and-after comparison would mix the effect of adding the parameter with the
+    effect of resampling. With a separate stream the first 13 columns are bit-identical to
+    the 13-parameter design, and any movement in the other indices is the new column doing
+    it. Independence, which is what the Saltelli swap needs, holds either way.
+    """
     return np.column_stack([
         rng.uniform(1.0, 1.9, m),                     # alpha
         rng.lognormal(np.log(0.095), 0.60, m),        # k
@@ -63,6 +80,7 @@ def sample_marginals(m, rng):
         rng.uniform(0.2, 0.9, m),                     # bio_defense
         rng.uniform(0.3, 1.0, m),                     # climate_eff
         rng.uniform(0.5, 1.5, m),                     # fragility
+        erode_rng.uniform(0.0, ERODE_MAX, m),         # erode_mag (separate stream, see above)
     ])
 
 
@@ -133,13 +151,18 @@ def self_test(base=2 ** 16, tol=0.02):
 # Engine Sobol
 # ---------------------------------------------------------------------------
 def eval_engine(param_matrix, tmp_path):
-    """Inject the (N, 13) parameter matrix and exec the v2 engine; return per-world
+    """Inject the (N, 14) parameter matrix and exec the v2 engine; return per-world
     (good, disempowerment) binary vectors. Nuisance draws (plateau/structure/shocks) are
     seeded at 431, so they are common across calls at equal N (partial CRN)."""
     np.save(tmp_path, param_matrix)
     env_saved = dict(os.environ)
     argv_saved = sys.argv
-    for _k in ("CENTURY_WEIGHTS", "CENTURY_AUDIT", "CENTURY_DECADAL", "CENTURY_OVERRIDES"):
+    # Hermetic: drop every ambient CENTURY_* variable, then set only what this driver
+    # intends. The previous allowlist missed CENTURY_BASELINE among others, so a sweep run
+    # under it was fingerprinted as baseline while CENTURY_V2 below forced the v2 path.
+    # This driver's own ERODE_MAX is read at import, above, so the sweep prior is
+    # unaffected; the engine takes erode_mag from the 14th matrix column either way.
+    for _k in [_k for _k in os.environ if _k.startswith("CENTURY_")]:
         os.environ.pop(_k, None)
     os.environ["CENTURY_V2"] = "1"
     os.environ["CENTURY_CRN"] = "1"     # common random numbers: makes P(good)/P(disemp) deterministic in the params
@@ -160,10 +183,11 @@ def eval_engine(param_matrix, tmp_path):
 
 
 def engine_sobol(base, seed=20260706):
-    """Return {'good': (S, ST), 'disemp': (S, ST)} for the 13 parameters at Saltelli base N."""
+    """Return {'good': (S, ST), 'disemp': (S, ST)} for the 14 parameters at Saltelli base N."""
     rng = np.random.default_rng(seed)
-    A = sample_marginals(base, rng)
-    B = sample_marginals(base, rng)
+    erode_rng = np.random.default_rng(seed + 1)
+    A = sample_marginals(base, rng, erode_rng)
+    B = sample_marginals(base, rng, erode_rng)
     ABi = saltelli_design(A, B)
     with tempfile.TemporaryDirectory() as td:
         tmp = os.path.join(td, "pm.npy")
@@ -182,7 +206,7 @@ def print_indices(title, S, ST):
     print("\n=== %s: Sobol indices (ranked by total-order) ===" % title)
     print("  %-16s %10s %10s %s" % ("parameter", "S_i (1st)", "S_Ti (tot)", "interaction (ST-S)"))
     for i in order:
-        print("  %-16s %10.3f %10.3f %+.3f" % (CORR_VARS[i], S[i], ST[i], ST[i] - S[i]))
+        print("  %-16s %10.3f %10.3f %+.3f" % (SOBOL_VARS[i], S[i], ST[i], ST[i] - S[i]))
 
 
 def main(argv=None):
@@ -208,7 +232,7 @@ def main(argv=None):
               % (drift, "PASS" if drift < 0.03 else "FAIL"))
         print_indices("P(good), base 2^14", *r14["good"])
         print_indices("P(disempowerment), base 2^14", *r14["disemp"])
-        se = CORR_VARS.index("safety_eff")
+        se = SOBOL_VARS.index("safety_eff")
         Sg, STg = r14["good"]
         print("\nsafety_eff on P(good): S_i=%.3f  S_Ti=%.3f  (total > first-order: %s)"
               % (Sg[se], STg[se], STg[se] > Sg[se]))
@@ -219,7 +243,7 @@ def main(argv=None):
     print("[sobol] engine Sobol at base N=%d (CENTURY_V2)" % args.base)
     print_indices("P(good)", *res["good"])
     print_indices("P(disempowerment)", *res["disemp"])
-    se = CORR_VARS.index("safety_eff")
+    se = SOBOL_VARS.index("safety_eff")
     Sg, STg = res["good"]
     print("\nsafety_eff on P(good): S_i=%.3f  S_Ti=%.3f  (interaction, total > first-order: %s)"
           % (Sg[se], STg[se], STg[se] > Sg[se]))
@@ -231,7 +255,7 @@ def main(argv=None):
 def write_notes(res, base):
     Sg, STg = res["good"]
     Sd, STd = res["disemp"]
-    se = CORR_VARS.index("safety_eff")
+    se = SOBOL_VARS.index("safety_eff")
     lines = ["# Sobol sensitivity (Phase 8)", ""]
     lines.append("Variance-based first-order (S_i) and total-order (S_Ti) Sobol indices for "
                  "P(good) and P(disempowerment), hand-rolled Saltelli (NumPy only), engine under "
@@ -242,7 +266,7 @@ def write_notes(res, base):
         lines += ["", "## %s" % title, "", "| parameter | S_i | S_Ti | interaction (S_Ti - S_i) |",
                   "|---|---:|---:|---:|"]
         for i in np.argsort(-ST):
-            lines.append("| %s | %.3f | %.3f | %+.3f |" % (CORR_VARS[i], S[i], ST[i], ST[i] - S[i]))
+            lines.append("| %s | %.3f | %.3f | %+.3f |" % (SOBOL_VARS[i], S[i], ST[i], ST[i] - S[i]))
     interaction = STg[se] > Sg[se]
     lines += ["", "**Interaction finding.** For `safety_eff` on P(good), S_i=%.3f and S_Ti=%.3f. "
               "%s" % (Sg[se], STg[se],

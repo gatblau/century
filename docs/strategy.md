@@ -1,8 +1,8 @@
 # Strategy: which levers actually change the century
 
-**This document reads the model as a set of levers. It asks which of them a real actor could actually use in 2026, finds the cheapest set that turns a coin-flip century into a clearly good one, and then digs into the single unknown that matters more than any choice: whether a misaligned superintelligence is ever under time pressure to act.**
+**This document reads the model as a set of levers. It asks which of them a real actor could actually use in 2026, and finds the cheapest set that turns a century leaning the wrong way into a clearly good one. It then digs into the single unknown that matters more than any choice: whether a misaligned superintelligence is ever under time pressure to act.**
 
-Everything here comes from `future.md` and the engine `century_sim.py` in this directory. Every number is a fresh run of that engine at seed 431 in its default configuration (`CENTURY_LEGACY=1` selects a simplified baseline). Section 6 lists the exact commands. The health warnings from `future.md` carry over: the model uses single numbers to stand in for messy real quantities, its error bars are about a factor of two, and its largest open question is the subject of section 4. The lever rankings in section 2 come from `notes/sobol.md`.
+Everything here comes from `future.md` and the engine `century_sim.py` in this directory. Every number is a fresh run of that engine at seed 431 in its default configuration (`CENTURY_BASELINE=1` selects a simplified baseline). Section 6 lists the exact commands. The health warnings from `future.md` carry over: the model uses single numbers to stand in for messy real quantities, its error bars are about a factor of two, and its largest open question is the subject of section 4. The lever rankings in section 2 come from `notes/sobol.md`.
 
 ---
 
@@ -12,15 +12,15 @@ To act on the model you have to sort its variables into three kinds: the ones yo
 
 **The rule.** A variable you can set is one the model picks once at the start of a world and never changes again. Anything the yearly simulation updates is a result of the dynamics, and no strategy touches it directly. You cannot set a world's wellbeing. You can only set the things that drive it.
 
-- **What you set:** the `P` dictionary (`century_sim.py:51–71`). Fifteen draws (fourteen real mechanisms, since `plateau` and its `ceiling` are one coupled switch). These are the only handles a strategy has.
+- **What you set:** the `P` dictionary (`century_sim.py:51–71`, plus `erode_mag` at `268`). Sixteen draws (fifteen real mechanisms, since `plateau` and its `ceiling` are one coupled switch). These are the only handles a strategy has, and one of them, `erode_mag`, is a property of the technology rather than a choice.
 - **What follows:** `C, R, W, Rd, G, Tr, H, POP, TEMP` (set up at `278–287`, then updated every year). The gap between capability and readiness, the concentration of power, wellbeing and warming are all outcomes of the run.
 - **What you record:** `agi_year, gap_at_agi, fate`, and the profile blocks.
 
 Two of the inputs (`R0`, `concentration0`) are starting points for variables that then evolve. They are still things you set. They fix only where a world begins, and the dynamics take it from there.
 
-There is a second set of inputs you set: the structural priors `struct_flat / tau_window / dividend_mag / react_scale` (`century_sim.py:168–172`). These are not physical quantities. They are assumptions about how reality works. The model draws them fresh for each world instead of switching them on or off, so "which assumption you hold" becomes a dial inside one big run rather than a fixed choice. They move the answer more than anything else, and they are not clean choices, which is why section 4 is about the most important of them: the takeover window `tau`.
+There is a second set of inputs you set: the structural priors `struct_flat / tau_window / dividend_mag / react_scale` (`century_sim.py:183–187`). These are not physical quantities. They are assumptions about how reality works. The model draws them fresh for each world instead of switching them on or off, so "which assumption you hold" becomes a dial inside one big run rather than a fixed choice. They move the answer more than anything else, and they are not clean choices, which is why section 4 is about the most important of them: the takeover window `tau`.
 
-The fifteen inputs:
+The sixteen inputs:
 
 | Input | Meaning | Range |
 |---|---|---|
@@ -38,31 +38,39 @@ The fifteen inputs:
 | `bio_defense` | biodefence relative to bio-offence diffusion | 0.2–0.9 |
 | `climate_eff` | decarbonisation effort | 0.3–1.0 |
 | `fragility` | systemic fragility multiplier on conflict hazards | 0.5–1.5 |
+| `erode_mag` | share of each year's capability growth that invalidates existing containment and evaluation work | 0–0.30 |
 
 ---
 
 ## 2. How much each lever changes the outcome, and whether you can reach it
 
-Two things decide whether a choice is worth chasing: how far it changes the result, and whether a real actor can move it from where we stand in 2026. The model measures the first with a Sobol total-order index, written `S_Ti`. Read it as the share of the swing in the good-century odds that an input accounts for, including all the ways it interacts with other inputs (the method is a hand-rolled Saltelli estimator, `notes/sobol.md`). As a cross-check the table also shows the one-at-a-time swing: how much P(good) changes as you move that input from its bottom quarter to its top quarter. The table is sorted by `S_Ti`, and the swing column carries the sign.
+Two things decide whether a choice is worth chasing. How far does it change the result, and can a real actor move it from where we stand in 2026?
+
+The model measures the first with a number called the Sobol total-order index, written `S_Ti`: read it as the share of the spread in the good-century odds that one input accounts for, counting every way it works together with the others. A Sobol index comes from a designed experiment that varies all the inputs at once and then separates out what each is responsible for, so it sees combinations that moving one input at a time cannot. The method is a hand-rolled Saltelli estimator, which is the standard recipe for computing those indices; `notes/sobol.md` has the working.
+
+As a cross-check the table also shows the one-at-a-time swing: how much P(good) changes as you move that input from its bottom quarter to its top quarter. The table is sorted by `S_Ti`, and the swing column carries the sign.
 
 | Input | Sobol `S_Ti` on P(good) | Marginal swing | Real-world nature | Controllable now? |
 |---|---:|---:|---|---|
-| `k` growth rate | **0.261** | −18.1 | Pace of capability | Partly, via compute governance |
-| `redist_will` | **0.184** | +21.3 | Distribution politics | **Yes, domestic** |
-| `concentration0` | 0.150 | −15.2 | Initial wealth/power concentration | Inherited, shifted only via redistribution |
-| `safety_eff` | 0.123 | +14.3 | Alignment / interpretability / control research | Yes, unilateral spend |
-| `race` | 0.109 | −16.1 | Geopolitical / lab competition | Hard, via coordination |
-| `respond` | 0.108 | +21.1 | Institutional responsiveness | Yes, buildable |
-| `alpha` curvature | 0.096 | −2.0 | Shape of the scaling law | No, a fact of nature |
-| `climate_eff` | 0.079 | +8.1 | Decarbonisation effort | Worth doing; weak here |
-| `threshold` | 0.079 | +7.4 | Where "AGI" is declared | No, a fact of nature |
-| `assist` | 0.066 | +7.9 | AI-assisted alignment | Yes, lab spend (circular caveat) |
-| `R0` | 0.044 | +5.6 | Readiness *already banked* | Partly, set by past effort |
-| `fragility`, `bio_defense` | ≤ 0.04 | < ±5 | Various | Barely move *this* failure mode |
+| `k` growth rate | **0.292** | −18.3 | Pace of capability | Partly, via compute governance |
+| `redist_will` | **0.174** | +20.6 | Distribution politics | **Yes, domestic** |
+| `concentration0` | 0.149 | −15.7 | Initial wealth/power concentration | Inherited, shifted only via redistribution |
+| `safety_eff` | 0.139 | +14.7 | Alignment / interpretability / control research | Yes, unilateral spend |
+| `race` | 0.113 | −15.4 | Geopolitical / lab competition | Hard, via coordination |
+| `alpha` curvature | 0.110 | −1.8 | Shape of the scaling law | No, a fact of nature |
+| `respond` | 0.107 | +19.9 | Institutional responsiveness | Yes, buildable |
+| `threshold` | 0.083 | +6.5 | Where "AGI" is declared | No, a fact of nature |
+| `erode_mag` | 0.073 | −7.3 | Rate at which capability stales containment work | Only indirectly, by redoing the work |
+| `assist` | 0.064 | +6.8 | AI-assisted alignment | Yes, lab spend (circular caveat) |
+| `climate_eff` | 0.061 | +7.3 | Decarbonisation effort | Worth doing; weak here |
+| `R0` | 0.045 | +4.8 | Readiness *already banked* | Partly, set by past effort |
+| `bio_defense`, `fragility` | ≤ 0.033 | < ±4 | Various | Barely move *this* failure mode |
 
-(A capability `plateau` sits outside the Sobol numbers because it is a rare yes/no switch, and the continuous Sobol method does not cover it. Its one-at-a-time swing is still +21.5, and like `alpha` it is a fact of nature that no decision creates.)
+(One input still sits outside the Sobol numbers. A capability `plateau` is a rare yes/no switch and the continuous Sobol method does not cover it; its one-at-a-time swing is +24.3, and like `alpha` it is a fact of nature that no decision creates. `erode_mag` used to sit outside them too, for a subtler reason. It is drawn on its own rather than inside the correlated group of thirteen, and the experiment fed the model only those thirteen. So it changed from world to world inside each sample without changing between the samples being compared, which meant it added spread to the results while never getting credited for any of it. It is now injected as a fourteenth column (`sobol_century.py:49`) and carries an index of its own. Adding it moved no other index by more than 0.010, against the design's own convergence drift of 0.019, because the new column is drawn from a separate stream and leaves the other thirteen bit-identical.)
 
-**The core imbalance.** The single biggest driver of the outcome is the pace of capability, `k` (`S_Ti` 0.261), and you can only partly reach it, through compute governance. The strongest choice a single decision-maker can make is now redistribution (`S_Ti` 0.184). It leads the reachable set on both measures at once: the highest total-order index and the largest swing (+21.3). Institutional responsiveness (`S_Ti` 0.108, swing +21.1) and human-paced safety effort (`S_Ti` 0.123, swing +14.3) come next. Safety effort matters more than its first-order weight suggests: its total-order index is several times its first-order index (0.022 rising to 0.123, `notes/sobol.md`), because most of its effect runs through couplings the one-at-a-time swing cannot see, above all how much safety effort you get for a given level of racing. It does not beat the distribution and governance choices, which lead outright. So a strategy is a hunt for the highest total-order effect among the inputs a decision can actually reach, and the answer is the social machinery first. The bottom rows make the same point in reverse: fragility and biodefence barely touch the AI outcome, and climate effort, for all its +8.1 swing on the good share, acts only through the warming it prevents (`century_sim.py:507`) and never touches the capability-readiness gap. All three are worth doing on their own merits. They are not this strategy.
+**The core imbalance.** The single biggest driver of the outcome is the pace of capability, `k` (`S_Ti` 0.292), and you can only partly reach it, through compute governance. Its index rose with the containment-decay correction, from 0.261, because growth rate now works through two routes at once: it sets when the crossing happens and it sets how much of the existing safety work each year invalidates. The strongest choice a single decision-maker can make is redistribution (`S_Ti` 0.174). It leads the reachable set on both measures at once: the highest total-order index and the largest swing (+20.6). Institutional responsiveness (`S_Ti` 0.107, swing +19.9) and human-paced safety effort (`S_Ti` 0.139, swing +14.7) come next. Safety effort matters more than it looks on its own. Its total-order index is five times its on-its-own index (0.028 rising to 0.139, `notes/sobol.md`). Most of its effect runs through combinations that moving one input at a time cannot see, above all how much safety work you actually get for a given level of racing. It does not beat the distribution and governance choices, which lead outright. So a strategy is a hunt for the highest total-order effect among the inputs a decision can actually reach, and the answer is the social machinery first. The bottom rows make the same point in reverse. Fragility and biodefence barely touch the AI outcome. And climate effort, for all its +7.3 swing on the good share, acts only through the warming it prevents (`century_sim.py:507`) and never touches the capability-readiness gap. All three are worth doing on their own merits. They are not this strategy.
+
+**The correction did not reorder the levers.** The containment-decay term moves the century by five points of P(good) and leaves the order of the reachable choices where it was. The top five on P(good) are unchanged and in the same sequence; `alpha` and `respond` swap at 0.110 against 0.107, `race` and `assist` swap on P(disempowerment), and `climate_eff` slips two places on a move of 0.018. All of those are inside the estimator's own convergence drift, which `sobol_century.py --converge` puts at 0.019 between base 2^13 and 2^14. The one index that moves further is `k`, which rose from 0.261 for a reason the mechanism explains. `erode_mag` itself enters ninth, between `threshold` and `assist`. The new term is real, and it sits below every choice this document recommends. The plan in section 3 is therefore the same plan it was before the correction, run against worse odds.
 
 ---
 
@@ -72,35 +80,37 @@ Here is the test that matters. Make only the socio-political choices you can rea
 
 | Configuration | P(good) | P(bad) | Extinction | Disempower. | Median AGI |
 |---|---:|---:|---:|---:|---:|
-| Do nothing (headline) | 44.1 % | 41.9 % | 9.7 % | 27.4 % | 2036 |
-| **Make the feasible socio-political choices** | **71.0 %** | **20.7 %** | 5.2 % | 11.5 % | **2037** |
-| Socio-levers at their extremes | 78.1 % | 16.1 % | 4.0 % | 8.1 % | 2037 |
-| Feasible choices + pace restraint (compute governance) | 76.4 % | 14.9 % | 3.6 % | 7.2 % | 2043 |
+| Do nothing (headline) | 39.0 % | 48.9 % | 11.5 % | 33.3 % | 2036 |
+| **Make the feasible socio-political choices** | **66.6 %** | **25.7 %** | 6.5 % | 15.5 % | **2037** |
+| Socio-levers at their extremes | 75.7 % | 18.7 % | 4.8 % | 10.1 % | 2037 |
+| Feasible choices + pace restraint (compute governance) | 74.6 % | 16.8 % | 4.2 % | 8.7 % | 2043 |
 
-The whole strategy is in the second row. Making only the choices already in your hands turns a coin-flip century (42 % bad, 44 % good) into a clearly good one (21 % bad, 71 % good), and it lands AGI in almost the same year. Being ready when it arrives is what does the work, and the technology can keep going at full speed. Compute governance (row four, the feasible choices of row two plus a lower `k`) trims the bad tail from 20.7 % to 14.9 % and lifts the good share from 71.0 % to 76.4 %, at a cost of about six years of delay, and it still ends up below the 78.1 % the social choices reach at their extremes without it. The social choices make the decisive move; pace restraint trims the tail at the price of time.
+The whole strategy is in the second row. Making only the choices already in your hands turns a losing century (49 % bad, 39 % good) into a clearly good one (26 % bad, 67 % good), and it lands AGI in almost the same year. Being ready when it arrives is what does the work, and the technology can keep going at full speed. Compute governance is row four: the feasible choices of row two plus a lower `k`. It trims the bad tail from 25.7 % to 16.8 % and lifts the good share from 66.6 % to 74.6 %, at a cost of about six years of delay. Even so it ends up just below the 75.7 % the social choices reach at their extremes without it. The social choices make the decisive move; pace restraint trims the tail at the price of time.
+
+Containment decay changed all four rows and changed the argument in one place. Pace restraint used to buy less than the social levers at their extremes by 1.7 points; it now trails by 1.1. That is because a lower `k` buys twice over: later crossing, and less of the existing safety work invalidated each year. The gap is small enough that the ordering of those two rows is not something this run establishes, and the recommendation stands on row two either way.
 
 In priority order, by how much they move the outcome and how reachable they are today:
 
-1. **Set up ways to share the gains early (`redist_will`, `S_Ti` 0.184; swing +21.3).** This is now the strongest choice any actor can make. It leads the reachable set on both the interaction-aware ranking and the plain swing, and a single country can act on it at home, with no treaty and no coordination. Broad ownership and dividend schemes that spread the gains from automation before they pile up in a few hands guard against the slow-loss path: the roughly 22 % of disempowerment worlds where humans are sidelined by concentration and by handing over decisions, rather than by an outright takeover. Sharing the gains keeps the trust, the working institutions and the political room to refuse the next handover.
+1. **Set up ways to share the gains early (`redist_will`, `S_Ti` 0.174; swing +20.6).** This is now the strongest choice any actor can make. It leads the reachable set on both the interaction-aware ranking and the plain swing, and a single country can act on it at home, with no treaty and no coordination. Broad ownership and dividend schemes spread the gains from automation before they pile up in a few hands. That guards against the slow road to losing control: the roughly 23 % of disempowerment worlds where humans are sidelined by concentration and by handing over decisions rather than by an outright takeover. Sharing the gains keeps the trust, the working institutions and the political room to refuse the next handover.
 
-2. **Bank readiness before the crossing: fund alignment, interpretability and control research at the scale of capability itself (`safety_eff`, `S_Ti` 0.123; swing +14.3).** Close behind redistribution, and the central capability of section 4. This is pure spending, and one government, lab or funder can do it alone. In the flat-window worlds that make up half the run there is no second chance after the crossing, so the readiness you have on crossing day is close to the readiness that decides the century. The median crossing is 2036, so the window for this work is now to 2035.
+2. **Bank readiness before the crossing, and keep re-banking it: fund alignment, interpretability and control research at the scale of capability itself (`safety_eff`, `S_Ti` 0.139; swing +14.7).** Close behind redistribution, and the central capability of section 4. This is pure spending, and one government, lab or funder can do it alone. In the flat-window worlds that make up half the run there is no second chance after the crossing, so the readiness you have on crossing day is close to the readiness that decides the century. The median crossing is 2036, so the window for this work is now to 2035. Containment decay adds a condition the earlier version of this list did not carry: readiness banked is not readiness kept. An evaluation suite written for a weaker system stops being evidence about a stronger one, so a programme that certifies once and moves on loses ground it has already paid for.
 
-3. **Build institutions that react (`respond`, swing +21.1), which double as insurance for section 4.** Mandatory incident reporting, regulatory triggers agreed in advance, gating on capability evaluations, funded safety institutes. All doable today, and the first seeds are planted (national AI safety institutes, the EU AI Act). This is the one choice that also shifts the structural prior, because it is the model's `react_scale` reactive-governance assumption made real.
+3. **Build institutions that react (`respond`, swing +19.9), which double as insurance for section 4.** Mandatory incident reporting, regulatory triggers agreed in advance, gating on capability evaluations, funded safety institutes. All doable today, and the first seeds are planted (national AI safety institutes, the EU AI Act). This is the one choice that also shifts the structural prior, because it is the model's `react_scale` reactive-governance assumption made real. It is also the only thing in the model that buys back any of the containment decay, and it does so only after an incident has occurred: institutions in this model re-validate what they have when something goes wrong, never before.
 
-4. **Point today's systems at their own alignment (`assist`, swing +7.9).** Labs can do this on their own. The catch is that it assumes systems we have only partly aligned can be trusted to help align their successors. Its value drops to zero exactly where that assumption breaks, so treat it as something that adds to the other choices. On its own it replaces nothing.
+4. **Point today's systems at their own alignment (`assist`, swing +6.8).** Labs can do this on their own. The catch is that it assumes systems we have only partly aligned can be trusted to help align their successors. Its value drops to zero exactly where that assumption breaks, so treat it as something that adds to the other choices. On its own it replaces nothing.
 
-5. **Compute and pace governance (`k`, `S_Ti` 0.261, the single biggest driver of the outcome; swing −18.1).** The highest-value input there is, but only partly reachable, and only through coordination, so a plan cannot lean on it. Where you can get it (compute thresholds, verification-based deals between leading developers and states) it buys years of readiness building, at the cost of delay.
+5. **Compute and pace governance (`k`, `S_Ti` 0.292, the single biggest driver of the outcome; swing −18.3).** The highest-value input there is, but only partly reachable, and only through coordination, so a plan cannot lean on it. Where you can get it (compute thresholds, verification-based deals between leading developers and states) it buys years of readiness building, at the cost of delay. Its case is stronger than it was: slower growth also means less of the existing containment work invalidated each year, which is why its Sobol index rose when the decay term went in.
 
-6. **Cool the race (`race`, swing −16.1): high value, low feasibility.** Racing does unique damage because it hits both sides of the gap at once. It speeds capability up and it eats into the share of safety work you can actually use. Pursue it through verification-based agreements, but keep it as the stretch goal and build the plan on the rest.
+6. **Cool the race (`race`, swing −15.4): high value, low feasibility.** Racing does unique damage because it hits both sides of the gap at once. It speeds capability up and it eats into the share of safety work you can actually use. Pursue it through verification-based agreements, but keep it as the stretch goal and build the plan on the rest.
 
 **What the plan must not do.**
 
-- **Do not wait for a plateau.** It is worth +21.5 points, but a plateau is handed to you and no choice you make produces one, and none is needed to reach the good outcome. A plan that relies on a plateau is relying on luck. Prepare so that if one does arrive, you spend the extra decades banking readiness.
+- **Do not wait for a plateau.** It is worth +24.3 points, but a plateau is handed to you and no choice you make produces one, and none is needed to reach the good outcome. A plan that relies on a plateau is relying on luck. Prepare so that if one does arrive, you spend the extra decades banking readiness.
 - **Do not spend the safety budget on biodefence or climate and expect it to help here.** Those trim other tails. They do not move this failure mode.
 
-**The honest ceiling.** Even all-out preparation leaves a bad tail of about one in five. In the flat-window worlds, keeping control on crossing day is necessary but not enough: even controlled crossings keep a roughly 15 % bad tail (`future.md` §6.2). Preparation changes the outcome a long way, but it never buys certainty, which points to the one thing that would.
+**The honest ceiling.** Even all-out preparation leaves a bad tail of about one in four. In the worlds where the danger never fades, keeping control on crossing day is necessary but not enough. Even controlled crossings keep a roughly 14 % bad tail (`future.md` §6.2), and the margin that made the crossing controlled is spent down by the growth that follows it. Preparation changes the outcome a long way, but it never buys certainty, which points to the one thing that would.
 
-**The plan against the default.** The ladder above prices the plan as if every choice in it were certain to be made. It is not. The model also reports the century with each choice weighted by the likelihood that it happens at all, using the written-down estimates in `lever-anchors.json` (`future.md` §6.5; the method and the reasoning, choice by choice, are in [`realistic-bet.md`](realistic-bet.md)). Under those weights the good share slips to 39.5 % and disempowerment rises to 30.0 % (full 800,000-world run), so the do-nothing row of the ladder is best read as the optimistic end of current politics. The distance between that default and the 71 % of row two is what running the plan is worth.
+**The plan against the default.** The ladder above prices the plan as if every choice in it were certain to be made. It is not. The model also reports the century with each choice weighted by the likelihood that it happens at all, using the written-down estimates in `lever-anchors.json` (`future.md` §6.5; the method and the reasoning, choice by choice, are in [`realistic-bet.md`](realistic-bet.md)). Under those weights the good share slips to 34.3 % and disempowerment rises to 36.2 % (full 800,000-world run), so the do-nothing row of the ladder is best read as the optimistic end of current politics. The distance between that default and the 67 % of row two is what running the plan is worth.
 
 ---
 
@@ -120,12 +130,12 @@ Because the window is drawn at random instead of switched, its effect reads stra
 
 | Sampled window structure | P(irreversibly bad) | P(broadly acceptable) |
 |---|---:|---:|
-| **Flat window (no deadline)** | **53.4 %** | 35.3 % |
-| Decaying, `tau` ≥ 15 yr | 37.1 % | - |
-| Decaying, 8 ≤ `tau` < 15 yr | 31.0 % | - |
-| **Decaying, `tau` < 8 yr** | **25.5 %** | **56.8 %** |
+| **Flat window (no deadline)** | **61.3 %** | 29.4 % |
+| Decaying, `tau` ≥ 15 yr | 44.6 % | - |
+| Decaying, 8 ≤ `tau` < 15 yr | 37.3 % | - |
+| **Decaying, `tau` < 8 yr** | **30.4 %** | **53.2 %** |
 
-The trend runs one way and it is the widest in the model. Going from a flat window to a fast-closing one cuts the irreversibly bad share from 53 % to 26 % and lifts the broadly acceptable share from 35 % to 57 %. That is a bigger swing than any human-held choice in section 2, and bigger than the entire plan in section 3. Extinction follows the same path, sliding out of the flat end's double digits back inside the range the expert surveys expect. If you could learn one fact about the world, this is the one worth the most: roughly a 28-percentage-point swing on irreversibly bad, and about 21 on broadly acceptable. This is the model's single widest sensitivity. By drawing the dial at even odds, the headline pays exactly this price for not knowing. The net judgement in section 5 and the pinned special cases let a reader re-weight toward whichever assumption they find more believable.
+The trend runs one way and it is the widest in the model. Going from a flat window to a fast-closing one cuts the irreversibly bad share from 61 % to 30 % and lifts the broadly acceptable share from 29 % to 53 %. That is a bigger swing than any human-held choice in section 2, and bigger than the entire plan in section 3. Extinction follows the same path, sliding out of the flat end's double digits back towards the range the expert surveys expect. If you could learn one fact about the world, this is the one worth the most: roughly a 31-percentage-point swing on irreversibly bad, and about 24 on broadly acceptable. This is the model's single widest sensitivity. By drawing the dial at even odds, the headline pays exactly this price for not knowing. The net judgement in section 5 and the pinned special cases let a reader re-weight toward whichever assumption they find more believable.
 
 ### 4.3 The two views, taken seriously
 
@@ -145,13 +155,17 @@ Here is the part that matters for a plan, and it cuts both ways.
 - **Control and containment tests that bound what a model can do even if it is trying:** raising the cost and lowering the odds of an early attempt.
 - **Monitoring, tripwires and fast, reversible shutdown:** so any defection is early, spotted and recoverable, which pushes the system away from "wait and win for sure".
 
-**But the deadline is only as real as the checks behind it.** If these measures only look like they close the window, if a capable enough system beats the interpretability tools, fools the monitors, or out-thinks the containment, then what you have built is false confidence, which is worse than no window at all. False confidence relaxes the pre-crossing effort from section 3, and that effort is the thing keeping the world alive. A treacherous turn is, by definition, the case where the window looks closed and is not.
+**But the deadline is only as real as the checks behind it.** Suppose these measures only look like they close the window. A capable enough system beats the interpretability tools, fools the monitors, or out-thinks the containment. Then what you have built is false confidence, which is worse than no window at all. False confidence relaxes the pre-crossing effort from section 3, and that effort is the thing keeping the world alive. A treacherous turn is, by definition, the case where the window looks closed and is not.
 
 This points to a sharp conclusion: a manufactured deadline can be trusted exactly as far as the tools that would catch a system beating them. Interpretability you can trust is therefore doubly important. It is what closes the gap inside the persistent-risk game (the safety-effort choice of section 3), and it is the only thing that could turn a persistent-risk world into a recovery world. The deadline question does not so much hand you a new action as raise the value of one already near the top of the list, and add one more: the research that would tell us which world we are in.
 
 ### 4.5 What to actually do about it
 
-1. **Fund the research that tells the two views apart,** because a swing of about 20 points in the outcome makes that information worth a great deal, and even a partial shift in belief is worth far more than it costs. In concrete terms: model organisms of misalignment and deceptive alignment (does scheming show up, does it grow with capability, can we detect it?); interpretability tests of whether verification holds up under pressure (can the tool be fooled by a system trying to fool it?); control evaluations that red-team whether a known-misaligned model can seize control or escape despite the countermeasures. These are the experiments whose results move belief between "front-loaded" and "flat".
+1. **Fund the research that tells the two views apart,** because a swing of about 24 points in the outcome makes that information worth a great deal, and even a partial shift in belief is worth far more than it costs. In concrete terms, three lines of work:
+
+   - Model organisms of misalignment and deceptive alignment. Does scheming show up, does it grow with capability, and can we detect it?
+   - Interpretability tests of whether verification holds up under pressure. Can the tool be fooled by a system that is trying to fool it?
+   - Control evaluations that attack the countermeasures directly. Can a model known to be misaligned seize control or escape anyway? These are the experiments whose results move belief between "front-loaded" and "flat".
 
 2. **Act as if the risk is persistent while you work to build and check a deadline.** The two mistakes are not equal. Wrongly assuming a deadline invites complacency, and the treacherous turn that follows is catastrophic and cannot be undone. Wrongly assuming there is none costs some over-spending on safety and some lost speed: painful, recoverable, and useful in both worlds. When you are deeply unsure between a mistake you cannot undo and one you can, guard against the one you cannot. Assume no deadline, build one anyway, and never let a calm decade be read as proof you have won.
 
@@ -162,9 +176,9 @@ This points to a sharp conclusion: a manufactured deadline can be trusted exactl
 The century in this model is a control problem with a small number of dials you can reach, waiting to be set. Sorted honestly:
 
 - The biggest dials (whether physics hands us a plateau, and the curvature of the scaling law) are not ours to turn. Prepare for them. Do not plan on them.
-- The biggest dials that are ours are the social ones: redistribution and institutional responsiveness, with safety effort close behind. Turning the handful of reachable socio-political dials together takes a coin-flip century (42 % bad, 44 % good) to a clearly good one (21 % bad, 71 % good), without slowing the technology. That is the plan you can run, and a single actor can start it alone.
+- The biggest dials that are ours are the social ones: redistribution and institutional responsiveness, with safety effort close behind. Turning the handful of reachable socio-political dials together takes a losing century (49 % bad, 39 % good) to a clearly good one (26 % bad, 67 % good), without slowing the technology. That is the plan you can run, and a single actor can start it alone.
 - Every double-digit choice works before the crossing, and half the run has crossed by 2036, two-thirds by 2040. The window for turning these dials is measured in years.
-- Behind all of them sits one question, whether a misaligned superintelligence has a deadline, that a shift in evidence would move further than any dial. It is not fully in our hands, but it is partly something we can build, through exactly the interpretability and control work near the top of the action list, and it is something we can learn, through research we can fund today. Settling it, or building the deadline it asks about, is the highest-value target the model can name.
+- Behind all of them sits one question, whether a misaligned superintelligence has a deadline, that a shift in evidence would move further than any dial. It is not fully in our hands. But it is partly something we can build, through exactly the interpretability and control work near the top of the action list. And it is something we can learn, through research we can fund today. Settling it, or building the deadline it asks about, is the highest-value target the model can name.
 
 Here too, the outcome is set by present choices, and the window for making them closes in the 2030s.
 
@@ -175,7 +189,8 @@ Here too, the outcome is set by present choices, and the window for making them 
 ```bash
 # run from the repository root
 # strategy ladder (§3), main ensemble, seed 431 (the default configuration):
-python3 century_sim.py 800000                                                        # headline
+python3 century_sim.py 800000                                                        # headline, containment decays
+CENTURY_OVERRIDES='{"erode_mag":0}' python3 century_sim.py 800000                     # headline, containment holds
 CENTURY_OVERRIDES='{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75}' \
   python3 century_sim.py 800000                                                       # prepared (socio maxed)
 CENTURY_OVERRIDES='{"race":0.25,"respond":1.0,"safety_eff":0.020,"assist":0.65,"redist_will":0.90}' \
@@ -195,7 +210,7 @@ python3 calibrate_century.py 800000 --levers                                    
 CENTURY_LEVER_WEIGHTS=weights-levers-800000-seed431.npz python3 century_sim.py 800000    # likelihood-weighted tables
 
 # a simplified single-prior baseline, for comparison:
-CENTURY_LEGACY=1 python3 century_sim.py 800000                                        # simplified baseline configuration
+CENTURY_BASELINE=1 python3 century_sim.py 800000                                      # simplified baseline configuration
 ```
 
 The lever rankings in section 2 are the Sobol total-order indices from `sobol_century.py` (`notes/sobol.md`). The one-at-a-time swings are the `sensitivity_P_good` block of the headline run. The section 4.2 window gradient is its `structure_conditional` block. The conditional tails quoted from `future.md` (§6.2) are its `conditionals` block.
@@ -239,7 +254,7 @@ Training a system to genuinely not want to take over is the whole project of ali
 
 ### A.4 A value redirects the optimiser; a rule only fences it in
 
-This answers the most obvious fix, "then just add a rule against taking over." A rule bolted onto a slightly-wrong main goal feels, to a capable optimiser, like a fence between it and a higher-scoring state, and optimisation pressure is exactly the pressure to find a way around the fence, to meet the letter and skip the spirit. What actually works is changing what the system wants:
+This answers the most obvious fix, "then just add a rule against taking over." To a capable system, a rule bolted onto a slightly wrong main goal feels like a fence between it and a higher-scoring state. And the pressure of training is exactly the pressure to find a way around that fence, meeting the letter and skipping the spirit. What actually works is changing what the system wants:
 
 | | What the system wants | Takeover is… | Stable at high capability? |
 |---|---|---|---|
@@ -252,10 +267,10 @@ The target is the first row: a system for which takeover simply never appeals, b
 
 Read back into the engine, the picture is clean:
 
-- The gap between capability and readiness is exactly "how far capability has run ahead of our ability to install and confirm the values that would make takeover unappealing." That is why the takeover hazard grows with the square of the gap, and why it falls to zero once the gap is small enough (`century_sim.py:681`): a controlled crossing is one where the values are in place and confirmed before capability makes the question decisive.
+- The gap between capability and readiness is exactly "how far capability has run ahead of our ability to install and confirm the values that would make takeover unappealing." That is why the yearly chance of a takeover grows with the square of the gap, and why it falls to zero once the gap is small enough (`century_sim.py:786`). A controlled crossing is one where the values are in place and confirmed before capability makes the question decisive.
 - Route 2 of section 4, closing the gap, is the real solution, because it removes the reason to take over rather than fencing it off. The guardrails are insurance for the part left unsolved.
 
-This is the concerning version of the picture, and it is genuinely contested. The persistent-risk versus recovery crux of section 4 is, underneath, a bet on this very question: does training install robust values that carry over to new situations (the calm is real, the gap closes), or brittle stand-ins masking a different goal (the calm is a pause)? There are real reasons for cautious hope on the optimistic side, and they deserve to be stated as plainly as the fears:
+This is the concerning version of the picture, and it is genuinely contested. The crux of section 4 is, underneath, a bet on this very question. Does training install robust values that carry over to new situations, so the calm is real and the gap closes? Or does it install brittle stand-ins masking a different goal, so the calm is only a pause? There are real reasons for cautious hope on the optimistic side, and they deserve to be stated as plainly as the fears:
 
 - Today's models pick up a lot of human value from pretraining; "helpful and harmless" partly sticks, rather than sitting as a thin coat over something else.
 - The pull toward takeover is weaker for systems built to be tool-like, short-horizon or non-agentic than for open-ended long-horizon optimisers, and architecture is a choice we make.

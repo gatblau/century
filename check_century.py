@@ -2,7 +2,7 @@
 """
 check_century.py — regression harness for century_sim.py.
 
-Guards the invariant the accuracy-upgrade plan was built on: the legacy engine
+Guards the invariant the accuracy-upgrade plan was built on: the baseline engine
 path must stay bit-identical at seed 431 while behaviour-changing work lands
 behind CENTURY_V2_* switches. It:
 
@@ -50,24 +50,36 @@ GOLDEN_DIR = os.path.join(HERE, "golden")
 COMPARE_BLOCKS = ["outcomes", "aggregates", "agi", "gap_at_agi", "events_per_world"]
 
 # Phase 12 flipped the engine default to v2. There are now two golden sets: the v2
-# defaults (headline-*) and the retained legacy path (legacy-*, reproduced by
-# CENTURY_LEGACY=1). check_golden picks the set from LEGACY_MODE, so
-# `check_century.py --full` checks the v2 goldens and `CENTURY_LEGACY=1
-# check_century.py --full` checks the legacy goldens.
-LEGACY_MODE = bool(int(os.environ.get("CENTURY_LEGACY", "0")))
+# defaults (headline-*) and the retained baseline path (baseline-*, reproduced by
+# CENTURY_BASELINE=1). check_golden picks the set from BASELINE_MODE, so
+# `check_century.py --full` checks the v2 goldens and `CENTURY_BASELINE=1
+# check_century.py --full` checks the baseline goldens.
+BASELINE_MODE = bool(int(os.environ.get("CENTURY_BASELINE", "0")))
 GOLDEN = {
     (20000, False): os.path.join(GOLDEN_DIR, "headline-20k-seed431.json"),
     (800000, False): os.path.join(GOLDEN_DIR, "headline-800k-seed431.json"),
-    (20000, True): os.path.join(GOLDEN_DIR, "legacy-20k-seed431.json"),
-    (800000, True): os.path.join(GOLDEN_DIR, "legacy-800k-seed431.json"),
+    (20000, True): os.path.join(GOLDEN_DIR, "baseline-20k-seed431.json"),
+    (800000, True): os.path.join(GOLDEN_DIR, "baseline-800k-seed431.json"),
 }
 
-# Every documented reproduction command (future.md §9 + strategy.md §6). The
-# eight documented CENTURY_OVERRIDES commands (seven distinct — prepared-world
-# appears in both documents) are all present, alongside the CENTURY_* switch
-# commands, so the strict-JSON gate covers the full published surface.
+# Every documented reproduction command (future.md §9 + strategy.md §6) that can run at
+# this gate's N, plus the four retained REC_* switch paths. The ten documented
+# CENTURY_OVERRIDES commands (eight distinct — the containment-holds companion and
+# prepared-world each appear in both documents) are all present.
+#
+# Two documented commands are deliberately absent. CENTURY_WEIGHTS and
+# CENTURY_LEVER_WEIGHTS load a per-world weights file whose length must equal N, so
+# neither can run at N=5000, and the .npz files are gitignored build products that need
+# not exist on a fresh clone. --calib-audit and --lever-audit cover those paths at the N
+# their weights were built for.
+#
+# CENTURY_RECOVERY / WINDOW / DIVIDEND / REACT are no longer named in either document —
+# V2_STRUCT samples per world the structure they used to switch — but the engine still
+# honours them, so they stay here to keep those paths exercised.
 SCENARIOS = [
     ("headline", {}),
+    ("override:containment-holds", {"CENTURY_OVERRIDES": '{"erode_mag":0}'}),
+    ("baseline", {"CENTURY_BASELINE": "1"}),
     ("decadal", {"CENTURY_DECADAL": "1"}),
     ("recovery", {"CENTURY_RECOVERY": "1"}),
     ("window", {"CENTURY_WINDOW": "1"}),
@@ -88,7 +100,12 @@ SCENARIOS = [
     ("override:prepared+pace",
      {"CENTURY_OVERRIDES": '{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75,"k":0.06}'}),
 ]
+# The retained-but-unpublished entries, counted separately so the gate's own line does not
+# call them documented. Promote a name out of here the moment a document names it.
+RETAINED_SCENARIOS = ("recovery", "window", "dividend", "react")
 N_OVERRIDE_SCENARIOS = sum(1 for name, _ in SCENARIOS if name.startswith("override:"))
+N_RETAINED_SCENARIOS = sum(1 for name, _ in SCENARIOS if name in RETAINED_SCENARIOS)
+N_PUBLISHED_SCENARIOS = len(SCENARIOS) - N_RETAINED_SCENARIOS
 
 # Phase 3 v2 mechanical-correction switches, in reporting order (individually
 # attributable, then the umbrella). Used by --v2-deltas.
@@ -107,7 +124,8 @@ V2_CONFIGS = [
     ("CENTURY_V2_XHAZ", "unknown-unknowns absorbing hazard (own fate channel)"),
     ("CENTURY_V2_REBUILD", "collapse becomes non-absorbing (rebuild + recover)"),
     ("CENTURY_V2_BIOUP", "post-AGI bio-offence uplift (AGI-grade biotool misuse)"),
-    ("CENTURY_V2", "umbrella: all fourteen corrections together"),
+    ("CENTURY_V2_ERODE", "capability growth erodes containment/evaluation readiness"),
+    ("CENTURY_V2", "umbrella: all fifteen corrections together"),
 ]
 OUTCOME_ORDER = [
     "aligned_abundance", "oligarchic_prosperity", "turbulent_transition",
@@ -303,16 +321,16 @@ DOC_PROSE = [
           "pattern": r"the largest swing \(" + _PNUM + r"\)",
           "path": "sensitivity_P_good.redist_will.swing"},
          {"label": "strat s2: responsiveness",
-          "pattern": r"Institutional responsiveness \(`S_Ti` 0\.108, swing " + _PNUM + r"\)",
+          "pattern": r"Institutional responsiveness \(`S_Ti` 0\.107, swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.respond.swing"},
          {"label": "strat s2: safety effort",
-          "pattern": r"human-paced safety effort \(`S_Ti` 0\.123, swing " + _PNUM + r"\)",
+          "pattern": r"human-paced safety effort \(`S_Ti` 0\.139, swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.safety_eff.swing"},
          {"label": "strat s2: climate effort",
           "pattern": r"climate effort, for all its " + _PNUM + r" swing",
           "path": "sensitivity_P_good.climate_eff.swing"},
          {"label": "strat s4: share the gains early",
-          "pattern": r"share the gains early \(`redist_will`, `S_Ti` 0\.184; swing " + _PNUM + r"\)",
+          "pattern": r"share the gains early \(`redist_will`, `S_Ti` 0\.174; swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.redist_will.swing"},
          {"label": "strat s4: cool the race",
           "pattern": r"Cool the race \(`race`, swing " + _PNUM + r"\)",
@@ -320,19 +338,283 @@ DOC_PROSE = [
      ]},
 ]
 
+# --readability gate: the documents are the product, and until now nothing checked whether
+# they can be read. Every figure in them is verified against the engine while the sentences
+# around those figures were free to drift into machine description; that is exactly what
+# happened during the plan-28 Phase F figure pass, and a human caught it rather than a test.
+#
+# Three things are measured per document, all of them mechanical:
+#   1. sentence length, mean and 90th percentile, in words
+#   2. jargon that is never explained anywhere in that document
+#   3. the opening paragraph, which must be short and jargon-free
+#
+# A term counts as EXPLAINED if any occurrence of it in the document sits in a sentence that
+# also carries a gloss marker, or if the document defines it in a glossary line. Explaining a
+# term once anywhere makes every later use of it free. That is deliberate: the gate should
+# push towards explaining the vocabulary, not towards avoiding it, because these documents
+# have real technical content and hiding it would be worse than naming it.
+JARGON = [
+    "ensemble", "hazard", "absorbing", "quartile", "copula", "prior", "posterior",
+    "conditional", "marginal", "Sobol", "S_Ti", "S_i", "Saltelli", "total-order",
+    "first-order", "numerator", "denominator", "variance", "estimator", "lognormal",
+    "orthogonal", "monotone", "logit", "Gaussian", "reweight", "reweighting",
+    "maximum-entropy", "max-entropy", "effective sample size", "survivorship",
+    "structure-conditional", "importance sampling", "stochastic", "vectorised",
+]
+
+# Any of these near a term marks it as explained. Parentheses and the em-dash-free
+# apposition forms cover how these documents actually introduce a word.
+_GLOSS_MARKERS = [
+    "(", "which is", "which means", "that is", "meaning", "in other words", "read it as",
+    "read this as", "stands for", "is the", "are the", "is how", "is what", "is a", "means",
+    ":",
+]
+
+# mean / p90 are words per sentence; jargon is unexplained occurrences per 1000 prose words.
+# The three plain-audience documents are pinned at zero jargon because they earned it and
+# must not slip. future.md and strategy.md carry real technical content, so they get a small
+# allowance rather than zero, on the understanding that a term explained once costs nothing.
+DOC_PROSE_BUDGETS = [
+    {"doc": "README.md", "mean": 17.0, "p90": 29, "jargon_per_1000": 2.0, "opener_words": 60},
+    {"doc": "docs/how-it-works.md", "mean": 17.0, "p90": 28, "jargon_per_1000": 0.0, "opener_words": 70},
+    {"doc": "docs/future.md", "mean": 21.0, "p90": 36, "jargon_per_1000": 1.0, "opener_words": 70},
+    {"doc": "docs/strategy.md", "mean": 20.0, "p90": 34, "jargon_per_1000": 1.5, "opener_words": 70},
+    {"doc": "docs/levers-and-preparedness.md", "mean": 21.0, "p90": 38, "jargon_per_1000": 0.0, "opener_words": 80},
+    {"doc": "docs/realistic-bet.md", "mean": 18.0, "p90": 30, "jargon_per_1000": 0.0, "opener_words": 70},
+    {"doc": "docs/reading-the-output.md", "mean": 18.0, "p90": 30, "jargon_per_1000": 0.0, "opener_words": 70},
+    {"doc": "docs/sensitivity-charts.md", "mean": 19.0, "p90": 31, "jargon_per_1000": 0.0, "opener_words": 70},
+]
+
+_ABBREV = [("e.g.", "e_g_"), ("i.e.", "i_e_"), ("etc.", "etc_"), ("vs.", "vs_"),
+           ("Dr.", "Dr_"), ("Mr.", "Mr_"), ("No.", "No_"), ("approx.", "approx_")]
+
+
+def _prose_lines(text):
+    """Strip everything that is not narrative prose: code fences, tables, headings, images,
+    horizontal rules and bare link lines. What is left is what a reader actually reads."""
+    text = re.sub(r"```.*?```", " ", text, flags=re.S)
+    out = []
+    for line in text.split("\n"):
+        st = line.strip()
+        if not st or st.startswith(("|", "#", "---", "===", "![", "<!--", ">")):
+            continue
+        out.append(line)
+    return out
+
+
+def _sentences(prose):
+    """Split prose into sentences, protecting decimals, abbreviations and percentages so
+    '9.7 %' and 'e.g.' do not read as sentence ends. A line break is a hard boundary: two
+    consecutive bullets are two sentences, and joining them would inflate every length."""
+    sents = []
+    for line in prose.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        # Emphasis and list markers come off BEFORE splitting: "**A lead.** Then more"
+        # would otherwise read as one sentence, because the full stop is followed by an
+        # asterisk rather than by whitespace, and every bold lead-in would count double.
+        line = re.sub(r"^\s*[-+*]\s+|^\s*\d+\.\s+", " ", line)
+        # Asterisks, backticks and quote markers only. Underscores stay, because they are
+        # part of the identifiers these documents name (S_Ti, erode_mag, redist_will) and
+        # stripping them would hide those terms from the jargon check.
+        line = re.sub(r"[*`>]", " ", line)
+        for a, b in _ABBREV:
+            line = line.replace(a, b)
+        line = re.sub(r"(\d)\.(\d)", r"\1<DOT>\2", line)
+        for p in re.split(r"(?<=[.!?])\s+(?=[A-Z\"'(\[])", line):
+            p = p.replace("<DOT>", ".")
+            for a, b in _ABBREV:
+                p = p.replace(b, a)
+            clean = p.strip()
+            if len(clean.split()) > 3:
+                sents.append(clean)
+    return sents
+
+
+def _unexplained_jargon(prose, sents):
+    """Return {term: occurrences} for every jargon term the document never explains."""
+    lowered = prose.lower()
+    unexplained = {}
+    for term in JARGON:
+        pat = r"(?<![\w-])" + re.escape(term.lower()) + r"(?![\w])"
+        hits = len(re.findall(pat, lowered))
+        if not hits:
+            continue
+        # Glossary line, e.g. "- **ensemble** is the 800,000 worlds" or a definition list.
+        if re.search(r"^\s*[-*|].{0,10}\*\*" + re.escape(term) + r"\*\*", prose,
+                     re.I | re.M):
+            continue
+        explained = False
+        for s in sents:
+            if re.search(pat, s.lower()) and any(m in s.lower() for m in _GLOSS_MARKERS):
+                explained = True
+                break
+        if not explained:
+            unexplained[term] = hits
+    return unexplained
+
+
+def _opening_paragraph(text):
+    """The first narrative paragraph after the H1 title, which is the sentence a newcomer
+    reads before deciding whether to keep going."""
+    body = text.split("\n")
+    started = False
+    buf = []
+    for line in body:
+        st = line.strip()
+        if st.startswith("# "):
+            started = True
+            continue
+        if not started:
+            continue
+        if st.startswith(("|", "```", "![", "<!--")):
+            continue
+        if st.startswith("#") or st.startswith("---"):
+            if buf:
+                break
+            continue
+        if not st:
+            if buf:
+                break
+            continue
+        buf.append(st)
+    return " ".join(buf)
+
+
+def check_doc_prose_readable():
+    """Readability gate: the documents are for people, so their sentence length, their
+    unexplained vocabulary and their opening paragraph are budgeted per document and
+    checked, in the same spirit as --doc-figures checks their numbers."""
+    print("[readability] %d document(s) against their prose budgets" % len(DOC_PROSE_BUDGETS))
+    ok = True
+    for spec in DOC_PROSE_BUDGETS:
+        path = os.path.join(HERE, spec["doc"])
+        if not os.path.exists(path):
+            print("  [%s] MISSING — file not found" % spec["doc"])
+            ok = False
+            continue
+        with open(path) as f:
+            text = f.read()
+        prose = "\n".join(_prose_lines(text))
+        sents = _sentences(prose)
+        if not sents:
+            print("  [%s] MISSING — no prose found to measure" % spec["doc"])
+            ok = False
+            continue
+        lens = sorted(len(s.split()) for s in sents)
+        words = sum(lens)
+        mean = words / len(lens)
+        p90 = lens[min(int(len(lens) * 0.9), len(lens) - 1)]
+        unexplained = _unexplained_jargon(prose, sents)
+        jcount = sum(unexplained.values())
+        jper1k = 1000.0 * jcount / max(words, 1)
+        opener = _opening_paragraph(text)
+        opener_words = len(opener.split())
+        opener_jargon = sorted(_unexplained_jargon(opener, _sentences(opener)))
+
+        rows = [
+            ("mean sentence", "%.1f" % mean, "<= %.1f" % spec["mean"], mean <= spec["mean"] + 1e-9),
+            ("p90 sentence", "%d" % p90, "<= %d" % spec["p90"], p90 <= spec["p90"]),
+            ("unexplained jargon /1000", "%.1f" % jper1k, "<= %.1f" % spec["jargon_per_1000"],
+             jper1k <= spec["jargon_per_1000"] + 1e-9),
+            ("opening paragraph words", "%d" % opener_words, "<= %d" % spec["opener_words"],
+             0 < opener_words <= spec["opener_words"]),
+            ("opening paragraph jargon", "%d" % len(opener_jargon), "== 0", not opener_jargon),
+        ]
+        doc_ok = all(r[3] for r in rows)
+        ok = ok and doc_ok
+        print("  [%s] %d prose words, %d sentences" % (spec["doc"], words, len(sents)))
+        for label, got, want, good in rows:
+            print("    %-26s %8s  %-9s %s" % (label, got, want, "OK" if good else "OVER"))
+        if jcount and jper1k > spec["jargon_per_1000"] + 1e-9:
+            worst = sorted(unexplained.items(), key=lambda kv: -kv[1])[:6]
+            print("      never explained: %s"
+                  % ", ".join("%s x%d" % (t, n) for t, n in worst))
+        if opener_jargon:
+            print("      opening paragraph uses: %s" % ", ".join(opener_jargon))
+        if mean > spec["mean"] + 1e-9 or p90 > spec["p90"]:
+            longest = sorted(sents, key=lambda s: -len(s.split()))[:2]
+            for s in longest:
+                print("      %d words: %s..." % (len(s.split()), s[:110]))
+    ok = _check_doc_anchors() and ok
+    print("  %s — %s." % ("PASS" if ok else "FAIL",
+          "every document is inside its readability budget" if ok else
+          "see OVER rows; shorten sentences, explain the vocabulary or fix the opener"))
+    return ok
+
+
+def _check_doc_anchors():
+    """Do the phrases --doc-figures pins still exist in the prose?
+
+    Rewriting a sentence can silently detach a machine-checked figure from its anchor:
+    capitalising a word at a new sentence start is enough, and that is exactly what
+    happened when these documents were rewritten for readability. --doc-figures catches it
+    only after running the engine several times, which is minutes of waiting for an answer
+    that is available from the text alone. This runs no engine and reports in a second, so
+    an editor learns immediately rather than at the end of a full check."""
+    broken = []
+    n_pat = 0
+    for spec in DOC_PROSE:
+        path = os.path.join(HERE, spec["doc"])
+        if not os.path.exists(path):
+            continue
+        with open(path) as f:
+            text = f.read()
+        for fig in spec["figures"]:
+            n_pat += 1
+            n = len(re.findall(fig["pattern"], text))
+            if n != 1:
+                broken.append("%s [%s] matched %d times, expected 1"
+                              % (spec["doc"], fig["label"], n))
+    n_anchor = 0
+    for spec in DOC_TABLES:
+        path = os.path.join(HERE, spec["doc"])
+        if not os.path.exists(path):
+            continue
+        with open(path) as f:
+            text = f.read()
+        n_anchor += 1
+        if spec["anchor"] not in text:
+            broken.append("%s [%s] table anchor %r not found"
+                          % (spec["doc"], spec["id"], spec["anchor"]))
+    print("  [anchors] %d prose pattern(s) and %d table anchor(s) that --doc-figures pins"
+          % (n_pat, n_anchor))
+    for b in broken:
+        print("    BROKEN %s" % b)
+    print("    %s" % ("all anchors still resolve" if not broken else
+                      "re-anchor the pattern or restore the wording before committing"))
+    return not broken
+
 
 def _reject_nonfinite(name, value):
     # json.loads calls parse_constant only for NaN / Infinity / -Infinity.
     raise ValueError("strict JSON rejects non-finite constant %r" % name)
 
 
-def run_engine(n, env_extra=None):
+def run_engine(n, env_extra=None, clean=True):
     """Run the engine file at N=n as a subprocess and return its parsed JSON.
 
     RuntimeWarnings are promoted to errors (-W), a non-zero exit or any stderr
     output is a hard failure, and NaN/Infinity are rejected on parse.
+
+    Runs are HERMETIC by default: every ambient CENTURY_* variable is dropped before
+    env_extra is applied, so a call reproduces exactly the configuration it names. Every
+    caller but one states its whole configuration in env_extra, and inheriting the
+    ambient environment on top of that produced contradictory runs — invoking the
+    harness as `CENTURY_BASELINE=1 check_century.py` leaked the baseline path into the
+    scenario gate (the containment-holds override then hit an unsampled erode_mag) and
+    into --doc-figures (whose registered figures are v2, so the baseline output has no
+    unknown_catastrophe class), and would have let --capture write a baseline run into
+    the v2 golden.
+
+    check_golden is the one caller that passes clean=False: reading the ambient
+    CENTURY_BASELINE is how it addresses the two golden sets.
     """
     env = dict(os.environ)
+    if clean:
+        for _k in [_k for _k in env if _k.startswith("CENTURY_")]:
+            del env[_k]
     if env_extra:
         env.update(env_extra)
     proc = subprocess.run(
@@ -366,12 +648,12 @@ def run_perturbed_engine(n, replacements):
     return json.loads(buf.getvalue(), parse_constant=_reject_nonfinite)
 
 
-def load_golden(n, legacy=None):
-    legacy = LEGACY_MODE if legacy is None else legacy
-    path = GOLDEN.get((n, legacy))
+def load_golden(n, baseline=None):
+    baseline = BASELINE_MODE if baseline is None else baseline
+    path = GOLDEN.get((n, baseline))
     if path is None or not os.path.exists(path):
-        raise RuntimeError("no golden file for N=%d legacy=%s (expected %s); run --capture first"
-                           % (n, legacy, path))
+        raise RuntimeError("no golden file for N=%d baseline=%s (expected %s); run --capture first"
+                           % (n, baseline, path))
     with open(path, "r") as f:
         return json.load(f)
 
@@ -404,11 +686,11 @@ def mc_error_bars(outcomes, n):
 
 
 def check_golden(n):
-    """Run the engine at N=n (v2 default, or legacy when CENTURY_LEGACY=1 is in the
+    """Run the engine at N=n (v2 default, or baseline when CENTURY_BASELINE=1 is in the
     environment), compare to the matching golden, print MC error bars. True on pass."""
     print("[golden] N=%d (%s) vs %s"
-          % (n, "legacy" if LEGACY_MODE else "v2", os.path.relpath(GOLDEN[(n, LEGACY_MODE)], HERE)))
-    actual = run_engine(n)
+          % (n, "baseline" if BASELINE_MODE else "v2", os.path.relpath(GOLDEN[(n, BASELINE_MODE)], HERE)))
+    actual = run_engine(n, clean=False)  # the one env-sensitive run: selects the golden set
     golden = load_golden(n)
     diffs = diff_blocks(actual, golden)
     print("  Monte-Carlo 95%% error bars (binomial, N=%d):" % n)
@@ -424,9 +706,12 @@ def check_golden(n):
 
 
 def check_strict_scenarios(n=5000):
-    """Strict-JSON-validate every documented reproduction command. Return True on pass."""
-    print("[strict-scenarios] %d documented commands at N=%d (%d are CENTURY_OVERRIDES commands)"
-          % (len(SCENARIOS), n, N_OVERRIDE_SCENARIOS))
+    """Strict-JSON-validate every published reproduction command, plus the retained
+    switch paths no document names. Return True on pass."""
+    print("[strict-scenarios] %d commands at N=%d: %d published (%d of them CENTURY_OVERRIDES) "
+          "+ %d retained switch path(s)"
+          % (len(SCENARIOS), n, N_PUBLISHED_SCENARIOS, N_OVERRIDE_SCENARIOS,
+             N_RETAINED_SCENARIOS))
     ok = True
     for name, env_extra in SCENARIOS:
         try:
@@ -435,7 +720,7 @@ def check_strict_scenarios(n=5000):
         except Exception as exc:  # noqa: BLE001 — report and continue to surface all failures
             ok = False
             print("  FAIL  %s -> %s" % (name, str(exc).splitlines()[0] if str(exc) else exc))
-    print("  %s — strict JSON across documented commands." % ("PASS" if ok else "FAIL"))
+    print("  %s — strict JSON across published and retained commands." % ("PASS" if ok else "FAIL"))
     return ok
 
 
@@ -466,38 +751,38 @@ def check_negative_control(n=20000):
 def check_hazmask_audit(n=1000):
     """Behavioural check: under HAZMASK a world absorbed earlier in a year receives
     no later same-year pandemic event. Returns True when HAZMASK yields zero such
-    events AND the legacy path yields >0 (proving the audit is not vacuous)."""
+    events AND the baseline path yields >0 (proving the audit is not vacuous)."""
     print("[hazmask-audit] N=%d: a world absorbed earlier in the year must log no later same-year pandemic" % n)
-    legacy = run_engine(n, {"CENTURY_LEGACY": "1", "CENTURY_AUDIT": "1"})["audit_pandemic_post_absorption"]
-    hz = run_engine(n, {"CENTURY_LEGACY": "1", "CENTURY_AUDIT": "1", "CENTURY_V2_HAZMASK": "1"})["audit_pandemic_post_absorption"]
-    print("  legacy path : %d post-absorption pandemic event(s)  (the defect HAZMASK fixes)" % legacy)
-    print("  HAZMASK path: %d post-absorption pandemic event(s)" % hz)
+    baseline = run_engine(n, {"CENTURY_BASELINE": "1", "CENTURY_AUDIT": "1"})["audit_pandemic_post_absorption"]
+    hz = run_engine(n, {"CENTURY_BASELINE": "1", "CENTURY_AUDIT": "1", "CENTURY_V2_HAZMASK": "1"})["audit_pandemic_post_absorption"]
+    print("  baseline path: %d post-absorption pandemic event(s)  (the defect HAZMASK fixes)" % baseline)
+    print("  HAZMASK path:  %d post-absorption pandemic event(s)" % hz)
     if hz != 0:
         print("  FAIL — HAZMASK still logged %d post-absorption pandemic event(s)." % hz)
         return False
-    if legacy <= 0:
-        print("  INCONCLUSIVE — legacy logged 0 at N=%d; sample too small to exhibit the defect." % n)
+    if baseline <= 0:
+        print("  INCONCLUSIVE — baseline logged 0 at N=%d; sample too small to exhibit the defect." % n)
         return False
-    print("  PASS — HAZMASK eliminates same-year post-absorption hazards; legacy>0 shows the audit is not vacuous.")
+    print("  PASS — HAZMASK eliminates same-year post-absorption hazards; baseline>0 shows the audit is not vacuous.")
     return True
 
 
 def check_pinned_audit(n=50000, threshold=0.25):
     """Report the fraction of survivor-years each bounded variable spends within 0.01
-    of a [0,1] bound, legacy vs CENTURY_V2 (soft dynamics). Passes when no variable
-    exceeds `threshold` under V2 (the legacy clip rails several near 1.0)."""
+    of a [0,1] bound, baseline vs CENTURY_V2 (soft dynamics). Passes when no variable
+    exceeds `threshold` under V2 (the baseline clip rails several near 1.0)."""
     print("[pinned-audit] survivor-years within 0.01 of a bound, N=%d (fail if any V2 variable > %.0f%%)"
           % (n, threshold * 100))
-    legacy = run_engine(n, {"CENTURY_LEGACY": "1", "CENTURY_AUDIT": "1"})["audit_pinned_fraction"]
+    baseline = run_engine(n, {"CENTURY_BASELINE": "1", "CENTURY_AUDIT": "1"})["audit_pinned_fraction"]
     v2 = run_engine(n, {"CENTURY_AUDIT": "1", "CENTURY_V2": "1"})["audit_pinned_fraction"]
-    print("  %-4s %12s %12s" % ("var", "legacy", "V2 (soft)"))
+    print("  %-4s %12s %12s" % ("var", "baseline", "V2 (soft)"))
     worst = 0.0
     for nm in PINNED_VARS:
-        print("  %-4s %11.1f%% %11.1f%%" % (nm, legacy[nm] * 100, v2[nm] * 100))
+        print("  %-4s %11.1f%% %11.1f%%" % (nm, baseline[nm] * 100, v2[nm] * 100))
         worst = max(worst, v2[nm])
     ok = worst <= threshold
-    print("  %s — worst V2 pinned fraction %.1f%% (threshold %.0f%%); legacy peaks at %.1f%%."
-          % ("PASS" if ok else "FAIL", worst * 100, threshold * 100, max(legacy.values()) * 100))
+    print("  %s — worst V2 pinned fraction %.1f%% (threshold %.0f%%); baseline peaks at %.1f%%."
+          % ("PASS" if ok else "FAIL", worst * 100, threshold * 100, max(baseline.values()) * 100))
     return ok
 
 
@@ -787,9 +1072,9 @@ def check_policy_audit(n=50000):
     bounds_ok = se_ok and race_ok and resp_ok
     ws_ok = ap["safety_effort_top_ws_quartile"] > ap["safety_effort_bottom_ws_quartile"]
     zeroed = run_engine(n, {"CENTURY_V2": "1", "CENTURY_POLICY_SCALE": "0"})
-    # v2 is the default, so "all corrections except policy" is built on the legacy base
+    # v2 is the default, so "all corrections except policy" is built on the baseline
     # (default-v2 would force every switch on regardless).
-    nonpolicy_env = {"CENTURY_LEGACY": "1"}
+    nonpolicy_env = {"CENTURY_BASELINE": "1"}
     nonpolicy_env.update({env: "1" for env, _ in V2_CONFIGS if env not in ("CENTURY_V2", "CENTURY_V2_POLICY")})
     nonpolicy = run_engine(n, nonpolicy_env)
     zero_ok = (zeroed["outcomes"] == nonpolicy["outcomes"] and zeroed["aggregates"] == nonpolicy["aggregates"])
@@ -849,18 +1134,18 @@ def check_corr_audit(n=50000):
 
 
 def gen_v2_deltas(n=50000):
-    """Run legacy plus each v2 configuration at N=n and write a per-outcome-class
+    """Run baseline plus each v2 configuration at N=n and write a per-outcome-class
     delta table to notes/v2-deltas.md."""
-    print("[v2-deltas] legacy + %d configuration(s) at N=%d -> %s"
+    print("[v2-deltas] baseline + %d configuration(s) at N=%d -> %s"
           % (len(V2_CONFIGS), n, os.path.relpath(NOTES_PATH, HERE)))
-    # v2 is now the default, so the legacy baseline needs CENTURY_LEGACY=1, and each
-    # single-switch column is the legacy path plus that one correction (the umbrella
+    # v2 is now the default, so the baseline needs CENTURY_BASELINE=1, and each
+    # single-switch column is the baseline path plus that one correction (the umbrella
     # CENTURY_V2 column is the full v2 default).
-    base = run_engine(n, {"CENTURY_LEGACY": "1"})
+    base = run_engine(n, {"CENTURY_BASELINE": "1"})
     configs = []
     for env, desc in V2_CONFIGS:
         print("  running %s ..." % env)
-        env_extra = {"CENTURY_V2": "1"} if env == "CENTURY_V2" else {"CENTURY_LEGACY": "1", env: "1"}
+        env_extra = {"CENTURY_V2": "1"} if env == "CENTURY_V2" else {"CENTURY_BASELINE": "1", env: "1"}
         configs.append((env, desc, run_engine(n, env_extra)))
 
     def cell(v):
@@ -870,14 +1155,14 @@ def gen_v2_deltas(n=50000):
     lines.append("# v2 mechanical-correction deltas (Phase 3)")
     lines.append("")
     lines.append("Generated by `check_century.py --v2-deltas`. Each column is a single "
-                 "`CENTURY_V2_*` switch enabled alone at N=%d, seed 431, versus the legacy "
+                 "`CENTURY_V2_*` switch enabled alone at N=%d, seed 431, versus the baseline "
                  "path; the final column is the umbrella `CENTURY_V2=1`. Values are "
                  "percentage-point deltas on each outcome share (blank = no change)." % n)
     lines.append("")
-    lines.append("Legacy figures are not affected by any switch. The regression gate "
+    lines.append("Baseline figures are not affected by any switch. The regression gate "
                  "(`check_century.py --quick --full`) holds them bit-identical.")
     lines.append("")
-    header = ["Outcome class", "Legacy %"] + [env.replace("CENTURY_V2_", "").replace("CENTURY_V2", "V2(all)")
+    header = ["Outcome class", "Baseline %"] + [env.replace("CENTURY_V2_", "").replace("CENTURY_V2", "V2(all)")
                                               for env, _ in V2_CONFIGS]
     lines.append("| " + " | ".join(header) + " |")
     lines.append("|" + "---|" * len(header))
@@ -891,7 +1176,7 @@ def gen_v2_deltas(n=50000):
         cells = ["**%s**" % key, "%.1f" % b] + [cell(round(d["aggregates"][key] - b, 2)) for _, _, d in configs]
         lines.append("| " + " | ".join(cells) + " |")
     lines.append("")
-    lines.append("Median AGI year: legacy %d; %s."
+    lines.append("Median AGI year: baseline %d; %s."
                  % (base["agi"]["median_year"],
                     ", ".join("%s %d" % (env.replace("CENTURY_V2_", "").replace("CENTURY_V2", "V2(all)"),
                                          d["agi"]["median_year"]) for env, _, d in configs)))
@@ -905,8 +1190,8 @@ def gen_v2_deltas(n=50000):
     # ---- Phase 4: saturation (SOFT) findings --------------------------------
     v2_out = next(d for env, _, d in configs if env == "CENTURY_V2")
     soft_out = next(d for env, _, d in configs if env == "CENTURY_V2_SOFT")
-    print("  running saturation diagnostics (legacy + V2, AUDIT + DECADAL) ...")
-    legacy_diag = run_engine(n, {"CENTURY_LEGACY": "1", "CENTURY_AUDIT": "1", "CENTURY_DECADAL": "1"})
+    print("  running saturation diagnostics (baseline + V2, AUDIT + DECADAL) ...")
+    baseline_diag = run_engine(n, {"CENTURY_BASELINE": "1", "CENTURY_AUDIT": "1", "CENTURY_DECADAL": "1"})
     v2_diag = run_engine(n, {"CENTURY_AUDIT": "1", "CENTURY_DECADAL": "1", "CENTURY_V2": "1"})
 
     def middling(d):
@@ -915,17 +1200,17 @@ def gen_v2_deltas(n=50000):
     def wtraj(d):
         return {r["year"]: r["W"] for r in d["decadal"] if r["year"] >= 2080}
 
-    lp, vp = legacy_diag["audit_pinned_fraction"], v2_diag["audit_pinned_fraction"]
-    lt, vt = wtraj(legacy_diag), wtraj(v2_diag)
+    lp, vp = baseline_diag["audit_pinned_fraction"], v2_diag["audit_pinned_fraction"]
+    lt, vt = wtraj(baseline_diag), wtraj(v2_diag)
     yrs = sorted(lt)
 
     lines.append("## Saturation fix (Phase 4, `CENTURY_V2_SOFT`)")
     lines.append("")
-    lines.append("Legacy clip dynamics rail the bounded variables against 1.0; the soft "
+    lines.append("Baseline clip dynamics rail the bounded variables against 1.0; the soft "
                  "(logistic) update keeps them off the bounds. Fraction of survivor-years a "
                  "variable spends within 0.01 of a [0,1] bound, N=%d:" % n)
     lines.append("")
-    lines.append("| Variable | Legacy pinned % | V2 (soft) pinned % |")
+    lines.append("| Variable | Baseline pinned % | V2 (soft) pinned % |")
     lines.append("|---|---:|---:|")
     for nm in PINNED_VARS:
         lines.append("| %s | %.1f | %.1f |" % (nm, lp[nm] * 100, vp[nm] * 100))
@@ -934,23 +1219,23 @@ def gen_v2_deltas(n=50000):
     lines.append("")
     lines.append("| Path | " + " | ".join(str(y) for y in yrs) + " |")
     lines.append("|---|" + "---:|" * len(yrs))
-    lines.append("| Legacy W | " + " | ".join("%.2f" % lt[y] for y in yrs) + " |")
+    lines.append("| Baseline W | " + " | ".join("%.2f" % lt[y] for y in yrs) + " |")
     lines.append("| V2 (soft) W | " + " | ".join("%.2f" % vt[y] for y in yrs) + " |")
     lines.append("")
-    hleg = base["endstate_2126_survivors"]["median_wellbeing"]
+    hbase = base["endstate_2126_survivors"]["median_wellbeing"]
     hv2 = v2_out["endstate_2126_survivors"]["median_wellbeing"]
     lines.append(
         "**Finding: does bimodality survive?** Under soft dynamics the survivor wellbeing "
-        "median drops from a railed %.2f (legacy) to %.2f, and concentration W no longer "
-        "deconcentrates late-century: legacy W falls %.2f -> %.2f across %d-%d while the soft "
+        "median drops from a railed %.2f (baseline) to %.2f, and concentration W no longer "
+        "deconcentrates late-century: baseline W falls %.2f -> %.2f across %d-%d while the soft "
         "path holds it roughly flat (%.2f -> %.2f). The late-century deconcentration is "
         "therefore a clip artefact and does not survive. The outcome distribution stays "
         "dominated by the disempowerment / irreversible-bad mass with a smaller good tail, so "
         "it remains broadly bimodal, but the middle is no longer negligible: the middling "
-        "share (turbulent_transition + muddling_degraded) rises from %.2f%% (legacy) to %.2f%% "
+        "share (turbulent_transition + muddling_degraded) rises from %.2f%% (baseline) to %.2f%% "
         "under SOFT alone (%.2f%% under the full V2 set). Net: bimodality survives in weakened "
         "form; the deconcentration narrative does not."
-        % (hleg, hv2, lt[yrs[0]], lt[yrs[-1]], yrs[0], yrs[-1], vt[yrs[0]], vt[yrs[-1]],
+        % (hbase, hv2, lt[yrs[0]], lt[yrs[-1]], yrs[0], yrs[-1], vt[yrs[0]], vt[yrs[-1]],
            middling(base), middling(soft_out), middling(v2_out)))
     lines.append("")
 
@@ -985,15 +1270,15 @@ def gen_v2_deltas(n=50000):
 
 def capture_golden():
     """(Re)write both golden sets from the current engine: the v2 defaults and the
-    retained legacy path (CENTURY_LEGACY=1). Used to bless a new baseline."""
+    retained baseline path (CENTURY_BASELINE=1). Used to bless new reference figures."""
     os.makedirs(GOLDEN_DIR, exist_ok=True)
-    for (n, legacy), path in GOLDEN.items():
-        actual = run_engine(n, {"CENTURY_LEGACY": "1"} if legacy else None)
-        payload = {"N": n, "seed": 431, "legacy": legacy}
+    for (n, baseline), path in GOLDEN.items():
+        actual = run_engine(n, {"CENTURY_BASELINE": "1"} if baseline else None)
+        payload = {"N": n, "seed": 431, "baseline": baseline}
         payload.update({blk: actual[blk] for blk in COMPARE_BLOCKS})
         with open(path, "w") as f:
             json.dump(payload, f, indent=2)
-        print("[capture] wrote %s (N=%d, %s)" % (os.path.relpath(path, HERE), n, "legacy" if legacy else "v2"))
+        print("[capture] wrote %s (N=%d, %s)" % (os.path.relpath(path, HERE), n, "baseline" if baseline else "v2"))
     return True
 
 
@@ -1015,6 +1300,328 @@ def check_cutoff_audit(n=50000):
     ok = a["n_agi_survivors"] > 0 and abs(sum(s.values()) - 100.0) < 0.5
     print("  %s" % ("PASS — audit produced survivor distributions"
                     if ok else "FAIL — audit output malformed"))
+    return ok
+
+
+# Ceiling on how much the respond-spread in log-odds may drift across the erode_mag grid
+# (assertion 4 of --erosion-audit). The realised drift is 0.027 on a spread of about 0.47;
+# the ceiling sits at roughly four times that, well clear of Monte Carlo noise at the
+# default N and low enough to catch erosion becoming a responsiveness multiplier.
+ERODE_SPREAD_MAX = 0.10
+
+
+def _logit(pct):
+    """Log-odds of a share given in percent."""
+    q = pct / 100.0
+    return math.log(q / (1.0 - q))
+
+
+def _logit_se(pct, n):
+    """Standard error of a log-odds estimate from a binomial share of n draws."""
+    q = pct / 100.0
+    return 1.0 / math.sqrt(n * q * (1.0 - q))
+
+
+def _pct_se(pct, n):
+    """Standard error of a binomial share, in percentage points."""
+    q = pct / 100.0
+    return 100.0 * math.sqrt(q * (1.0 - q) / n)
+
+
+def check_erosion_audit(n=50000):
+    """plan-28 Phase C gate for the readiness-erosion correction (V2_ERODE). Seven
+    assertions: the baseline path is untouched; pinning erode_mag to 0 recovers the
+    pre-correction dynamics; the outcome shift is monotone in the magnitude; the
+    correction is orthogonal to responsiveness when the spread is measured in log-odds;
+    the readiness clip floor is not standing in for the dynamics; the switch is separable
+    from V2_POLICY; and the warning-shot gate is visible in the audit counters."""
+    print("[erosion-audit] N=%d: V2_ERODE baseline safety, pinned-zero reproduction, monotonicity," % n)
+    print("                orthogonality in log-odds, clip floor, POLICY separability, gating")
+
+    # 1. Baseline is untouched. Repeat of the Phase A gate, at the golden's own N.
+    base = run_engine(20000, {"CENTURY_BASELINE": "1"})
+    base_diffs = diff_blocks(base, load_golden(20000, baseline=True))
+    a1 = not base_diffs
+    print("  1. baseline bit-identical to golden/baseline-20k-seed431.json: %s%s"
+          % (a1, "" if a1 else "  (%d block(s) drifted)" % len(base_diffs)))
+
+    # 2. Pinning the magnitude to zero recovers the dynamics the model had before the
+    #    correction. The erode_mag draw is guarded by V2_ERODE (century_sim.py:267-268), so
+    #    suppressing the switch shifts the RNG stream and the two runs see different worlds.
+    #    The comparison is therefore against the Monte Carlo bar, not for bit-identity.
+    pin0 = run_engine(n, {"CENTURY_AUDIT": "1", "CENTURY_OVERRIDES": '{"erode_mag":0}'})
+    noerode_env = {"CENTURY_BASELINE": "1"}
+    noerode_env.update({env: "1" for env, _ in V2_CONFIGS if env not in ("CENTURY_V2", "CENTURY_V2_ERODE")})
+    noerode = run_engine(n, noerode_env)
+    zero_erode = pin0["audit_erosion"]["mean_erode_per_yr"] == 0.0
+    g_pin, g_off = pin0["aggregates"]["good(broadly acceptable)"], noerode["aggregates"]["good(broadly acceptable)"]
+    bar2 = 1.96 * math.sqrt(_pct_se(g_pin, n) ** 2 + _pct_se(g_off, n) ** 2)
+    a2 = zero_erode and abs(g_pin - g_off) <= bar2
+    print("  2. erode_mag pinned to 0: mean erode = %.6f (exactly 0: %s)"
+          % (pin0["audit_erosion"]["mean_erode_per_yr"], zero_erode))
+    print("     P(good) pinned=%.2f%% vs V2_ERODE suppressed=%.2f%%  |d|=%.2f pp (95%% bar %.2f pp): %s"
+          % (g_pin, g_off, abs(g_pin - g_off), bar2, abs(g_pin - g_off) <= bar2))
+
+    # 3. Monotone in the magnitude. Erosion widens the capability-readiness gap, which is
+    #    what the takeover hazard reads, so disempowerment must rise with it.
+    pin30 = run_engine(n, {"CENTURY_OVERRIDES": '{"erode_mag":0.30}'})
+    d0, d30 = pin0["outcomes"]["disempowerment"], pin30["outcomes"]["disempowerment"]
+    bar3 = 1.96 * math.sqrt(_pct_se(d0, n) ** 2 + _pct_se(d30, n) ** 2)
+    a3 = (d30 - d0) > bar3
+    print("  3. P(disempowerment) at erode_mag 0.30 = %.2f%% > at 0.0 = %.2f%%  (+%.2f pp, bar %.2f pp): %s"
+          % (d30, d0, d30 - d0, bar3, a3))
+
+    # 4. Near-orthogonal to responsiveness. The high-respond / low-respond spread in P(good),
+    #    measured in LOG-ODDS, is nearly constant across the magnitude grid: erosion multiplies
+    #    the odds of a good century by roughly the same factor whatever a world does. Measured
+    #    in percentage points the same spread NARROWS, which reads as "erosion makes
+    #    responsiveness matter less" and is an artefact of the high-respond worlds sitting
+    #    further up the response curve. Both scales are printed so the trap stays visible.
+    #
+    #    "Nearly", because the log-odds spread widens slightly and monotonically with the
+    #    magnitude, by 0.027 end-to-end against a spread of about 0.47 (measured at N=200000,
+    #    where the independent standard error of that difference is 0.0095). The mechanism is
+    #    the damping channel: at erode_mag 0 there is no erosion for `learn` to damp, so
+    #    responsiveness cannot spend anything through ERODE_DAMP, and the channel only opens
+    #    as the magnitude rises. Confirmed by sweeping the damping itself at N=200000 - the
+    #    end-to-end drift is -0.019 at ERODE_DAMP=0, +0.027 at the 0.60 default and +0.055 at
+    #    0.90, so it tracks the damping and vanishes without it. The effect is about a
+    #    twentieth of the spread and invisible below N~100000, which is why the Phase D grid
+    #    at N=20000 read it as flat.
+    #
+    #    The gate is therefore on the SIZE of the drift, not its sign. A sign test is only
+    #    about two sigma at this N and would flake; the bound catches the regression that
+    #    matters, which is erosion turning into a responsiveness multiplier and reordering the
+    #    lever ranking strategy.md is built on. The grid runs share a seed, so the estimates
+    #    are positively correlated and the independent bar printed alongside is conservative.
+    print("  4. respond 0.25 vs 0.90 spread across the magnitude grid:")
+    print("     %-10s %8s %8s %9s %10s" % ("erode_mag", "lo P%", "hi P%", "d (pp)", "d (logit)"))
+    spreads, spread_ses = [], []
+    for em in (0.0, 0.15, 0.30, 0.50):
+        lo = run_engine(n, {"CENTURY_OVERRIDES": '{"respond":0.25,"erode_mag":%g}' % em})
+        hi = run_engine(n, {"CENTURY_OVERRIDES": '{"respond":0.90,"erode_mag":%g}' % em})
+        p_lo = lo["aggregates"]["good(broadly acceptable)"]
+        p_hi = hi["aggregates"]["good(broadly acceptable)"]
+        spreads.append(_logit(p_hi) - _logit(p_lo))
+        spread_ses.append(math.sqrt(_logit_se(p_hi, n) ** 2 + _logit_se(p_lo, n) ** 2))
+        print("     %-10.2f %8.2f %8.2f %9.2f %10.3f" % (em, p_lo, p_hi, p_hi - p_lo, spreads[-1]))
+    swing = max(spreads) - min(spreads)
+    bar4 = 1.96 * math.sqrt(2.0) * max(spread_ses)
+    a4 = swing <= ERODE_SPREAD_MAX
+    print("     log-odds spread varies by %.3f across the grid, %.1f%% of the spread itself"
+          " (drift ceiling %.2f): %s" % (swing, 100.0 * swing / abs(spreads[0]), ERODE_SPREAD_MAX, a4))
+    print("     for reference the Monte Carlo 95%% bar on that swing is %.3f, so a swing near it"
+          " is the known damping-channel trend, not a regression" % bar4)
+
+    # 5. The clip floor is not standing in for the dynamics. The share, not the minimum:
+    #    a minimum taken over a million-plus survivor-years reports only whether the bound
+    #    was ever touched, and the question is whether it is touched often enough to be
+    #    doing the model's work. The threshold sits two orders of magnitude above the
+    #    realised share, so it catches a regression in ERODE_MAX without tripping on the tail.
+    ae = run_engine(n, {"CENTURY_AUDIT": "1"})["audit_erosion"]
+    floor_share, min_r = ae["share_R_at_floor"], ae["min_realised_R"]
+    a5 = min_r >= 0.0 and floor_share <= 0.001
+    print("  5. clip floor: min realised R = %.5f (>= 0), survivor-years within 0.01 of it = %.4f%%"
+          " (<= 0.1%%): %s" % (min_r, floor_share * 100, a5))
+
+    # 6. Separable from V2_POLICY. shot_hist was hoisted out of the V2_POLICY block in
+    #    Phase A step 3 precisely so this combination runs; without the hoist it raises
+    #    NameError. run_engine turns a non-zero exit into an exception, so reaching the
+    #    comparison at all is half the assertion.
+    sep = run_engine(n, {"CENTURY_BASELINE": "1", "CENTURY_V2_ERODE": "1", "CENTURY_AUDIT": "1"})
+    sep_erode = sep["audit_erosion"]["mean_erode_per_yr"]
+    a6 = sep_erode > 0.0
+    print("  6. CENTURY_BASELINE=1 CENTURY_V2_ERODE=1 completes, mean erode = %.6f (> 0): %s"
+          % (sep_erode, a6))
+
+    # 7. The warning-shot gate is visible. Damping is withheld until a world has an
+    #    incident on record, so the undamped share is positive overall and markedly higher
+    #    before the AGI crossing, where most worlds have seen nothing to respond to yet.
+    z_all, z_pre = ae["share_learn_zero"], ae["share_learn_zero_pre_agi"]
+    a7 = z_all > 0.0 and z_pre > z_all
+    print("  7. survivor-years with learn == 0: %.1f%% overall, %.1f%% pre-crossing"
+          "  (positive and falling as capability rises): %s" % (z_all * 100, z_pre * 100, a7))
+    print("     mean learn %.3f overall, %.3f pre-crossing" % (ae["mean_learn"], ae["mean_learn_pre_agi"]))
+
+    checks = [a1, a2, a3, a4, a5, a6, a7]
+    ok = all(checks)
+    print("  %s — %s." % ("PASS" if ok else "FAIL",
+          "erosion is baseline-safe, reverts on pinning, monotone, near-orthogonal to "
+          "responsiveness, floor-free, POLICY-separable and gated"
+          if ok else "failing assertion(s): %s" % ", ".join(
+              str(i + 1) for i, c in enumerate(checks) if not c)))
+    return ok
+
+
+# Grids for --erode-sweep (plan-28 Phase D). The magnitude grid runs past ERODE_MAX (0.30)
+# to 0.50 so the sweep covers values the sampled prior cannot reach; the damping and
+# warning-shot grids span the full plausible range of each constant.
+ERODE_MAG_GRID = (0.0, 0.075, 0.15, 0.225, 0.30, 0.40, 0.50)
+ERODE_DAMP_GRID = (0.0, 0.3, 0.6, 0.9)
+SHOT_REF_GRID = (0.25, 0.5, 1.0, 2.0)
+
+# Ceiling on how much of the magnitude's effect on P(good) either second-order constant may
+# account for (assertions 2 and 3 of --erode-sweep). §5 Risks of plan-28 names the trigger as
+# the damping mattering MORE than the magnitude, a ratio above 1; this is far tighter than that.
+# The realised ratios are 3.4% for the damping and 4.1% for the warning-shot scale, so a tenth
+# leaves headroom for Monte Carlo noise while still firing long before either constant becomes
+# comparable to the magnitude.
+ERODE_SECOND_ORDER_MAX = 0.10
+
+
+def _erode_row(res):
+    """The four figures each --erode-sweep row reports."""
+    return (res["aggregates"]["good(broadly acceptable)"],
+            res["outcomes"]["disempowerment"],
+            res["outcomes"]["extinction"],
+            res["gap_at_agi"]["median"])
+
+
+def check_erode_sweep(n=200000, ext_group="xpt_superforecaster"):
+    """plan-28 Phase D sweep for the readiness-erosion correction, in the reporting style of
+    --struct-pflat-sweep. Three grids: the per-world magnitude erode_mag, the damping constant
+    ERODE_DAMP, and the warning-shot saturation scale SHOT_REF. Plus the anchor-calibration
+    effective sample size across ERODE_MAX, which says whether the outside-view anchors prefer
+    any magnitude over any other.
+
+    N is 200000 rather than the 50000 the other audits use. The magnitude grid would be legible
+    at any N, but the damping and warning-shot grids move P(good) by 1.5 points and 0.3 points
+    respectively, and at N=50000 the 95% bar on a difference is 0.6 points, which cannot tell a
+    small effect from no effect. The ad hoc version of this sweep ran at N=20000 and reported
+    the respond-orthogonality grid as flat when it was not (see the Phase C notes), which is the
+    mistake this default exists to avoid.
+
+    Three assertions, all of them things the plan commits to in writing:
+      1. P(good) falls monotonically across the magnitude grid;
+      2. the full damping range moves P(good) by at most ERODE_SECOND_ORDER_MAX of what the full
+         magnitude range moves it, which is the instrument §5 Risks names for "damping is doing
+         too much work", set far tighter than the trigger stated there;
+      3. the full SHOT_REF range clears the same bound, so the §6 gating decision is not what
+         drives the correction's effect.
+
+    Assertions 2 and 3 are deliberately not an ordering between the damping and the warning-shot
+    scale. Both spans are about half a point against a bar of a third of a point, so which of
+    them is larger is not a fact this model can establish, and a check that asserted an ordering
+    would be asserting noise.
+    The ESS is reported and not asserted on. Anchors that started discriminating between
+    magnitudes would be a finding worth acting on, not a regression to fail."""
+    import numpy as np
+    import calibrate_century as cal
+
+    bar = 1.96 * math.sqrt(2.0) * _pct_se(40.0, n)  # 95% bar on a difference of two P(good)
+    print("[erode-sweep] N=%d, 95%% bar on a difference of two shares about %.2f pp" % (n, bar))
+    print("              (the grid runs share seed 431, so the estimates are positively correlated"
+          " and that bar is conservative)")
+
+    hdr = "  %-10s %8s %8s %8s %10s"
+    row = "  %-10.3f %8.2f %8.2f %8.2f %10.3f"
+
+    # 1. The magnitude, pinned. CENTURY_OVERRIDES pins the parameter after the draw and before
+    #    the copula, so the value stays constant under the rank reordering.
+    print("  erode_mag pinned (ERODE_DAMP=0.60, SHOT_REF=1.0):")
+    print(hdr % ("erode_mag", "good%", "disemp%", "ext%", "gap@AGI"))
+    mag = []
+    for em in ERODE_MAG_GRID:
+        r = _erode_row(run_engine(n, {"CENTURY_OVERRIDES": '{"erode_mag":%g}' % em}))
+        mag.append(r)
+        print(row % ((em,) + r))
+    mag_good = [r[0] for r in mag]
+    mag_range = mag_good[0] - mag_good[-1]
+    monotone = all(mag_good[i] > mag_good[i + 1] for i in range(len(mag_good) - 1))
+    print("     P(good) spans %.2f pp end to end, strictly falling: %s" % (mag_range, monotone))
+
+    # 2. The damping, with erode_mag left sampled from U(0, ERODE_MAX). ERODE_DAMP is the share
+    #    of erosion a saturated, maximally responsive world buys back, so 0.0 is erosion no
+    #    responsiveness can touch and 0.9 is erosion that responsiveness almost cancels.
+    print("  ERODE_DAMP swept (erode_mag left sampled from U(0, ERODE_MAX)):")
+    print(hdr % ("damp", "good%", "disemp%", "ext%", "gap@AGI"))
+    damp = []
+    for dv in ERODE_DAMP_GRID:
+        r = _erode_row(run_engine(n, {"CENTURY_ERODE_DAMP": "%g" % dv}))
+        damp.append(r)
+        print(row % ((dv,) + r))
+    damp_good = [r[0] for r in damp]
+    damp_range = max(damp_good) - min(damp_good)
+    print("     P(good) spans %.2f pp end to end, %s the %.2f pp bar"
+          % (damp_range, "above" if damp_range > bar else "inside", bar))
+
+    # 3. The warning-shot scale, also with erode_mag sampled. SHOT_REF is the accumulated
+    #    warning-shot memory at which institutional learning saturates: at 0.25 a world learns
+    #    almost everything it is going to learn from its first incident, which approaches the
+    #    ungated variant the plan rejected in §6, and at 2.0 only worlds with sustained
+    #    near-misses ever damp anything. The span therefore bounds what that decision was worth.
+    print("  SHOT_REF swept (erode_mag sampled, ERODE_DAMP=0.60):")
+    print(hdr % ("shot_ref", "good%", "disemp%", "ext%", "gap@AGI"))
+    shot = []
+    for sv in SHOT_REF_GRID:
+        r = _erode_row(run_engine(n, {"CENTURY_SHOT_REF": "%g" % sv}))
+        shot.append(r)
+        print(row % ((sv,) + r))
+    shot_good = [r[0] for r in shot]
+    shot_range = max(shot_good) - min(shot_good)
+    print("     P(good) spans %.2f pp end to end, %s the %.2f pp bar"
+          % (shot_range, "above" if shot_range > bar else "inside", bar))
+
+    # 4. Anchor calibration. calibrate_century.run_ensemble strips CENTURY_OVERRIDES
+    #    (calibrate_century.py:60-62), so the magnitude has to be moved through CENTURY_ERODE_MAX
+    #    here, which reshapes the prior U(0, ERODE_MAX) rather than pinning a single value. The
+    #    ESS is the share of the ensemble that survives reweighting to the outside-view anchors:
+    #    a magnitude the anchors prefer is one that needs less reweighting to reach them.
+    with open(os.path.join(HERE, "anchors.json")) as f:
+        anchors = json.load(f)
+    print("  anchor-calibration ESS by CENTURY_ERODE_MAX (extinction anchor: %s):" % ext_group)
+    print("  %-10s %8s %8s %10s" % ("erode_max", "good%", "ext%", "ESS%"))
+    saved = os.environ.get("CENTURY_ERODE_MAX")
+    ess_rows = []
+    try:
+        for em in (0.0, 0.15, 0.30, 0.50):
+            os.environ["CENTURY_ERODE_MAX"] = "%.4f" % em
+            ns = cal.run_ensemble(n)
+            good = 100.0 * float(ns["good"].mean())
+            ext = 100.0 * float((ns["final"] == "extinction").mean())
+            names, F, lo, hi = cal.build_features(ns, anchors, ext_group)
+            unw = F.mean(axis=0)
+            t = np.clip(unw, lo, hi)
+            active = ~np.isclose(t, unw, atol=1e-6)
+            if active.any():
+                lam = cal.fit_maxent(F[:, active], t[active])
+                z = F[:, active] @ lam
+                z -= z.max()
+                w = np.exp(z)
+            else:
+                w = np.ones(n)
+            w = w / w.mean()
+            ess = 100.0 * float(w.sum() ** 2 / (w ** 2).sum()) / n
+            ess_rows.append((em, ess))
+            print("  %-10.2f %8.1f %8.2f %10.1f" % (em, good, ext, ess))
+    finally:
+        if saved is None:
+            os.environ.pop("CENTURY_ERODE_MAX", None)
+        else:
+            os.environ["CENTURY_ERODE_MAX"] = saved
+    ess_span = max(e for _, e in ess_rows) - min(e for _, e in ess_rows)
+    best = max(ess_rows, key=lambda r: r[1])
+    print("     ESS spans %.1f points across the range, highest at erode_max=%.2f (%.1f%%)"
+          % (ess_span, best[0], best[1]))
+    print("     %s" % ("the anchors do not discriminate between magnitudes, so the default is"
+                       " honest ignorance rather than a fitted value" if ess_span < 5.0 else
+                       "the anchors DO discriminate: ERODE_MAX should move to the preferred value"))
+
+    ceiling = ERODE_SECOND_ORDER_MAX * mag_range
+    b1 = monotone
+    b2 = damp_range <= ceiling
+    b3 = shot_range <= ceiling
+    print("  1. P(good) strictly falls across the magnitude grid: %s" % b1)
+    print("  2. damping range %.2f pp is %.1f%% of the magnitude's %.2f pp (ceiling %.0f%%): %s"
+          % (damp_range, 100.0 * damp_range / mag_range, mag_range, 100.0 * ERODE_SECOND_ORDER_MAX, b2))
+    print("  3. warning-shot range %.2f pp is %.1f%% of it (same ceiling): %s"
+          % (shot_range, 100.0 * shot_range / mag_range, b3))
+    checks = [b1, b2, b3]
+    ok = all(checks)
+    print("  %s — %s." % ("PASS" if ok else "FAIL",
+          "the magnitude does the work; damping and the warning-shot gate are second-order"
+          if ok else "failing assertion(s): %s" % ", ".join(
+              str(i + 1) for i, c in enumerate(checks) if not c)))
     return ok
 
 
@@ -1080,7 +1687,7 @@ def main(argv=None):
     ap.add_argument("--v2-deltas", action="store_true",
                     help="write per-switch outcome deltas to notes/v2-deltas.md (N=50000)")
     ap.add_argument("--pinned-audit", action="store_true",
-                    help="report survivor-years pinned to a bound, legacy vs V2 (N=50000)")
+                    help="report survivor-years pinned to a bound, baseline vs V2 (N=50000)")
     ap.add_argument("--struct-audit", action="store_true",
                     help="check the sampled-structure P(bad) gradient + pinned-corner reproduction (N=50000)")
     ap.add_argument("--corr-audit", action="store_true",
@@ -1095,10 +1702,18 @@ def main(argv=None):
                     help="check endogenous-policy bounds, zeroing, and warning-shot response (N=50000)")
     ap.add_argument("--hazard-audit", action="store_true",
                     help="check fate accounting, unknown-unknowns rate, and rebuild penalties (N=50000)")
+    ap.add_argument("--readability", action="store_true",
+                    help="prose gate: sentence length, unexplained jargon and document openers")
     ap.add_argument("--doc-figures", action="store_true",
                     help="check every registered doc table and inline prose figure against fresh v2 engine runs")
     ap.add_argument("--cutoff-audit", action="store_true",
                     help="report post-AGI survivor W/H/Rd/G quantiles and the abundance/oligarchic/fragile split (N=50000)")
+    ap.add_argument("--erosion-audit", action="store_true",
+                    help="check the readiness-erosion correction: baseline safety, pinned-zero reproduction, "
+                         "monotonicity, near-orthogonality to respond, clip floor, separability, gating (N=50000)")
+    ap.add_argument("--erode-sweep", action="store_true",
+                    help="sweep erode_mag, ERODE_DAMP and SHOT_REF; tabulate outcomes and anchor ESS "
+                         "at each, and check the magnitude dominates the other two (N=200000, ~5 min)")
     ap.add_argument("--struct-pflat-sweep", action="store_true",
                     help="sweep STRUCT_P_FLAT and tabulate unweighted good/bad/extinction + anchor ESS at each (N=50000)")
     ap.add_argument("--capture", action="store_true",
@@ -1132,8 +1747,14 @@ def main(argv=None):
         return 0 if check_hazard_audit() else 1
     if args.doc_figures:
         return 0 if check_doc_figures() else 1
+    if args.readability:
+        return 0 if check_doc_prose_readable() else 1
     if args.cutoff_audit:
         return 0 if check_cutoff_audit() else 1
+    if args.erosion_audit:
+        return 0 if check_erosion_audit() else 1
+    if args.erode_sweep:
+        return 0 if check_erode_sweep() else 1
     if args.struct_pflat_sweep:
         return 0 if check_struct_pflat_sweep() else 1
     if args.capture:

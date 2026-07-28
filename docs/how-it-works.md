@@ -1,12 +1,16 @@
 # How Century Superforecaster works
 
-Nobody knows how the next hundred years go. This model handles that by refusing to guess once. It builds 800,000 different versions of the future and plays each one out year by year, from 2026 to 2126. Every version makes slightly different assumptions about how fast AI improves, how likely wars and pandemics are, how well governments cope, and so on. At the end it counts how the 800,000 versions turned out. That count is the answer: a map of what could happen and how often.
+Nobody knows how the next hundred years go. This model handles that by refusing to guess once.
+
+It builds 800,000 different versions of the future and plays each one out year by year, from 2026 to 2126. Every version makes slightly different assumptions about how fast AI improves, how likely wars and pandemics are, and how well governments cope. At the end it counts how the 800,000 versions turned out. That count is the answer: a map of what could happen and how often.
 
 ## How a world plays out
 
 Each of the 800,000 worlds starts the same way. It draws its own settings from a set of ranges. One world gets fast AI progress and weak institutions. Another gets slow progress and strong cooperation. Those ranges are the model's assumptions, and they are written down where anyone can see them.
 
 Then the world runs forward, a year at a time. Each year something can happen: a nuclear war, a pandemic, an AI warning shot, a slow loss of human control. How likely each one is depends on the state that world is in, so a tense, racing world is more dangerous than a calm, prepared one. After a hundred years the world has landed somewhere, broadly good, broadly bad, or in between, and the model records where.
+
+One of the things a world tracks each year is how ready it is for the AI it has: how well it can test, understand and contain the systems it has built. Safety work adds to that stock, and the AI itself can be pointed at the problem. But the stock also leaks. Every jump in capability makes part of last year's testing regime out of date, because the tests were written for a weaker system. A world that keeps building without redoing that work loses ground even while it is running hard. How fast the leak runs is a number nobody has measured, so the model reports its headline twice, once for a world where containment decays and once for a world where it holds.
 
 Do that 800,000 times and you have the full spread.
 
@@ -28,7 +32,7 @@ And it is small. The whole thing is a few Python files and NumPy. You can read t
 
 The same 800,000 worlds can be counted three ways, and the model reports them side by side.
 
-**The headline.** The plain count, the number this repository leads with, treats every social and political choice as open. A world that shares the gains of AI is as common as one that hoards them. Read it as a price list: if the world makes this choice, this is what it buys.
+**The headline.** The plain count, the number this repository leads with, treats every social and political choice as open. A world that shares the gains of AI is as common as one that hoards them. Read it as a price list: if the world makes this choice, this is what it buys. This count itself comes in two versions, for the containment leak described above: a good century runs at about 39 in 100 if containment decays and about 44 in 100 if it holds. Every other number in the repository uses the first.
 
 **The outside view.** The same worlds, adjusted so the totals line up with published expert forecasts of things like extinction risk and AI timelines (`anchors.json`). Read it as what professional forecasters expect.
 

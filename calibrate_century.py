@@ -58,8 +58,10 @@ def run_ensemble(n):
         src = f.read()
     env_saved = dict(os.environ)
     argv_saved = sys.argv
-    for _k in ("CENTURY_WEIGHTS", "CENTURY_LEVER_WEIGHTS", "CENTURY_AUDIT",
-               "CENTURY_DECADAL", "CENTURY_OVERRIDES"):
+    # Hermetic: drop every ambient CENTURY_* variable, then set only what this run intends.
+    # The previous allowlist missed CENTURY_BASELINE, so calibrating under it embedded a
+    # fingerprint claiming the baseline path while CENTURY_V2 below forced the v2 one.
+    for _k in [_k for _k in os.environ if _k.startswith("CENTURY_")]:
         os.environ.pop(_k, None)
     os.environ["CENTURY_V2"] = "1"
     sys.argv = [ENGINE, str(n)]
