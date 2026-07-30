@@ -29,7 +29,7 @@ You do not need any technical background. You do need four ideas.
 
 ### The clock is the uncomfortable part
 
-In the model, the typical world crosses the AGI line around **2036**. Half of all worlds have crossed by 2036, and two-thirds by 2040. That means the window for making every one of these choices is not "this century" but roughly **now to the mid-2030s**. Choices made after the crossing mostly do not help, because in a large share of worlds there is no second chance once capability has run ahead of readiness. Preparation is something you bank beforehand or not at all.
+In the model, the typical world crosses the AGI line around **2038**. Half of all worlds have crossed by 2038, and well over half by 2040. That means the window for making every one of these choices is not "this century" but roughly **now to the mid-2030s**. Choices made after the crossing mostly do not help, because in a large share of worlds there is no second chance once capability has run ahead of readiness. Preparation is something you bank beforehand or not at all.
 
 ---
 
@@ -96,7 +96,7 @@ This is the research that shrinks the gap directly: work on giving machines goal
 - **Match the money to the capability money.** The core idea is scale. Safety research should be funded at a level that bears comparison to what is spent pushing capability forward, rather than as a rounding error beside it. Today the two are wildly out of balance.
 - **Fund it publicly and philanthropically, not only inside the labs.** Some of this work must live outside the companies building the systems, so that the people checking the technology are not paid by the people selling it.
 - **Staff it, not just fund it.** The bottleneck is often talented people rather than money. That means training programmes, fellowships and career paths that make safety research a serious profession rather than a niche.
-- **Start immediately.** With the median crossing around 2036, the productive window for this work is roughly now to 2035. Every year of it banks readiness you get to keep.
+- **Start immediately.** With the median crossing around 2038, the productive window for this work is roughly now to 2035. Every year of it banks readiness you get to keep.
 
 ### What gets in the way
 

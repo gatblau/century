@@ -55,9 +55,9 @@ A world ends in exactly one of eleven outcomes. Four are absorbing: the world's 
 
 ### 1.3 Calibration targets
 
-- **AGI timing**: 2023 to 2025 expert surveys and forecasting-platform aggregates give a median arrival of general or transformative AI in the mid-to-late 2030s under fast-progress assumptions, a long right tail, and a non-trivial chance of a plateau. The crossing distribution below (median 2036, 6 % never) sits inside that envelope.
+- **AGI timing**: 2023 to 2025 expert surveys and forecasting-platform aggregates give a median arrival of general or transformative AI in the mid-to-late 2030s under fast-progress assumptions, a long right tail, and a non-trivial chance of a plateau. The crossing distribution below (median 2038, 6 % never) sits inside that envelope.
 - **Nuclear risk**: published per-year estimates of great-power nuclear war run roughly 0.1 % to 1 %. The model uses a 0.3 % base, raised by turbulence and racing.
-- **Existential risk**: the Existential Risk Persuasion Tournament puts superforecasters at about 1 % extinction by 2100 and domain experts at about 6 %. With the takeover window held flat (the pure persistent-risk structure) the model's extinction output of 16.0 % sits well above that envelope, in the territory of pessimistic inside-view estimates from the AI-risk literature (over 10 %). The headline, which samples the window structure at even odds, lands near 11.5 %. The elevated figure is deliberate. It follows from taking the reference models' structural stance seriously, and section 6.1 shows exactly which assumption drives it. The tension between outside-view aggregates and inside-view structure is the live crux of the field, and this document does not pretend to resolve it.
+- **Existential risk**: the Existential Risk Persuasion Tournament puts superforecasters at about 1 % extinction by 2100 and domain experts at about 6 %. With the takeover window held flat (the pure persistent-risk structure) the model's extinction output of 15.4 % sits well above that envelope, in the territory of pessimistic inside-view estimates from the AI-risk literature (over 10 %). The headline, which samples the window structure at even odds, lands near 10.9 %. The elevated figure is deliberate. It follows from taking the reference models' structural stance seriously, and section 6.1 shows exactly which assumption drives it. The tension between outside-view aggregates and inside-view structure is the live crux of the field, and this document does not pretend to resolve it.
 - **Pandemic frequency**: COVID-class-or-worse pandemics have arrived a few times per century (the 1918, 1957, 1968 and 2009 influenza pandemics plus COVID-19), and Marani et al. (2021) put the frequency of extreme novel epidemics in the low single digits per century. The model's roughly 1.1 non-absorbing pandemics per world sits inside a 1 to 4 band.
 - **Population**: UN World Population Prospects 2024 has global population peaking near 10.3 billion around 2084 and then declining, with a 2100 range of roughly 8.9 to 11.6 billion. Among worlds that avoid a global catastrophe the model's 2126 median is about 9.3 billion, inside that envelope. This target is survivor-conditional, matching the projection's no-collapse premise.
 - **Warming**: IPCC AR6 puts 2100 warming above pre-industrial between about 1.4 °C under deep mitigation (SSP1-1.9) and about 4.4 °C under high emissions (SSP5-8.5), with a central no-strong-mitigation path near 2.7 °C (SSP2-4.5). The model's survivor median at 2126 is about 2.74 °C, also survivor-conditional.
@@ -82,8 +82,8 @@ The headline is therefore reported as two readings of the same 800,000 worlds un
 
 | Reading | Broadly acceptable | Irreversibly bad | Disempowerment | Extinction |
 |---|---:|---:|---:|---:|
-| **Containment decays** (`erode_mag` sampled, the default) | **39.0 %** | **48.9 %** | 33.3 % | 11.5 % |
-| **Containment holds** (`erode_mag` pinned to 0) | 44.2 % | 41.8 % | 27.4 % | 9.7 % |
+| **Containment decays** (`erode_mag` sampled, the default) | **40.4 %** | **46.6 %** | 31.4 % | 10.9 % |
+| **Containment holds** (`erode_mag` pinned to 0) | 45.5 % | 39.5 % | 25.5 % | 9.2 % |
 
 The two are not interchangeable and should not be averaged. The holds column is what the model published before the correction, when it silently assumed that no containment measure ever goes stale. That is the most optimistic point on the whole range, and it was never argued for anywhere, so the pair reveals uncertainty that was always in the model rather than adding new uncertainty to it.
 
@@ -93,26 +93,26 @@ The rest of this document reports the containment-decays reading, which is the m
 
 | Outcome | Probability |
 |---|---:|
-| **Disempowerment** | **33.3 %** |
-| Oligarchic prosperity | 18.5 % |
-| Aligned abundance | 17.4 % |
-| Extinction | 11.5 % |
-| Turbulent transition | 7.5 % |
-| Constrained flourishing (no AGI) | 3.1 % |
-| Recovered (post-collapse) | 2.6 % |
-| Unknown catastrophe | 2.2 % |
-| Muddling degraded (no AGI) | 2.0 % |
+| **Disempowerment** | **31.4 %** |
+| Oligarchic prosperity | 19.1 % |
+| Aligned abundance | 18.2 % |
+| Extinction | 10.9 % |
+| Turbulent transition | 8.3 % |
+| Constrained flourishing (no AGI) | 3.0 % |
+| Recovered (post-collapse) | 2.7 % |
+| Unknown catastrophe | 2.4 % |
+| Muddling degraded (no AGI) | 2.1 % |
 | Totalitarian lock-in | 1.4 % |
-| Civilisational collapse | 0.4 % |
+| Civilisational collapse | 0.5 % |
 
 Aggregated:
 
 | Aggregate | Probability |
 |---|---:|
-| **Broadly acceptable** (abundance + oligarchic + flourishing) | **39.0 %** |
-| Mixed (turbulent + recovered + muddling) | 12.1 % |
-| **Irreversibly bad** (disempowerment + lock-in + collapse + extinction + unknown catastrophe) | **48.9 %** |
-| *of which extinction or civilisational collapse* | 12.0 % |
+| **Broadly acceptable** (abundance + oligarchic + flourishing) | **40.4 %** |
+| Mixed (turbulent + recovered + muddling) | 13.1 % |
+| **Irreversibly bad** (disempowerment + lock-in + collapse + extinction + unknown catastrophe) | **46.6 %** |
+| *of which extinction or civilisational collapse* | 11.4 % |
 
 The first three rows are mutually exclusive and sum to 100 %; the fourth is a subset of the bad row, called out because it is the catastrophic tail.
 
@@ -188,9 +188,9 @@ And the conditional structure:
 | Condition | P(disempowerment) |
 |---|---:|
 | No AGI at all | **0.0 %** |
-| Crossed AGI with gap < 0.15 | 6.8 % |
-| AGI after 2050 | 13.0 % |
-| Crossed AGI with gap > 0.35 | **41.7 %** |
+| Crossed AGI with gap < 0.15 | 7.5 % |
+| AGI after 2050 | 14.2 % |
+| Crossed AGI with gap > 0.35 | **41.4 %** |
 | AGI by 2035 | 43.0 % |
 
 Translated out of the model's vocabulary, the plan is concrete, and its order is the section's main finding.
@@ -202,11 +202,11 @@ Translated out of the model's vocabulary, the plan is concrete, and its order is
 5. **Expect the containment work to go stale, and budget for redoing it** (+8.5, ranked sixth). The one input on this list that is a property of the environment rather than a choice is how fast capability growth invalidates last year's evaluations and controls. A world at the top quartile of that rate ends disempowered 37.4 % of the time against 28.9 % at the bottom. Institutional responsiveness buys some of it back, but only after a warning shot has arrived, and across its full range that damping is worth about half a point of P(good) against the decay rate's own 14.7. The practical reading is that an evaluation suite is a perishable asset, and the ranking rewards re-running it as capability moves.
 6. **What does not help:** biodefence, climate effort and general resilience barely move this outcome (under ±1). They are worth doing for other reasons. They simply do not address this failure mode. Disempowerment is a transfer of control that happens to a functioning world, and it does not strike a weak one (section 3.1).
 
-The uncomfortable summary: the disempowerment outcome is avoided before the crossing or not at all. Every choice with a double-digit swing works in the window between now and the AGI threshold, and under this model's persistent-risk prior there is no post-crossing recovery lane. That window is measured in years rather than decades: half the ensemble has crossed by 2036 to 2040.
+The uncomfortable summary: the disempowerment outcome is avoided before the crossing or not at all. Every choice with a double-digit swing works in the window between now and the AGI threshold, and under this model's persistent-risk prior there is no post-crossing recovery lane. That window is measured in years rather than decades: half the ensemble has crossed by 2038 to 2040.
 
 ### 3.3 Inside the second most likely outcome: how the good century happens
 
-Aligned abundance (17.4 %, 139,308 worlds) is the counter-story, and the engine's `abundance_profile` block lets it be told from data rather than hope: what these worlds had, what they survived, and how the century unfolded for them, decade by decade.
+Aligned abundance (18.2 %, 145,760 worlds) is the counter-story, and the engine's `abundance_profile` block lets it be told from data rather than hope: what these worlds had, what they survived, and how the century unfolded for them, decade by decade.
 
 **The recipe: what abundance worlds had going in.** Median parameter draws among abundance worlds against the whole ensemble:
 
@@ -221,15 +221,15 @@ Aligned abundance (17.4 %, 139,308 worlds) is the counter-story, and the engine'
 | Plateau regime present | 14.9 % | 14.0 % | +0.9 point |
 | Initial readiness, AGI threshold | ~unshifted | ~unshifted | - |
 
-The pattern is consistent: **a collection of modest advantages rather than one decisive edge.** The two largest edges are socio-political (a world that redistributes and heeds warning shots), with slower capability growth a secondary factor that still pushes the median crossing from 2036 to **2038** (quartiles 2034 to 2044). Every ingredient is a 10 to 40 % edge rather than a transformation, and about a seventh of abundance worlds sit in the plateau regime, their capability crossing late or barely.
+The pattern is consistent: **a collection of modest advantages rather than one decisive edge.** The two largest edges are socio-political (a world that redistributes and heeds warning shots), with slower capability growth a secondary factor that still pushes the median crossing from 2038 to **2041** (quartiles 2036 to 2048). Every ingredient is a 10 to 40 % edge rather than a transformation, and about a seventh of abundance worlds sit in the plateau regime, their capability crossing late or barely.
 
 **The surprise: most good centuries do not cross cleanly.**
 
 | Condition at AGI crossing | Share of abundance worlds |
 |---|---:|
-| Controlled (gap < 0.15) | 11.2 % |
-| Contested (0.15–0.35) | 29.5 % |
-| Uncontrolled (gap > 0.35) | **59.3 %** |
+| Controlled (gap < 0.15) | 16.6 % |
+| Contested (0.15–0.35) | 32.0 % |
+| Uncontrolled (gap > 0.35) | **51.5 %** |
 
 Only about a ninth of the worlds that end in abundance crossed the threshold in control, and containment decay has made that share smaller. A world can no longer bank a controlled crossing and coast. Each year of further growth eats into the readiness that made the crossing controlled in the first place. The majority crossed uncontrolled (outright ahead of readiness) and simply survived the hazard dice while readiness caught up. Another 30 % crossed contested, under partial, imperfect oversight. Preparation sets the odds; it does not remove the gamble. (The asymmetry with section 3.2 is consistent rather than contradictory: uncontrolled crossings usually end badly, 59.3 % of the time, but they are so numerous that their lucky survivors still make up the majority of the good outcomes.)
 
@@ -259,7 +259,7 @@ Two honesty notes. The terminal gap of 0.25 is partly a scale artefact (readines
 
 ### 3.4 Inside the third most likely outcome: extinction
 
-Extinction (11.5 %, 92,315 worlds; the `extinction_profile` block) is the outcome the public imagination treats as the archetypal AI catastrophe. The ensemble's most important finding about it is that it follows the same path as disempowerment and diverges only in the final outcome, where humans are not left alive.
+Extinction (10.9 %, 87,520 worlds; the `extinction_profile` block) is the outcome the public imagination treats as the archetypal AI catastrophe. The ensemble's most important finding about it is that it follows the same path as disempowerment and diverges only in the final outcome, where humans are not left alive.
 
 **How the end comes: almost entirely one channel.**
 
@@ -315,12 +315,12 @@ Constrained flourishing (3.1 %, 24,451 worlds; the `flourishing_profile` block) 
 
 | Statistic | Value |
 |---|---:|
-| P(AGI by 2126) | 94.1 % |
-| Median crossing year | **2036** |
+| P(AGI by 2126) | 94.0 % |
+| Median crossing year | **2038** |
 | 10th–90th percentile | 2031–2049 |
-| P(by 2035) | 42.4 % |
-| P(by 2040) | 67.3 % |
-| P(by 2050) | 86.6 % |
+| P(by 2035) | 31.8 % |
+| P(by 2040) | 57.1 % |
+| P(by 2050) | 81.6 % |
 
 The plateau regime (sampled at 14 %, plus slow-growth draws) leaves about 6 % of worlds without AGI by 2126. The question the ensemble asks is therefore almost never whether. It is in what condition the world is when it happens.
 
@@ -328,9 +328,9 @@ The plateau regime (sampled at 14 %, plus slow-growth draws) leaves about 6 % of
 
 | Condition at AGI | Share of crossings |
 |---|---:|
-| Controlled (gap < 0.15) | 6.2 % |
-| Contested (0.15–0.35) | 22.5 % |
-| Uncontrolled (gap > 0.35) | **71.3 %** |
+| Controlled (gap < 0.15) | 9.8 % |
+| Contested (0.15–0.35) | 25.8 % |
+| Uncontrolled (gap > 0.35) | **64.4 %** |
 
 Median gap at crossing: **0.44**. Most worlds cross uncontrolled, by a wide margin: capability growth outpaces readiness more often than not, and it also invalidates part of the readiness already banked, so the two effects push the same way. Under the containment-holds reading the same three shares are 9.4 %, 34.1 % and 56.5 %.
 
@@ -340,32 +340,32 @@ Medians across worlds still ongoing at each date (survivorship-conditioned: the 
 
 | Year | Ongoing | Capability | Readiness | Gap | Concentration | Wellbeing | Governance | Warming | Pop (bn) | AGI crossed |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2030 | 99.1 % | 0.50 | 0.31 | 0.19 | 0.64 | 0.55 | 0.47 | 1.39 °C | 8.8 | 8.5 % |
-| 2040 | 86.5 % | 0.93 | 0.45 | **0.48** | 0.65 | 0.57 | 0.47 | 1.55 °C | 10.1 | 62.8 % |
-| 2050 | 71.4 % | 1.19 | 0.63 | **0.48** | 0.67 | 0.61 | 0.50 | 1.68 °C | 11.3 | 82.1 % |
-| 2060 | 62.3 % | 1.22 | 0.84 | 0.34 | 0.68 | 0.64 | 0.53 | 1.81 °C | 12.5 | 87.4 % |
-| 2070 | 58.1 % | 1.23 | 1.00 | 0.27 | 0.69 | 0.67 | 0.56 | 1.93 °C | 13.3 | 89.1 % |
-| 2080 | 56.0 % | 1.23 | 1.00 | 0.24 | 0.69 | 0.70 | 0.59 | 2.05 °C | 13.7 | 89.7 % |
-| 2100 | 53.6 % | 1.23 | 1.00 | 0.23 | 0.69 | 0.73 | 0.64 | 2.28 °C | 12.7 | 89.9 % |
-| 2120 | 51.7 % | 1.23 | 1.00 | 0.23 | 0.67 | 0.75 | 0.68 | 2.51 °C | 10.3 | 89.8 % |
+| 2030 | 99.4 % | 0.46 | 0.31 | 0.16 | 0.64 | 0.55 | 0.48 | 1.39 °C | 8.8 | 5.0 % |
+| 2040 | 89.3 % | 0.82 | 0.45 | 0.38 | 0.65 | 0.56 | 0.49 | 1.55 °C | 10.1 | 52.7 % |
+| 2050 | 75.2 % | 1.17 | 0.62 | **0.45** | 0.66 | 0.60 | 0.50 | 1.69 °C | 11.3 | 76.4 % |
+| 2060 | 65.8 % | 1.21 | 0.82 | 0.33 | 0.67 | 0.63 | 0.53 | 1.82 °C | 12.5 | 84.7 % |
+| 2070 | 61.2 % | 1.22 | 1.00 | 0.27 | 0.68 | 0.66 | 0.56 | 1.94 °C | 13.3 | 88.0 % |
+| 2080 | 58.9 % | 1.23 | 1.00 | 0.25 | 0.69 | 0.69 | 0.59 | 2.06 °C | 13.6 | 89.3 % |
+| 2100 | 56.2 % | 1.23 | 1.00 | 0.24 | 0.69 | 0.73 | 0.64 | 2.28 °C | 12.7 | 90.1 % |
+| 2120 | 54.1 % | 1.23 | 1.00 | 0.23 | 0.67 | 0.75 | 0.68 | 2.52 °C | 10.3 | 90.1 % |
 
 The century breaks into three phases.
 
 - **2026 to 2035, the run-up.** Capability compounds; readiness inches. Concentration drifts up. The world is still recognisable.
-- **2035 to 2060, the long danger.** Most crossings happen in 2031 to 2049, at the widest gap of the century (about 0.48), and because risk persists rather than concentrating in a single decade, the attrition is relentless: the ongoing share falls from 99.1 % to 62.3 %. Roughly a third of all histories suffer their irreversible ending in this twenty-five-year span. The median terminal event across all failed worlds lands at **2048** (10th to 90th percentile 2035 to 2081).
-- **2060 to 2126, calm for the survivors.** The minority of worlds that close the gap converge: readiness saturates, governance strengthens (0.47 to 0.68), wellbeing climbs (0.55 to 0.75). But two comforts one might expect do not appear. Concentration does not deconcentrate: it holds near 0.69 for the whole post-crossing era (a steep late-century decline to about 0.2 would be a clip artefact of hard-bounding the state variables, section 6.4). And demographics turn: population peaks near **13.7 billion around 2080** and then **declines to about 10.3 billion** by 2120 as the sampled fertility transition reverses, while warming climbs past **2.5 °C** rather than settling just above 2. The calm is real, but only for the worlds that survived to reach it, and about two in five of the histories that began in 2026 reach a broadly acceptable ending.
+- **2035 to 2060, the long danger.** Most crossings happen in 2031 to 2053, at the widest gap of the century (about 0.45), and because risk persists rather than concentrating in a single decade, the attrition is relentless: the ongoing share falls from 99.4 % to 65.8 %. Roughly a third of all histories suffer their irreversible ending in this twenty-five-year span. The median terminal event across all failed worlds lands at **2049** (10th to 90th percentile 2036 to 2086).
+- **2060 to 2126, calm for the survivors.** The minority of worlds that close the gap converge: readiness saturates, governance strengthens (0.48 to 0.68), wellbeing climbs (0.55 to 0.75). But two comforts one might expect do not appear. Concentration does not deconcentrate: it holds near 0.69 for the whole post-crossing era (a steep late-century decline to about 0.2 would be a clip artefact of hard-bounding the state variables, section 6.4). And demographics turn: population peaks near **13.6 billion around 2080** and then **declines to about 10.3 billion** by 2120 as the sampled fertility transition reverses, while warming climbs past **2.5 °C** rather than settling just above 2. The calm is real, but only for the worlds that survived to reach it, and about two in five of the histories that began in 2026 reach a broadly acceptable ending.
 
 ### 4.4 Background hazards along the way
 
 | Event | Expected count per world | P(at least one) |
 |---|---:|---:|
-| Regional wars | 3.61 | - |
-| Natural (COVID-class) pandemics | 1.07 | - |
-| AI warning-shot incidents | 4.80 | - |
-| Nuclear use events (any scale) | 0.50 | 36.5 % |
-| Engineered pandemics (any severity) | 0.64 | 41.8 % |
+| Regional wars | 3.75 | - |
+| Natural (COVID-class) pandemics | 1.13 | - |
+| AI warning-shot incidents | 4.87 | - |
+| Nuclear use events (any scale) | 0.52 | 37.6 % |
+| Engineered pandemics (any severity) | 0.65 | 42.5 % |
 
-(Counts are lower than a naive per-year rate implies because so many worlds exit early: a world absorbed in 2048 stops rolling dice. They fell further with the containment-decay correction for the same reason, since more worlds now exit in the 2040s.) A regularity the model shows: the classic existential hazards act mainly as modulators of the AI transition rather than as independent enders of history. Collapse is survivable here: a collapsed world rebuilds over a sampled period and re-enters with weakened institutions. So nuclear war and engineered pandemics permanently end only about 0.9 % of worlds. That is roughly 0.4 % still down at 2126, plus roughly 0.5 % through the engineered-pandemic route to extinction. A further 2.6 % or so collapse and recover. Their larger effect is degrading trust, governance and readiness in the years when those stocks decide the AI outcome. (The 12.0 % extinction-or-collapse total is a different quantity. About 96 % of those extinctions run through the AI-takeover route rather than through nuclear or biological weapons.) Climate follows the same pattern with a wide spread. Warming in surviving worlds reaches a median of about 2.6 °C, spanning roughly 1.9 to 3.9 °C across worlds. It is a chronic stressor and an amplifier of inequality rather than an ending in itself.
+(Counts are lower than a naive per-year rate implies because so many worlds exit early: a world absorbed in 2048 stops rolling dice. They fell further with the containment-decay correction for the same reason, since more worlds now exit in the 2040s.) A regularity the model shows: the classic existential hazards act mainly as modulators of the AI transition rather than as independent enders of history. Collapse is survivable here: a collapsed world rebuilds over a sampled period and re-enters with weakened institutions. So nuclear war and engineered pandemics permanently end only about 0.9 % of worlds. That is roughly 0.4 % still down at 2126, plus roughly 0.5 % through the engineered-pandemic route to extinction. A further 2.6 % or so collapse and recover. Their larger effect is degrading trust, governance and readiness in the years when those stocks decide the AI outcome. (The 11.4 % extinction-or-collapse total is a different quantity. About 96 % of those extinctions run through the AI-takeover route rather than through nuclear or biological weapons.) Climate follows the same pattern with a wide spread. Warming in surviving worlds reaches a median of about 2.6 °C, spanning roughly 1.9 to 3.9 °C across worlds. It is a chronic stressor and an amplifier of inequality rather than an ending in itself.
 
 ---
 
@@ -411,9 +411,9 @@ Change in P(broadly acceptable ending) between the bottom and top quartile of ea
 
 Four readings, and the order is itself the model's main sensitivity finding.
 
-- **The socio-political choices sit level with the plateau at the top of the board.** Redistribution (+20.6), the physics plateau (+24.3) and institutional responsiveness (+19.9) form a statistical dead heat at the head of the table, ahead of human-paced safety effort (+14.7). The distribution-and-governance machinery matters as much to the broadly acceptable share as the strongest fact of nature, though the picture for the worst tails (extinction) still turns on the gap (section 6.2, section 3.4).
-- **Time matters as much as anything.** The plateau (+24.3) shares the top of the table, and faster growth (−18.3) and racing (−15.4) stay strongly negative: when and whether the crossing happens is first-tier. The social choices rival time in importance without displacing it.
-- **Inherited inequality is a real factor.** Initial concentration (−15.7) now sits among the top handful: a world that enters the transition already concentrated is meaningfully likelier to end badly. Biodefence and fragility barely move the broad good-or-bad split (they matter for their own sakes); climate abatement (+7.3) is mid-tier, on a par with AI-assisted alignment.
+- **The socio-political choices sit level with the plateau at the top of the board.** Redistribution (+21.1), the physics plateau (+23.0) and institutional responsiveness (+20.9) form a statistical dead heat at the head of the table, ahead of human-paced safety effort (+15.0). The distribution-and-governance machinery matters as much to the broadly acceptable share as the strongest fact of nature, though the picture for the worst tails (extinction) still turns on the gap (section 6.2, section 3.4).
+- **Time matters as much as anything.** The plateau (+23.0) shares the top of the table, and faster growth (−18.3) and racing (−15.9) stay strongly negative: when and whether the crossing happens is first-tier. The social choices rival time in importance without displacing it.
+- **Inherited inequality is a real factor.** Initial concentration (−15.6) now sits among the top handful: a world that enters the transition already concentrated is meaningfully likelier to end badly. Biodefence and fragility barely move the broad good-or-bad split (they matter for their own sakes); climate abatement (+7.7) is mid-tier, on a par with AI-assisted alignment.
 - **The containment decay rate is mid-table on this measure, and it is the one row here that is not confounded.** Its −7.3 swing sits alongside climate abatement, well behind the top group. Every other row in this table splits worlds into a low quarter and a high quarter of one input, and those inputs were deliberately drawn to move together (section 8). So the worlds racing hardest are also the worlds with the least responsive institutions, and the two rows borrow from each other. The decay rate was drawn on its own, so its row is the only clean one. The variance decomposition that is unconfounded across the board is the Sobol table in `notes/sobol.md`, which is what `strategy.md` ranks the choices on. The decay rate now appears there too, at a total-order index of 0.073, ninth of fourteen, which agrees with the placement this table gives it.
 
 ### 6.1 The sampled structure: where optimism comes from, as an axis not a switch
@@ -433,42 +433,48 @@ The trend runs one way and it is the widest in the model. Moving from a flat win
 
 | Condition | P(irreversibly bad) |
 |---|---:|
-| Crossed AGI with gap > 0.35 | **59.3 %** |
-| Crossed AGI with gap < 0.15 | 14.3 % |
+| Crossed AGI with gap > 0.35 | **58.9 %** |
+| Crossed AGI with gap < 0.15 | 15.0 % |
 | AGI by 2035 | 61.3 % |
-| AGI after 2050 | 21.7 % |
-| No AGI at all | 11.2 % |
+| AGI after 2050 | 23.2 % |
+| No AGI at all | 12.5 % |
 
 And the mirror image: **P(aligned abundance | controlled crossing) = 33.6 %.** A controlled crossing stays the likeliest route to the best outcome the model can express. But even controlled crossings keep a roughly 14 % bad tail. Control on crossing day does not guarantee control of everything that comes after, and under containment decay the crossing-day margin is spent down by the years of growth that follow. Early crossings are catastrophic (61.3 % bad) because they are almost always unprepared crossings. Late crossings (22 % bad) and never-crossings (about 11 %) converge towards a floor of ordinary civilisational risk (which includes the small sampled unknown-unknowns hazard that even no-AGI worlds face, section 8).
 
 ### 6.3 Calibrating against the outside view
 
-The headline numbers are what the model's own priors imply. They are not what the best available forecasters believe. The gap is largest on extinction: the ensemble puts p(extinction) at about 11.5 % over the century, whereas structured elicitations sit far lower. The XPT superforecaster group's tournament median for AI-driven human extinction by 2100 is around 1 %, and even the more pessimistic domain-expert and AI-researcher panels land near 5 to 6 %. Rather than hand-tune the priors until the model agrees, the model reweights the existing ensemble to the smallest departure from its own distribution that satisfies a set of outside-view targets (`anchors.json`), by maximum-entropy importance reweighting, the max-entropy analogue of a Bayesian update. The targets and the fit:
+The headline numbers are what the model's own priors imply. They are not what the best available forecasters believe. The gap is largest on extinction: the ensemble puts p(extinction) at about 11.0 % over the century, whereas structured elicitations sit far lower. The XPT superforecaster group's tournament median for AI-driven human extinction by 2100 is around 1 %, and even the more pessimistic domain-expert and AI-researcher panels land near 5 to 6 %. Rather than hand-tune the priors until the model agrees, the model reweights the existing ensemble to the smallest departure from its own distribution that satisfies a set of outside-view targets (`anchors.json`), by maximum-entropy importance reweighting, the max-entropy analogue of a Bayesian update. The targets and the fit:
 
 | Target | Unweighted | Acceptable range | Weighted | Status |
 |---|---:|---:|---:|---|
-| P(AGI by 2035) | 0.429 | 0.150–0.450 | 0.339 | already in range |
-| P(AGI by 2050) | 0.870 | 0.400–0.700 | 0.700 | moved to edge |
-| P(never AGI by 2126) | 0.058 | 0.100–0.250 | 0.100 | moved to edge |
-| P(extinction) | 0.114 | 0.003–0.020 | 0.020 | moved to edge |
-| Nuclear wars per world | 0.505 | 0.100–1.000 | 0.563 | already in range |
-| Pandemics per world (COVID-class) | 1.069 | 1.000–4.000 | 1.228 | already in range |
-| Population 2126, survivors (bn) | 9.29 | 8.5–11.5 | 9.27 | already in range |
-| Warming 2126, survivors (°C) | 2.74 | 1.8–3.5 | 2.75 | already in range |
+| P(AGI by 2035) | 0.321 | 0.120–0.650 | 0.310 | already in range |
+| P(AGI by 2050) | 0.819 | 0.400–0.850 | 0.807 | already in range |
+| P(never AGI by 2126) | 0.059 | 0.050–0.220 | 0.064 | already in range |
+| P(extinction) | 0.110 | 0.003–0.020 | 0.020 | moved to edge |
+| Nuclear wars per world | 0.518 | 0.100–1.000 | 0.551 | already in range |
+| Pandemics per world (COVID-class) | 1.124 | 1.000–4.000 | 1.188 | already in range |
+| Population 2126, survivors (bn) | 9.27 | 8.5–11.5 | 9.27 | already in range |
+| Warming 2126, survivors (°C) | 2.75 | 1.8–3.5 | 2.75 | already in range |
 
-The reweighting keeps an **effective sample size of 73.7 %**: the targets are reached by tilting the ensemble rather than by leaning on a handful of extreme worlds, so the weighted distribution is still supported by the bulk of the runs. The correction to containment readiness raised the unweighted extinction share it has to pull down, from 9.7 % to 11.4 %, and cost about a point of effective sample size in doing so. Under the XPT-superforecaster extinction target the outcome shares move as follows:
+Extinction is now the only target that pulls at all. The three arrival bands were re-checked on 2026-07-30 and widened (the previous values are kept in `anchors.json` under `superseded`), and the curvature correction below gave the ensemble the slow worlds it had been missing; between them the model's own AGI timing landed inside the published range without correction. The reweighting keeps an **effective sample size of 92.4 %**: the targets are reached by tilting the ensemble rather than by leaning on a handful of extreme worlds, so the weighted distribution is still supported by the bulk of the runs. The correction to containment readiness raised the unweighted extinction share it has to pull down, from 9.3 % to 11.0 %, and cost about 1.7 points of effective sample size in doing so. Under the XPT-superforecaster extinction target the outcome shares move as follows:
 
 | Outcome | Model priors | Target-weighted |
 |---|---:|---:|
-| Good (broadly acceptable) | 38.6 % | **45.3 %** |
-| Aligned abundance | 17.4 % | 19.7 % |
-| Disempowerment | 33.7 % | 32.2 % |
-| Irreversibly bad | 49.3 % | 39.1 % |
-| **Extinction** | 11.4 % | **2.0 %** |
-| Extinction or collapse | 11.8 % | 2.4 % |
-| Unknown catastrophe | 2.4 % | 3.0 % |
+| Good (broadly acceptable) | 40.4 % | **44.5 %** |
+| Aligned abundance | 18.4 % | 20.2 % |
+| Disempowerment | 31.4 % | 34.6 % |
+| Irreversibly bad | 46.7 % | 41.3 % |
+| **Extinction** | 11.0 % | **2.0 %** |
+| Extinction or collapse | 11.4 % | 2.5 % |
+| Unknown catastrophe | 2.4 % | 2.6 % |
 
-Two things are worth reading off this table. First, forcing extinction down to the superforecaster level does not rescue the century: the good share rises only to about 45 %, because the targets say nothing about the disempowerment channel, which barely moves (33.7 % to 32.2 %). The typical failure is a soft one, and the outside view has little purchase on it. Second, the unknown-unknowns share actually rises slightly (2.4 % to 3.0 %): the targets constrain the named tail (nuclear, extinction), so probability mass taken off explicit extinction moves partly onto the residual hazard the targets do not pin. The honest headline is therefore a range: about one-in-nine to one-in-fifty for extinction depending on whose priors you trust, and about two-in-five to a bit under one-in-two for a broadly acceptable century depending on the same choice.
+Two things are worth reading off this table. First, forcing extinction down to the superforecaster level does not rescue the century: the good share rises only to about 44 %, because the targets say nothing about the disempowerment channel. That channel absorbs most of the mass the extinction target displaces, rising from 31.4 % to 34.6 %. The typical failure is a soft one, and the outside view has little purchase on it. Second, the unknown-unknowns share also rises slightly (2.4 % to 2.6 %): the targets constrain the named tail (nuclear, extinction), so probability mass taken off explicit extinction moves partly onto the residual hazard the targets do not pin. The honest headline is therefore a range: about one-in-nine to one-in-fifty for extinction depending on whose priors you trust, and about two-in-five to a bit under one-in-two for a broadly acceptable century depending on the same choice.
+
+**Where the arrival bands come from, and why they are wide.** The published AGI-arrival forecasts split into two families that disagree by roughly two decades, and the split tracks the definition of AGI rather than any disagreement about evidence. Economic-replacement definitions put it late: the Forecasting Research Institute's LEAP Wave 8, fielded 20 April to 11 May 2026 with 264 matched experts and superforecasters, defines AGI as a commercially available system that outperforms the 90th-percentile professional human in every primarily non-physical occupation on at least 90 % of economically useful non-physical tasks at no more than five times the cost of the equivalent human labour. Its experts give 80 % before 2100 with a median of 2050; its superforecasters, 2047. Benchmark and Turing-test definitions put it early: the Goodheart Labs dashboard over Metaculus, Manifold and Kalshi gave a combined median of 2031 with an 80 % interval of 2027 to 2044 when retrieved on 30 July 2026.
+
+Century's threshold is a general capability crossing whose downstream dynamics are economic automation and takeover risk, which matches the economic-replacement family more closely. The bands above span both families because the definitional match is a judgement rather than a measurement, and spanning them leaves the arrival anchors inactive: the model's own timing now sits inside the published range without any correction.
+
+Testing the economic-replacement family on its own turned out to be the most useful diagnostic in this section. Against the uncorrected engine, bands of 0.12 to 0.20, 0.40 to 0.50 and 0.12 to 0.20 were **infeasible**: `calibrate_century.py` reported that no reweighting reaches them jointly with the extinction anchor, because the ensemble held too few slow worlds to tilt toward. That was a finding about the capability law rather than about the anchors, and tracing it produced the curvature correction described in section 6.6. With that correction in place the same bands are reachable, at an effective sample size of 55.7 %. The model can now represent a world in which AGI arrives around 2050, which it previously could not, whatever weight a reader chooses to put on that view.
 
 ### 6.4 The saturation check: is the bimodality an artefact?
 
@@ -500,13 +506,35 @@ The tilt keeps an effective sample size of 66.2 %, and the outcome shares move a
 
 | Outcome | Model priors | Likelihood-weighted |
 |---|---:|---:|
-| Good (broadly acceptable) | 39.0 % | 34.3 % |
-| Aligned abundance | 17.4 % | 11.8 % |
-| Disempowerment | 33.3 % | **36.2 %** |
-| Irreversibly bad | 48.9 % | 52.8 % |
-| Extinction | 11.5 % | 12.3 % |
+| Good (broadly acceptable) | 40.4 % | 35.6 % |
+| Aligned abundance | 18.2 % | 12.4 % |
+| Disempowerment | 31.4 % | **34.4 %** |
+| Irreversibly bad | 46.6 % | 50.5 % |
+| Extinction | 10.9 % | 11.7 % |
 
-The movement is the mirror image of section 6.3. Weighting by realistic politics lowers the good share and feeds the loss mostly through the disempowerment channel, exactly the channel the reachable choices exist to close, with the best ending paying most of the bill. The result is also robust to the exact guesses: matching every probability to the friendliest edge of its range instead of the middle still lands the good share at about 37 %, so anywhere inside the stated ranges this view sits below the headline. The honest reading is that the headline describes the optimistic end of current politics, while the prepared world of `strategy.md` (about 67 % good) sits more than 30 points above this view. [`realistic-bet.md`](realistic-bet.md) works through the judgements one choice at a time and shows how to rerun the view with different ones.
+The movement is the mirror image of section 6.3. Weighting by realistic politics lowers the good share and feeds the loss mostly through the disempowerment channel, exactly the channel the reachable choices exist to close, with the best ending paying most of the bill. The result is also robust to the exact guesses: matching every probability to the friendliest edge of its range instead of the middle still lands the good share at about 39 %, so anywhere inside the stated ranges this view sits below the headline. The honest reading is that the headline describes the optimistic end of current politics, while the prepared world of `strategy.md` (about 68 % good) sits more than 30 points above this view. [`realistic-bet.md`](realistic-bet.md) works through the judgements one choice at a time and shows how to rerun the view with different ones.
+
+### 6.6 The curvature correction: the model used to have no slow futures
+
+Capability grows each year by `k · C^alpha`, where `C` is capability and `alpha` is a per-world curvature exponent. Because `C` runs from 0.35 up to a threshold of 0.68 to 0.92, the operative regime lies entirely below 1, and in that regime the exponent works the opposite way round to what its name suggests: raising it shrinks `C^alpha` and slows growth. At `C = 0.35` the yearly increment is 0.48k at `alpha = 0.7` and 0.14k at `alpha = 1.9`.
+
+The exponent was sampled from 1.0 to 1.9, so 1.9 was the slowest world the ensemble could build. The visible consequence was an arrival distribution with no right tail. Only 8.4 % of worlds crossed after 2050 and 2.8 % after 2060, so the slow draws did not arrive late; they failed to arrive at all. The model offered a choice between AGI within fifteen years and no AGI this century, with very little in between, and nothing in these documents said so.
+
+Two independent checks caught it. The reweighting in section 6.3 rejected an economic-replacement arrival band as unreachable, which pointed at the ensemble's support rather than at the anchors. Separately, the plateau regime turned out to delay the median crossing by a single year (2037 against 2036) in the 61 % of plateau worlds that still cross, so the one mechanism the model had for a stalled paradigm was gating arrival rather than slowing it.
+
+`CENTURY_V2_ALPHASUB` raises the ceiling to `CENTURY_ALPHA_MAX`, default 2.40. It rescales the existing draw onto [1.0, 2.40] rather than drawing again, so the random stream is unchanged and the correction is exactly attributable; the map is monotone, so the copula of section 6.1 sees identical ranks and its marginals are preserved. Setting the ceiling back to 1.9 reproduces the old prior exactly, and `CENTURY_BASELINE=1` is unaffected. The default follows this model's original design target of a median crossing in the late 2030s; 2.80 already overshoots it.
+
+| Curvature ceiling | Median | P(by 2035) | P(by 2050) | No AGI by 2126 | Good | Irreversibly bad |
+|---|---:|---:|---:|---:|---:|---:|
+| 1.90 (before) | 2036 | 42.3 % | 85.7 % | 5.9 % | 38.8 % | 49.0 % |
+| **2.40 (now)** | **2038** | **31.7 %** | **80.1 %** | **6.0 %** | **40.4 %** | **46.4 %** |
+| 2.80 | 2040 | 24.6 % | 73.9 % | 6.2 % | 41.6 % | 44.1 % |
+| 3.20 | 2042 | 19.2 % | 66.1 % | 6.6 % | 42.3 % | 41.7 % |
+| 4.00 | 2047 | 12.6 % | 49.9 % | 9.1 % | 42.4 % | 36.1 % |
+
+The correction is worth about 1.6 points of good century, and it buys them by making the crossing later rather than by making any world safer. Every value from 2.40 to 4.00 puts P(AGI by 2050) inside the published band of section 6.3, so the forecasts do not discriminate between them; only the design target does. A reader who holds the economic-replacement view should run with a ceiling near 4.00, which moves the median eleven years and is a modelling decision rather than a correction.
+
+Two related problems are not addressed here. The plateau regime still gates arrival instead of slowing it, which is why the share of worlds reaching 2126 without AGI barely moves across the table above and still sits below this model's own 10 to 15 % design target. And the correlation between growth rate and curvature is described in the source as making aggressive worlds more aggressive, which is the opposite of its effect below `C = 1`; removing it widens the arrival distribution on its own.
 
 ---
 
@@ -514,14 +542,14 @@ The movement is the mirror image of section 6.3. Weighting by realistic politics
 
 Drawn from the ensemble, in decreasing order of confidence.
 
-1. **The most likely single outcome of the next 100 years is that humanity survives but permanently loses meaningful control of its own history (about 33 %).** Extinction runs about 11.5 % and abundance about 17 %; disempowerment (by AI systems, AI-owning elites, or automated institutions) is the modal ending. Irreversibly bad endings total about 49 %; broadly acceptable ones about 39 %. The bad branch leads by about ten points, and by nothing at all under the containment-holds reading (section 3), so the ordering of the two branches is one of the things this model cannot currently settle.
+1. **The most likely single outcome of the next 100 years is that humanity survives but permanently loses meaningful control of its own history (about 31 %).** Extinction runs about 10.9 % and abundance about 18 %; disempowerment (by AI systems, AI-owning elites, or automated institutions) is the modal ending. Irreversibly bad endings total about 47 %; broadly acceptable ones about 40 %. The bad branch leads by about six points, and by nothing at all under the containment-holds reading (section 3), so the ordering of the two branches is one of the things this model cannot currently settle.
 2. **The distribution is bimodal, but the middle is populated.** The mixed endings (turbulent, muddling, post-collapse recovered) total roughly 12 %. A century that contains an intelligence transition still resolves toward one branch or the other, though the valley between them is not empty.
-3. **Almost everything is decided between roughly 2035 and 2060.** Half the ensemble crosses the AGI threshold by 2036 to 2040 at the century's widest capability-readiness gap; the ongoing share of worlds falls from about 99 % to about 62 % across that window; the median irreversible failure lands in 2048. The twenty-five years after the first crossings carry more of the century's outcome variance than any earlier stretch of comparable length.
+3. **Almost everything is decided between roughly 2035 and 2060.** Half the ensemble crosses the AGI threshold by 2038 to 2040 at the century's widest capability-readiness gap; the ongoing share of worlds falls from about 99 % to about 66 % across that window; the median irreversible failure lands in 2049. The twenty-five years after the first crossings carry more of the century's outcome variance than any earlier stretch of comparable length.
 4. **The decisive quantity is the capability-readiness gap at the moment of crossing.** Cross uncontrolled (the about 71 % default) and the century ends badly 59.3 % of the time. Cross controlled and aligned abundance follows about 34 % of the time, with a roughly 14 % bad tail remaining even then: crossing-day control is necessary but not sufficient, and containment decay spends the crossing-day margin down over the years that follow. Uncontrolled crossings dominate (71.3 % against 6.2 % controlled): capability growth outpaces readiness more often than not.
 5. **Policy matches time at the top of the board.** The three strongest swings are a statistical dead heat: redistribution capacity (+21), the capability plateau (+24) and institutional responsiveness (+20), with human-paced safety effort (+15) behind. Two of those three are choices. Every year before the crossing is a year readiness compounds, and under the sampled window (below) there is sometimes a recovery lane afterwards.
-6. **Of the choices humans hold, distribution and governance still edge out safety effort for the broadly acceptable share.** Redistribution (+20.6) and responsiveness (+19.9) lead, with race de-escalation (−15.4 for racing) and safety effort (+14.7) close behind; inherited inequality (−15.7 for initial concentration) is a genuine factor too. The race world ends acceptably 12.0 % of the time; the prepared world 66.7 %, at almost the same median AGI year. Preparation moves aligned abundance from about 0 % to about 61 % while delaying the technology by only about two years. (For the worst tail, extinction, the gap still dominates, section 3.4.)
+6. **Of the choices humans hold, distribution and governance still edge out safety effort for the broadly acceptable share.** Redistribution (+21.1) and responsiveness (+20.9) lead, with race de-escalation (−15.9 for racing) and safety effort (+15.0) close behind; inherited inequality (−15.6 for initial concentration) is a genuine factor too. The race world ends acceptably 12.0 % of the time; the prepared world 66.7 %, at almost the same median AGI year. Preparation moves aligned abundance from about 0 % to about 61 % while delaying the technology by only about two years. (For the worst tail, extinction, the gap still dominates, section 3.4.)
 7. **Merely slowing down is not a strategy.** The slow-lane scenario (low curvature, low growth) still ends badly about 47 % of the time, because a world that crosses slowly but unprepared still faces the post-crossing hazard. The configurations that escape best are not crossing (plateau: 60 % good) and crossing ready. Speed matters mostly insofar as it buys readiness.
-8. **The traditional existential risks are transition modifiers, not protagonists.** Nuclear war (36.5 % chance of at least one use event) and engineered pandemics (41.8 %) permanently terminate only about 0.9 % of worlds (because collapse is now recoverable, a further about 2.6 % collapse and rebuild), well below the 12.0 % extinction-or-collapse aggregate, about 96 % of whose extinctions are AI takeover. Their larger role is corroding trust, governance and readiness during the years those stocks decide the AI outcome. Climate, now sampled with wider tails, reaches a median of about 2.6 °C in surviving worlds, a chronic amplifier of inequality and conflict rather than an ending.
+8. **The traditional existential risks are transition modifiers, not protagonists.** Nuclear war (37.6 % chance of at least one use event) and engineered pandemics (42.5 %) permanently terminate only about 0.9 % of worlds (because collapse is now recoverable, a further about 2.6 % collapse and rebuild), well below the 11.4 % extinction-or-collapse aggregate, about 96 % of whose extinctions are AI takeover. Their larger role is corroding trust, governance and readiness during the years those stocks decide the AI outcome. Climate, now sampled with wider tails, reaches a median of about 2.6 °C in surviving worlds, a chronic amplifier of inequality and conflict rather than an ending.
 9. **The single most consequential unknown is structural, not empirical: does a misaligned superintelligence have a deadline?** The model does not pick a side: it samples the takeover-window timescale per world. Across that axis the irreversibly bad share runs from 61 % (flat window, no deadline) down to 30 % (a fast-closing window), the widest swing in the model, wider than any human-held choice. No survey, benchmark or simulation currently distinguishes these priors; resolving that question is itself among the highest-value research targets the model can name (section 6.1, `strategy.md` section 4).
 10. **Net judgement.** The most likely outcome of the next 100 years is a world of extraordinary material capability in which humans are, rather more often than not, no longer the authors of their own history, with about two chances in five of something genuinely good and about one in nine of extinction. Nearly all of the difference between those futures is concentrated in choices legible today: how fast to race, how much safety to buy before the crossing, how to share what the crossing produces, and whether the world enters the transition already concentrated. In this model the outcome is set by present choices, and the window for making them closes in the 2030s.
 
@@ -531,12 +559,12 @@ Drawn from the ensemble, in decreasing order of confidence.
 
 - **Scalar proxies.** "Capability", "readiness", "concentration" and "wellbeing" compress irreducibly multi-dimensional realities into single numbers. The bimodality finding is robust to this; exact percentages are not.
 - **Functional-form dependence.** Hazard rates, coupling coefficients and severity splits are calibrated judgement, set from published ranges where they exist and from internal consistency where they do not. A different modeller would produce different mid-range numbers from the same starting points.
-- **The structural prior is now sampled, not chosen, and it still prices extinction above the outside-view envelope.** Rather than pick a persistent-risk or a recovery structure, the model samples the takeover-window timescale per world (section 6.1); the headline's 11.5 % extinction averages over both priors at even odds and still exceeds the superforecaster (about 1 %) and domain-expert (about 6 %) medians of the Existential Risk Persuasion Tournament. Readers who weight the outside view more heavily can apply the built-in calibration: reweighting toward the superforecaster target brings the weighted extinction share down to about 2 % and the good share to about 45 % (`calibrate_century.py`; `CENTURY_WEIGHTS=…`). The truth of the century lies somewhere in that bracket, and the bracket is wide because the field's deepest disagreement is wide.
+- **The structural prior is now sampled, not chosen, and it still prices extinction above the outside-view envelope.** Rather than pick a persistent-risk or a recovery structure, the model samples the takeover-window timescale per world (section 6.1); the headline's 10.9 % extinction averages over both priors at even odds and still exceeds the superforecaster (about 1 %) and domain-expert (about 6 %) medians of the Existential Risk Persuasion Tournament. Readers who weight the outside view more heavily can apply the built-in calibration: reweighting toward the superforecaster target brings the weighted extinction share down to about 2 % and the good share to about 44 % (`calibrate_century.py`; `CENTURY_WEIGHTS=…`). The truth of the century lies somewhere in that bracket, and the bracket is wide because the field's deepest disagreement is wide.
 - **The containment-decay rate is invented, and it is the only input in the model that is.** `erode_mag` is drawn from 0 to 0.30 per world because that scale keeps the erosion term commensurate with the AI-assisted alignment coefficient it works against. Nothing fixes where inside that range the truth sits, P(good) is close to linear across it, and the outside-view anchors do not discriminate between values, so the headline is reported as a pair rather than a point (section 3). The pre-correction model was not neutral on this question: it asserted the value 0, which is the most optimistic point on the range, and never said so.
 - **The assist assumption may be circular.** AI-assisted alignment presumes partially aligned systems can be trusted to align their successors. If that premise fails, the prepared-world numbers degrade towards the race-world numbers.
 - **Unknown unknowns are bounded but the bound is a guess.** The model includes a small sampled catch-all absorbing hazard (0 to 0.07 % per year, set from Ord's roughly one-in-30-per-century estimate for unforeseen anthropogenic risks) for risks outside its named channels: the "unknown catastrophe" ending (about 2.5 %). The channel is deliberately bad-only (an unknown windfall is not absorbing; an unknown catastrophe is), motivated by the observation that the 1926 equivalent of this model would have contained no nuclear weapons, no computers and no pandemic-capable biotechnology. Its rate is a judgement call, not a measured quantity.
 - **Absorbing states hide texture.** "Disempowerment" spans everything from a gilded post-human zoo to grinding machine feudalism; "abundance" spans everything from social democracy at planetary scale to strange new forms of flourishing. The model classifies; it does not describe.
-- **Survivorship in the decadal table.** Later rows describe only worlds that survived, which flatters the median trajectory; the fallen roughly 49 % exit the table at their fate year (and a small share re-enter after collapse).
+- **Survivorship in the decadal table.** Later rows describe only worlds that survived, which flatters the median trajectory; the fallen roughly 47 % exit the table at their fate year (and a small share re-enter after collapse).
 - **Correlated priors are rank correlations.** The parameters are sampled through a Gaussian copula with three signed couplings (racing to responsiveness negative, redistribution to responsiveness positive, growth-rate to curvature positive); the quoted magnitudes are rank (Spearman) correlations, the copula's shape-invariant, rather than Pearson.
 - **Endogenous policy magnitudes are judgement calls.** Safety effort, race intensity and responsiveness now respond to the visible gap and warning-shot history rather than staying fixed. The feedback is bounded and non-oscillating, but how strongly a real world's safety effort responds to a warning shot is unknown, and this single choice adds several points of good-outcome probability on its own.
 - **Agency loops back within the model, but not from the reader.** The model lets institutions respond to observed danger; it still cannot represent the reader's own choices. To the extent the people making the strongest choices behave differently from the sampled distributions (in either direction), the ensemble is wrong in the way it most wants to be, or most fears to be.

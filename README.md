@@ -19,9 +19,9 @@ Two questions, side by side: what the century could be, and where it is actually
 
 | How the century ends | If every choice stays open | On its expected course |
 |---|---:|---:|
-| Broadly good (abundance, shared prosperity, or steady flourishing) | 39.0 % | 34.3 % |
-| Mixed (rocky transitions, recoveries, muddling through) | 12.1 % | 13.0 % |
-| Irreversibly bad (disempowerment, lock-in, collapse, extinction) | 48.9 % | 52.8 % |
+| Broadly good (abundance, shared prosperity, or steady flourishing) | 40.4 % | 35.6 % |
+| Mixed (rocky transitions, recoveries, muddling through) | 13.1 % | 13.9 % |
+| Irreversibly bad (disempowerment, lock-in, collapse, extinction) | 46.6 % | 50.5 % |
 
 The first column treats every good decision as available. The second weighs each decision by how likely it is to actually be taken. Both columns come from the same 800,000 worlds, and the rows cover every world, so each column adds up to 100 %.
 
@@ -31,15 +31,15 @@ So the century could go either way, and it is currently heading the wrong way.
 
 ## What changes the outcome
 
-Preparation does. Take only the social and political choices we could realistically reach: institutions ready to react, real money in safety, countries cooperating, gains shared. Do that and the good share rises from 39 % to 67 %. Technology keeps racing ahead in that world. Nothing about the pace of AI changes.
+Preparation does. Take only the social and political choices we could realistically reach: institutions ready to react, real money in safety, countries cooperating, gains shared. Do that and the good share rises from 40 % to 68 %. Technology keeps racing ahead in that world. Nothing about the pace of AI changes.
 
-Push those same choices to their extremes and it reaches 75.7 %. Add limits on large computing runs and the bad share falls furthest, to 16.8 %, for a good share of 74.6 %. In the model that last combination also delays AGI by about six years.
+Push those same choices to their extremes and it reaches 76.6 %. Add limits on large computing runs and the bad share falls furthest, to 15.4 %, for a good share of 75.2 %. In the model that last combination also delays AGI by about nine years.
 
-The distance between where we are heading (34.3 %) and a prepared world (66.6 %) is the point of this whole project. More than 30 points of century, blocked by nothing except how unlikely those choices currently are.
+The distance between where we are heading (35.6 %) and a prepared world (68.0 %) is the point of this whole project. More than 30 points of century, blocked by nothing except how unlikely those choices currently are.
 
 Two things are worth knowing about those numbers. First, the estimates behind the second column of the table are judgements rather than survey data. They live in `lever-anchors.json` with the reasoning written next to each one, and [`realistic-bet.md`](docs/realistic-bet.md) walks through them one by one.
 
-Second, the model assumes by default that safety testing goes stale as AI grows more capable. Turn that assumption off and the same worlds give 44.2 % good against 41.8 % bad. Nothing published settles how fast the staleness really sets in, so both readings stand. Every other figure on this page uses the default.
+Second, the model assumes by default that safety testing goes stale as AI grows more capable. Turn that assumption off and the same worlds give 45.5 % good against 39.5 % bad. Nothing published settles how fast the staleness really sets in, so both readings stand. Every other figure on this page uses the default.
 
 ## Why this exists
 
@@ -72,20 +72,20 @@ CENTURY_OVERRIDES='{"plateau":true}' python3 century_sim.py 800000
 
 | World | Good | Irreversibly bad | Extinction | Shared abundance |
 |---|---:|---:|---:|---:|
-| Baseline (no overrides) | 39.0 % | 48.9 % | 11.5 % | 17.4 % |
-| 1. Prepared acceleration | 66.6 % | 25.7 % | 6.5 % | 61.1 % |
-| 2. Race to fragility | 20.7 % | 68.4 % | 16.2 % | 8.9 % |
-| 3. Concentrated | 17.0 % | 59.1 % | 10.9 % | 0.0 % |
-| 4. Undefended | 36.4 % | 49.4 % | 11.7 % | 16.4 % |
-| 5. Plateau | 59.8 % | 15.1 % | 3.2 % | 18.4 % |
+| Baseline (no overrides) | 40.4 % | 46.6 % | 10.9 % | 18.2 % |
+| 1. Prepared acceleration | 68.0 % | 23.7 % | 6.0 % | 62.6 % |
+| 2. Race to fragility | 21.5 % | 66.8 % | 15.9 % | 9.3 % |
+| 3. Concentrated | 17.6 % | 56.6 % | 10.4 % | 0.0 % |
+| 4. Undefended | 37.7 % | 46.9 % | 11.1 % | 17.2 % |
+| 5. Plateau | 60.1 % | 13.8 % | 2.8 % | 18.9 % |
 
 World 1 is the prepared world from the section above, reached here from a standing start. It is the cheapest reproducibility check in the repo.
 
 Two rows are worth staring at.
 
-The worst world is number 3, and it touches no technical setting at all. Nobody races and nobody cuts a safety corner. Capability and wealth simply start out concentrated, and the will to share them is pinned to its floor. That costs 22 points of good century, more than hard racing does. Read the extinction column and it looks harmless, barely off the baseline. Read the last column and shared abundance is 0.0 %, which is a wall rather than bad luck. The model only calls a world shared abundance once concentration falls below 0.62, and concentration only falls when there is political will to share. Take that will away and the best ending has no path from here, in any of the 800,000 worlds.
+The worst world is number 3, and it touches no technical setting at all. Nobody races and nobody cuts a safety corner. Capability and wealth simply start out concentrated, and the will to share them is pinned to its floor. That costs 23 points of good century, more than hard racing does. Read the extinction column and it looks harmless, barely off the baseline. Read the last column and shared abundance is 0.0 %, which is a wall rather than bad luck. The model only calls a world shared abundance once concentration falls below 0.62, and concentration only falls when there is political will to share. Take that will away and the best ending has no path from here, in any of the 800,000 worlds.
 
-World 4 hurts far less than expected. Letting biodefence collapse raises engineered pandemics by 41 %, from 0.64 to 0.91 events per world, and still costs only 3 points of good century. In this model pandemics do real damage along the way and rarely decide how the story ends. What decides the century is what happens to capability and to power.
+World 4 hurts far less than expected. Letting biodefence collapse raises engineered pandemics by 42 %, from 0.65 to 0.92 events per world, and still costs under 3 points of good century. In this model pandemics do real damage along the way and rarely decide how the story ends. What decides the century is what happens to capability and to power.
 
 ## The dials
 
@@ -101,13 +101,13 @@ Every assumption is a setting you can override. These are the ones that matter m
 | `concentration0` | how concentrated wealth and power start out | 0.55 to 0.75 |
 | `bio_defense` | biodefence investment against bio-offence diffusion | 0.2 to 0.9 |
 | `k` | base speed of capability growth | typically near 0.095 |
-| `alpha` | curvature of capability growth | 1.0 to 1.9 |
+| `alpha` | curvature of capability growth (higher is slower below the threshold) | 1.0 to 2.4 |
 | `plateau` | whether the current AI paradigm stalls | true in 14 % of worlds |
 | `erode_mag` | how fast new capability makes existing safety work stale | 0 to 0.30 |
 
-Rank the dials by how much each one swings the odds of a good century and `plateau` comes first, at 24.3 points. But a plateau is weather rather than a choice.
+Rank the dials by how much each one swings the odds of a good century and `plateau` comes first, at 23.0 points. But a plateau is weather rather than a choice.
 
-Among the things we can actually decide, `redist_will` leads at 20.6 points, just ahead of `respond` at 19.9 and well clear of `race` at 15.4. The strongest choice available to us is whether we are politically capable of sharing the proceeds, which is not where most AI policy is currently looking.
+Among the things we can actually decide, `redist_will` leads at 21.1 points, just ahead of `respond` at 20.9 and well clear of `race` at 15.9. The strongest choice available to us is whether we are politically capable of sharing the proceeds, which is not where most AI policy is currently looking.
 
 Section 9 of [`future.md`](docs/future.md) and section 6 of [`strategy.md`](docs/strategy.md) list every documented run, ready to copy and paste.
 
@@ -138,9 +138,9 @@ python3 check_century.py --readability      # are the documents still readable b
 python3 check_century.py --negative-control # plants a bug on purpose; the checker must catch it
 ```
 
-Every figure quoted in `future.md` and in the strategy ladder of `strategy.md` is machine-checked against the engine, so the documents cannot silently drift from the code. The readability check measures the documents themselves: how long the sentences run, whether every technical word is explained somewhere, and whether each document opens in plain language.
+Every figure quoted in `future.md`, in the strategy ladder of `strategy.md` and in the summary tables of `realistic-bet.md` is machine-checked against the engine, so the documents cannot silently drift from the code. That includes the calibration tables, whose numbers come from the reweighting rather than from any single run and so are checked against a fresh calibration instead. The readability check measures the documents themselves: how long the sentences run, whether every technical word is explained somewhere, and whether each document opens in plain language.
 
-Further audits cover the accounting for wars and pandemics, the calibration, the policy feedbacks, and the way the input ranges are correlated. Run `python3 check_century.py --help` to see them all. The sensitivity tool in `sobol_century.py` tests itself against a textbook case with a known answer before it touches the model.
+Further audits cover the accounting for wars and pandemics, the calibration, the policy feedbacks, the curvature of capability growth, and the way the input ranges are correlated. Run `python3 check_century.py --help` to see them all. The sensitivity tool in `sobol_century.py` tests itself against a textbook case with a known answer before it touches the model.
 
 Runs are seeded, so the same command gives the same numbers on your machine as it did on ours.
 
