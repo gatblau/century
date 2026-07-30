@@ -29,7 +29,7 @@ You do not need any technical background. You do need four ideas.
 
 ### The clock is the uncomfortable part
 
-In the model, the typical world crosses the AGI line around **2038**. Half of all worlds have crossed by 2038, and well over half by 2040. That means the window for making every one of these choices is not "this century" but roughly **now to the mid-2030s**. Choices made after the crossing mostly do not help, because in a large share of worlds there is no second chance once capability has run ahead of readiness. Preparation is something you bank beforehand or not at all.
+In the model, the typical world crosses the AGI line around **2038**. Half of all worlds have crossed by 2038, and just over half by 2040. That means the window for making every one of these choices is not "this century" but roughly **now to the mid-2030s**. Choices made after the crossing mostly do not help, because in a large share of worlds there is no second chance once capability has run ahead of readiness. Preparation is something you bank beforehand or not at all.
 
 ---
 
