@@ -61,9 +61,23 @@ def run_ensemble(n):
     # Hermetic: drop every ambient CENTURY_* variable, then set only what this run intends.
     # The previous allowlist missed CENTURY_BASELINE, so calibrating under it embedded a
     # fingerprint claiming the baseline path while CENTURY_V2 below forced the v2 one.
+    #
+    # SHAPE_VARS are the exception, and they are exactly the keys WEIGHTS_FPR already
+    # fingerprints: a caller sweeping one of them is asking for a different ensemble, and the
+    # weights file records which one it got, so passing them through cannot silently mix
+    # configurations. Dropping them made every sweep a no-op that re-ran the same ensemble
+    # and reported it under different labels, which is how check_century.py --calib-audit
+    # came to print an identical ESS at every CENTURY_ERODE_MAX. CENTURY_OVERRIDES and
+    # CENTURY_BASELINE stay stripped: the first is for named scenarios rather than for
+    # calibration, and the second contradicts the CENTURY_V2 set below.
+    SHAPE_VARS = ("CENTURY_ERODE_MAX", "CENTURY_ERODE_DAMP", "CENTURY_SHOT_REF",
+                  "CENTURY_STRUCT_P_FLAT", "CENTURY_POLICY_SCALE", "CENTURY_CORR_JSON",
+                  "CENTURY_V2_ALPHASUB", "CENTURY_ALPHA_MAX")
+    _shape = {_k: os.environ[_k] for _k in SHAPE_VARS if _k in os.environ}
     for _k in [_k for _k in os.environ if _k.startswith("CENTURY_")]:
         os.environ.pop(_k, None)
     os.environ["CENTURY_V2"] = "1"
+    os.environ.update(_shape)
     sys.argv = [ENGINE, str(n)]
     ns = {}
     try:
