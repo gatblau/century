@@ -102,6 +102,7 @@ V2_REBUILD = _v2 or bool(int(os.environ.get("CENTURY_V2_REBUILD", "0")))        
 V2_BIOUP   = _v2 or bool(int(os.environ.get("CENTURY_V2_BIOUP", "0")))          # post-AGI bio-offence uplift (AGI-grade biotool misuse)
 V2_ERODE   = _v2 or bool(int(os.environ.get("CENTURY_V2_ERODE", "0")))          # capability growth erodes containment/evaluation readiness
 V2_ALPHASUB = _v2 or bool(int(os.environ.get("CENTURY_V2_ALPHASUB", "0")))     # curvature prior reaches the slow worlds the old ceiling excluded
+V2_PLATDRAG = _v2 or bool(int(os.environ.get("CENTURY_V2_PLATDRAG", "0")))     # a stalled paradigm slows growth instead of only capping it
 AUDIT = bool(int(os.environ.get("CENTURY_AUDIT", "0")))                         # emit HAZMASK + saturation diagnostic counters
 CRN = bool(int(os.environ.get("CENTURY_CRN", "0")))                             # common random numbers: pre-draw the stochastic stream (for sobol_century.py)
 
@@ -119,8 +120,10 @@ WEIGHTS_FPR = json.dumps({
     "rec": [REC_DIVIDEND, REC_WINDOW, REC_REACT],
     "v2": [V2_HAZMASK, V2_NUKE_R, V2_NATPAND, V2_GAPNORM, V2_SUBSTEP, V2_SOFT, V2_STRUCT,
            V2_CORR, V2_DEMO, V2_CLIMATE, V2_POLICY, V2_XHAZ, V2_REBUILD, V2_BIOUP, V2_ERODE,
-           V2_ALPHASUB],
+           V2_ALPHASUB, V2_PLATDRAG],
     "alpha_max": os.environ.get("CENTURY_ALPHA_MAX", "2.40"),
+    "plateau_exp": os.environ.get("CENTURY_PLATEAU_EXP", "2.0"),
+    "plateau_coef": os.environ.get("CENTURY_PLATEAU_COEF", "0.90"),
     "policy_scale": POLICY_SCALE,
     "crn": CRN,
     "struct_p_flat": os.environ.get("CENTURY_STRUCT_P_FLAT", "0.5"),
@@ -329,6 +332,58 @@ for _k, _v in _ov.items():
         P["ceiling"] = np.where(P["plateau"], _ceil_stall, _ceil_nostall)
     else:
         P[_k][:] = float(_v)
+
+# ---- V2_PLATDRAG: make a stalled paradigm slow down instead of only gating -------------
+# Growth is throttled by (C/ceiling)**6 * 0.30, and the plateau regime works by lowering
+# `ceiling` alone. Both halves of that misfire.
+#
+# The sixth power does almost nothing until capability is nearly at the ceiling: it removes
+# 0.5% of a year's growth at C/ceiling = 0.5, 3.5% at 0.7, and 11.3% at 0.85. A plateau
+# world therefore grows at very close to full speed right up to its wall, so the regime
+# delays the median crossing by one year (2037 against 2036) in the worlds that still cross.
+# A stalled paradigm that costs twelve months is not a stall.
+#
+# And the wall is not a wall. dC only turns negative once (C/ceiling)**6 * 0.30 exceeds 1,
+# i.e. at C = 1.22 * ceiling, so a plateau world overshoots its own ceiling by a fifth. That
+# is why 53% of plateau worlds whose ceiling sits BELOW the AGI threshold cross it anyway.
+#
+# So the regime blocks worlds whose threshold is far above their ceiling and waves the rest
+# through on schedule, with nothing in between. The correction gives plateau worlds their own
+# throttle shape: a lower exponent, so the brake comes on gradually from further out, and a
+# higher coefficient, so the ceiling is approached asymptotically rather than overshot. Both
+# are per-world arrays so the sub-annual integration path uses the same values, and both are
+# deterministic functions of draws already made, so the RNG stream is untouched.
+#
+# Computed after the override loop because CENTURY_OVERRIDES='{"plateau":true}' reselects the
+# regime for every world (the named plateau scenario in README.md), and the throttle has to
+# follow that reselection rather than the original draw.
+# The two knobs have to move together. Lowering the exponent alone makes the brake gradual
+# but also raises the point where growth stops, (1/coef)**(1/exp) times the ceiling, so worlds
+# that used to stall now grind past their wall instead: at (2.0, 0.30) fully 99.1% of plateau
+# worlds reach AGI and the no-AGI share collapses to 0.6%. Raising the coefficient alongside
+# brings the stopping point back down. Measured at N=200,000, seed 431:
+#
+#   exp  coef   no AGI by 2126   median crossing, plateau worlds that cross   share crossing
+#   6.0  0.30 (off)      6.0%                    2040                             60.6%
+#   3.0  0.30            1.9%                    2041                             90.3%
+#   2.0  0.30            0.6%                    2041                             99.1%
+#   2.0  0.60            4.7%                    2046                             70.2%
+#   2.0  0.90 (default) 10.0%                    2051                             32.3%
+#   1.5  0.90            9.6%                    2056                             35.1%
+#   2.0  1.20           13.2%                    2058                              9.6%
+#
+# (2.0, 0.90) is chosen on three criteria that do not depend on taste. It puts the no-AGI
+# share at 10.0%, the lower bound of this file's own design target at the top (10-15%), which
+# the uncorrected model missed at 5.9%. It cuts the ceiling overshoot from 1.22x to 1.05x, so
+# the ceiling means what its name says. And it moves the median crossing of a stalled world
+# that still crosses from 2040 to 2051, thirteen years behind the ensemble median rather than
+# two, which is what distinguishes a stalled paradigm from a mild delay.
+PLATEAU_EXP  = float(os.environ.get("CENTURY_PLATEAU_EXP", "2.0"))    # throttle exponent for stalled worlds (6.0 elsewhere)
+PLATEAU_COEF = float(os.environ.get("CENTURY_PLATEAU_COEF", "0.90"))  # throttle coefficient for stalled worlds (0.30 elsewhere)
+_stalled = P["plateau"] if V2_PLATDRAG else np.zeros(N, dtype=bool)
+P["bneck_exp"]  = np.where(_stalled, PLATEAU_EXP, 6.0)
+P["bneck_coef"] = np.where(_stalled, PLATEAU_COEF, 0.30)
+
 dec_rows = []
 
 # v2 correlated priors (Phase 6): couple the continuous marginals through a Gaussian
@@ -344,7 +399,21 @@ CORR_VARS = ["alpha", "k", "threshold", "R0", "safety_eff", "assist", "race", "r
 CORR_DEFAULT = {
     "race,respond": -0.4,        # a world racing hard cuts institutional corners -> less responsive
     "redist_will,respond": 0.3,  # functional institutions both redistribute and heed warning shots
-    "k,alpha": 0.3,              # aggressive scaling: fast base growth-rate and high curvature co-occur
+    # Aggressive scaling: a world whose base growth rate is high should also have the
+    # curvature that makes progress fast, and in this model's operative range that is a LOW
+    # exponent, so the coupling is negative. It was +0.3 until 2026-07-30 on the reading that
+    # a higher exponent means faster growth. That is true asymptotically (dC/dt = k*C**alpha
+    # with alpha > 1 has a finite-time singularity) and false everywhere this model runs: the
+    # crossover is at exactly C = 1, capability starts at 0.35 and the threshold is 0.68-0.92,
+    # so the whole run-up sits below it, and the ceiling then caps capability at about 1.05x
+    # its own value so the accelerating regime is never reached either. Measured with the
+    # coupling switched off, Spearman(alpha, crossing year) is +0.396 (later) against
+    # Spearman(k, crossing year) of -0.843 (sooner), and Spearman(alpha, final capability) is
+    # +0.038, i.e. nothing. Pairing them positively therefore cancelled the two effects and
+    # gave the NARROWEST arrival distribution of the three signs: 22 years between the 10th
+    # and 90th percentile at +0.3, 26 at 0, 30 at -0.3. Restore the old value with
+    # CENTURY_CORR_JSON=\'{"k,alpha": 0.3}\'.
+    "k,alpha": -0.3,
 }
 corr_pairs = {}
 if V2_CORR:
@@ -577,7 +646,7 @@ for ti, year in enumerate(YEARS):
     # ---------- 3.1 capability growth (curvature law + bottleneck + drag) ----
     k_eff = P["k"][a] * (1 + 0.25 * race_a) * (1 - 0.5 * reg_drag[a])
     growth = k_eff * np.maximum(C[a], 0.05) ** P["alpha"][a]
-    bottleneck = np.maximum(0.0, (C[a] / P["ceiling"][a])) ** 6 * 0.30
+    bottleneck = (np.maximum(0.0, (C[a] / P["ceiling"][a])) ** P["bneck_exp"][a]) * P["bneck_coef"][a]
     dC = growth - bottleneck * growth + (_crnC[ti][a] if CRN else rng.normal(0, 0.008, a.sum()))
     dC = np.maximum(dC, -0.01)
     if V2_SUBSTEP:
@@ -590,10 +659,11 @@ for ti, year in enumerate(YEARS):
         if big.any():
             Cq = C[a][big]
             ke = k_eff[big]; al = P["alpha"][a][big]; ce = P["ceiling"][a][big]
+            bex = P["bneck_exp"][a][big]; bco = P["bneck_coef"][a][big]
             noise_big = dC[big] - (growth[big] - bottleneck[big] * growth[big])
             for _q in range(4):
                 gq = ke * np.maximum(Cq, 0.05) ** al
-                bq = np.maximum(0.0, (Cq / ce)) ** 6 * 0.30
+                bq = (np.maximum(0.0, (Cq / ce)) ** bex) * bco
                 Cq = Cq + (gq - bq * gq) / 4.0
             dC[big] = np.maximum((Cq - C[a][big]) + noise_big, -0.01)
     C[a] = np.maximum(C[a] + dC, 0.0)
@@ -1399,6 +1469,28 @@ if AUDIT:
         "mean": round(float(_al.mean()), 4),
         "expected_uniform_mean": round((_lo_al + _hi_al) / 2.0, 4),
         "q10_50_90": [round(float(np.percentile(_al, _q)), 4) for _q in (10, 50, 90)],
+    }
+    # plateau diagnostic (consumed by check_century.py --platdrag-audit). The overshoot is
+    # the quantity the correction exists to control: how far past its own ceiling a stalled
+    # world's capability gets before growth stops. Reported for stalled and unstalled worlds
+    # separately so the audit can confirm the correction touched only the first group, and
+    # the crossing years confirm a stall now costs decades rather than a year.
+    _pl = P["plateau"].astype(bool)
+    def _ovr(_m):
+        return round(float(np.percentile(C[_m] / P["ceiling"][_m], 90)), 4) if _m.any() else None
+    def _med_cross(_m):
+        _c = _m & (agi_year > 0)
+        return int(np.median(agi_year[_c])) if _c.any() else None
+    out["audit_plateau"] = {
+        "platdrag": bool(V2_PLATDRAG),
+        "plateau_exp": round(float(PLATEAU_EXP), 4),
+        "plateau_coef": round(float(PLATEAU_COEF), 4),
+        "theoretical_cap_x_ceiling": round(float((1.0 / PLATEAU_COEF) ** (1.0 / PLATEAU_EXP)), 4),
+        "overshoot_p90_stalled": _ovr(_pl),
+        "overshoot_p90_unstalled": _ovr(~_pl),
+        "median_crossing_stalled": _med_cross(_pl),
+        "median_crossing_unstalled": _med_cross(~_pl),
+        "share_stalled_crossing_pct": round(100.0 * float((agi_year[_pl] > 0).mean()), 2) if _pl.any() else None,
     }
     if V2_POLICY:
         # policy diagnostic (consumed by check_century.py --policy-audit): observed bounds of

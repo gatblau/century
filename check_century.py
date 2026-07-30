@@ -126,7 +126,8 @@ V2_CONFIGS = [
     ("CENTURY_V2_BIOUP", "post-AGI bio-offence uplift (AGI-grade biotool misuse)"),
     ("CENTURY_V2_ERODE", "capability growth erodes containment/evaluation readiness"),
     ("CENTURY_V2_ALPHASUB", "curvature prior reaches the slow worlds the old ceiling excluded"),
-    ("CENTURY_V2", "umbrella: all sixteen corrections together"),
+    ("CENTURY_V2_PLATDRAG", "a stalled paradigm slows growth instead of only capping it"),
+    ("CENTURY_V2", "umbrella: all seventeen corrections together"),
 ]
 OUTCOME_ORDER = [
     "aligned_abundance", "oligarchic_prosperity", "turbulent_transition",
@@ -372,23 +373,20 @@ _PNUM = r"([-+−]?\d+(?:\.\d+)?)"       # signed number, unicode minus included
 DOC_PROSE = [
     {"id": "s6-prose-swings", "doc": DOC_PATH, "source": "run:800000", "precision": 1,
      "figures": [
-         {"label": "s6 dead heat: redistribution",
-          "pattern": r"Redistribution \(" + _PNUM + r"\), the physics plateau",
+         {"label": "s6 leaders: redistribution",
+          "pattern": r"Redistribution \(" + _PNUM + r"\) and institutional responsiveness",
           "path": "sensitivity_P_good.redist_will.swing"},
-         {"label": "s6 dead heat: plateau",
-          "pattern": r"the physics plateau \(" + _PNUM + r"\)",
-          "path": "sensitivity_P_good.plateau.swing"},
-         {"label": "s6 dead heat: responsiveness",
-          "pattern": r"institutional responsiveness \(" + _PNUM + r"\) form a statistical dead heat",
+         {"label": "s6 leaders: responsiveness",
+          "pattern": r"institutional responsiveness \(" + _PNUM + r"\) lead, several points clear",
           "path": "sensitivity_P_good.respond.swing"},
-         {"label": "s6 dead heat: safety effort",
-          "pattern": r"ahead of human-paced safety effort \(" + _PNUM + r"\)",
+         {"label": "s6 leaders: safety effort",
+          "pattern": r"human-paced safety effort \(" + _PNUM + r"\) further back",
           "path": "sensitivity_P_good.safety_eff.swing"},
          {"label": "s6 time: plateau",
-          "pattern": r"The plateau \(" + _PNUM + r"\) shares the top of the table",
+          "pattern": r"the plateau \(" + _PNUM + r"\) sits just behind them",
           "path": "sensitivity_P_good.plateau.swing"},
          {"label": "s6 time: growth rate k",
-          "pattern": r"faster growth \(" + _PNUM + r"\)",
+          "pattern": r"Faster growth \(" + _PNUM + r"\)",
           "path": "sensitivity_P_good.k.swing"},
          {"label": "s6 time: racing",
           "pattern": r"racing \(" + _PNUM + r"\)",
@@ -1518,6 +1516,115 @@ def _pct_se(pct, n):
     return 100.0 * math.sqrt(q * (1.0 - q) / n)
 
 
+def _v2_without(switch):
+    """Environment that runs the v2 path with one correction suppressed. Every V2_* flag
+    reads `_v2 or <own var>`, so setting a flag to 0 does nothing once _v2 is on; the only
+    way to drop one is to start from the baseline path and re-enable the rest by name."""
+    env = {"CENTURY_BASELINE": "1"}
+    env.update({e: "1" for e, _ in V2_CONFIGS if e not in ("CENTURY_V2", switch)})
+    return env
+
+
+def check_platdrag_audit(n=50000):
+    """Gate for the plateau-drag correction (V2_PLATDRAG). Seven assertions: the baseline
+    path is untouched; restoring the global throttle shape reproduces the uncorrected model
+    bit-identically; unstalled worlds are untouched; the ceiling stops being overshot; a
+    stalled world that still crosses is now decades late rather than a year; the two knobs
+    have to move together, which is the trap that makes this correction easy to get wrong;
+    and the named plateau scenario still reselects the regime for every world."""
+    print("[platdrag-audit] N=%d: V2_PLATDRAG baseline safety, pinned-shape reproduction," % n)
+    print("                 unstalled worlds untouched, overshoot, stall depth, knob coupling, override")
+    ok = True
+
+    # 1. Baseline untouched: V2_PLATDRAG hangs off _v2, so CENTURY_BASELINE=1 keeps the
+    #    global throttle and the pre-plan golden must still reproduce exactly.
+    base = run_engine(20000, {"CENTURY_BASELINE": "1", "CENTURY_AUDIT": "1"})
+    base_diffs = diff_blocks(base, load_golden(20000, baseline=True))
+    a1 = (not base_diffs) and base["audit_plateau"]["platdrag"] is False
+    ok = ok and a1
+    print("  1. baseline bit-identical to golden/baseline-20k-seed431.json: %s%s"
+          % (a1, "" if not base_diffs else "  (%d block(s) drifted)" % len(base_diffs)))
+
+    # 2. Setting the stalled shape back to the global one reproduces the uncorrected model
+    #    BIT-IDENTICALLY. The correction adds no RNG draw, so this is exact rather than
+    #    within a Monte Carlo bar.
+    #    Note the shape of the "off" run. A _v2 switch cannot be disabled by setting its own
+    #    variable to 0, because every one of them reads `_v2 or <own var>`; suppressing one
+    #    means starting from CENTURY_BASELINE=1 and re-enabling the other sixteen, which is
+    #    what --erosion-audit does too. Setting CENTURY_V2_PLATDRAG=0 alone leaves it ON.
+    pinned = run_engine(n, {"CENTURY_PLATEAU_EXP": "6.0", "CENTURY_PLATEAU_COEF": "0.30"})
+    off = run_engine(n, _v2_without("CENTURY_V2_PLATDRAG"))
+    a2 = not diff_blocks(pinned, off)
+    ok = ok and a2
+    print("  2. throttle shape pinned to (6.0, 0.30) reproduces the uncorrected model bit-identically: %s" % a2)
+
+    # 3. Unstalled worlds are untouched. The correction is per-world by construction, so the
+    #    non-plateau median crossing and overshoot must match the uncorrected run exactly.
+    #    Run under common random numbers. The yearly capability shock is drawn as
+    #    rng.normal(0, 0.008, a.sum()), whose LENGTH depends on how many worlds are still
+    #    alive, so changing any world's fate shifts the shared stream and every other world
+    #    with it. CENTURY_CRN=1 pre-draws the shock per (year, world), which decouples them
+    #    and lets this assertion be exact instead of a tolerance hiding a real leak.
+    _crn = {"CENTURY_AUDIT": "1", "CENTURY_CRN": "1"}
+    aud_on = run_engine(n, _crn)["audit_plateau"]
+    _off_env = _v2_without("CENTURY_V2_PLATDRAG"); _off_env.update(_crn)
+    aud_off = run_engine(n, _off_env)["audit_plateau"]
+    a3 = (aud_on["median_crossing_unstalled"] == aud_off["median_crossing_unstalled"]
+          and abs(aud_on["overshoot_p90_unstalled"] - aud_off["overshoot_p90_unstalled"]) < 1e-9)
+    ok = ok and a3
+    print("  3. unstalled worlds untouched: median %s vs %s, overshoot %.4f vs %.4f: %s"
+          % (aud_on["median_crossing_unstalled"], aud_off["median_crossing_unstalled"],
+             aud_on["overshoot_p90_unstalled"], aud_off["overshoot_p90_unstalled"], a3))
+
+    # 4. The ceiling stops being a suggestion. Growth halts at (1/coef)**(1/exp) times the
+    #    ceiling; the realised 90th-percentile overshoot must sit near that cap and well
+    #    below the uncorrected 1.22, which is what let stalled worlds cross thresholds
+    #    sitting above their own ceiling.
+    cap = aud_on["theoretical_cap_x_ceiling"]
+    a4 = aud_on["overshoot_p90_stalled"] < 1.12 and abs(aud_on["overshoot_p90_stalled"] - cap) < 0.06
+    ok = ok and a4
+    print("  4. stalled overshoot %.4f near the %.4f cap and below the old 1.22: %s"
+          % (aud_on["overshoot_p90_stalled"], cap, a4))
+
+    # 5. A stall costs decades. Before the correction a stalled world that still crossed did
+    #    so two years behind the ensemble; the point of the correction is that it is now far
+    #    enough behind to be a different kind of world.
+    lag_on = aud_on["median_crossing_stalled"] - aud_on["median_crossing_unstalled"]
+    lag_off = aud_off["median_crossing_stalled"] - aud_off["median_crossing_unstalled"]
+    a5 = lag_on >= 10 and lag_on > lag_off
+    ok = ok and a5
+    print("  5. stalled crossing lags unstalled by %d years (was %d): %s" % (lag_on, lag_off, a5))
+
+    # 6. The knobs are coupled, and this is the assertion that documents why. Lowering the
+    #    exponent alone makes the brake gradual but RAISES the stopping point, so worlds that
+    #    used to stall grind past their wall instead and the no-AGI share collapses. A
+    #    correction that shipped the exponent without the coefficient would read as a
+    #    plateau fix while deleting the plateau.
+    exp_only = run_engine(n, {"CENTURY_PLATEAU_EXP": "2.0", "CENTURY_PLATEAU_COEF": "0.30"})
+    both = run_engine(n, {"CENTURY_AUDIT": "1"})
+    never_exp_only = 100.0 - exp_only["agi"]["p_agi_by_2126"]
+    never_both = 100.0 - both["agi"]["p_agi_by_2126"]
+    a6 = never_exp_only < 2.0 and never_both > never_exp_only
+    ok = ok and a6
+    print("  6. exponent alone deletes the plateau (no-AGI %.1f%%) but both knobs keep it (%.1f%%): %s"
+          % (never_exp_only, never_both, a6))
+
+    # 7. The named plateau scenario still works. The throttle arrays are built after the
+    #    override loop, so CENTURY_OVERRIDES='{"plateau":true}' must put every world on the
+    #    stalled shape rather than leaving them on the shape their original draw implied.
+    allplat = run_engine(20000, {"CENTURY_AUDIT": "1", "CENTURY_OVERRIDES": '{"plateau":true}'})["audit_plateau"]
+    a7 = allplat["overshoot_p90_unstalled"] is None and allplat["overshoot_p90_stalled"] < 1.12
+    ok = ok and a7
+    print("  7. plateau:true override puts every world on the stalled shape (no unstalled worlds left,"
+          " overshoot %.4f): %s" % (allplat["overshoot_p90_stalled"], a7))
+
+    print("  %s — %s." % ("PASS" if ok else "FAIL",
+          "plateau drag is baseline-safe, exactly revertible, confined to stalled worlds, "
+          "caps the ceiling, deepens the stall, needs both knobs and follows the override"
+          if ok else "see the failing assertion above"))
+    return ok
+
+
 def check_alphasub_audit(n=50000):
     """Gate for the curvature correction (V2_ALPHASUB). Seven assertions: the baseline path
     is untouched; setting the ceiling back to 1.9 reproduces the uncorrected prior exactly,
@@ -2004,6 +2111,9 @@ def main(argv=None):
     ap.add_argument("--erosion-audit", action="store_true",
                     help="check the readiness-erosion correction: baseline safety, pinned-zero reproduction, "
                          "monotonicity, near-orthogonality to respond, clip floor, separability, gating (N=50000)")
+    ap.add_argument("--platdrag-audit", action="store_true",
+                    help="check the plateau-drag correction: baseline safety, exact pinned-shape reproduction, "
+                         "unstalled worlds untouched, ceiling overshoot, stall depth, knob coupling, override (N=50000)")
     ap.add_argument("--alphasub-audit", action="store_true",
                     help="check the curvature correction: baseline safety, exact pinned-ceiling reproduction, "
                          "uniform marginal, monotonicity, timing-only action, copula survival, sign (N=50000)")
@@ -2049,6 +2159,8 @@ def main(argv=None):
         return 0 if check_cutoff_audit() else 1
     if args.erosion_audit:
         return 0 if check_erosion_audit() else 1
+    if args.platdrag_audit:
+        return 0 if check_platdrag_audit() else 1
     if args.alphasub_audit:
         return 0 if check_alphasub_audit() else 1
     if args.erode_sweep:
