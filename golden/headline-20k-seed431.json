@@ -3,45 +3,45 @@
   "seed": 431,
   "baseline": false,
   "outcomes": {
-    "aligned_abundance": 17.46,
-    "oligarchic_prosperity": 18.48,
-    "turbulent_transition": 7.52,
-    "constrained_flourishing": 2.89,
-    "muddling_degraded": 2.1,
-    "disempowerment": 33.4,
-    "lockin": 1.53,
-    "collapse": 0.37,
-    "extinction": 11.53,
-    "unknown_catastrophe": 2.14,
-    "recovered": 2.56
+    "aligned_abundance": 18.32,
+    "oligarchic_prosperity": 18.9,
+    "turbulent_transition": 8.3,
+    "constrained_flourishing": 3.02,
+    "muddling_degraded": 2.04,
+    "disempowerment": 31.47,
+    "lockin": 1.4,
+    "collapse": 0.51,
+    "extinction": 11.02,
+    "unknown_catastrophe": 2.42,
+    "recovered": 2.58
   },
   "aggregates": {
-    "good(broadly acceptable)": 38.8,
-    "aligned_abundance_only": 17.5,
-    "irreversible_bad": 49.0,
-    "extinction_or_collapse": 11.9
+    "good(broadly acceptable)": 40.2,
+    "aligned_abundance_only": 18.3,
+    "irreversible_bad": 46.8,
+    "extinction_or_collapse": 11.5
   },
   "agi": {
-    "p_agi_by_2126": 94.2,
-    "median_year": 2036,
+    "p_agi_by_2126": 94.0,
+    "median_year": 2038,
     "p10_year": 2031,
-    "p90_year": 2049,
-    "p_by_2035": 42.9,
-    "p_by_2040": 67.5,
-    "p_by_2050": 86.7,
-    "p_by_2075": 93.6
+    "p90_year": 2053,
+    "p_by_2035": 32.4,
+    "p_by_2040": 57.1,
+    "p_by_2050": 81.2,
+    "p_by_2075": 92.7
   },
   "gap_at_agi": {
-    "median": 0.439,
-    "p_controlled(gap<0.15)": 6.3,
-    "p_contested(0.15-0.35)": 22.1,
-    "p_uncontrolled(>0.35)": 71.6
+    "median": 0.411,
+    "p_controlled(gap<0.15)": 9.9,
+    "p_contested(0.15-0.35)": 25.6,
+    "p_uncontrolled(>0.35)": 64.5
   },
   "events_per_world": {
-    "nuclear_war": 0.5,
-    "eng_pandemic": 0.645,
-    "nat_pandemic": 1.081,
-    "warning_shot": 4.797,
-    "regional_war": 3.613
+    "nuclear_war": 0.517,
+    "eng_pandemic": 0.648,
+    "nat_pandemic": 1.129,
+    "warning_shot": 4.86,
+    "regional_war": 3.722
   }
 }

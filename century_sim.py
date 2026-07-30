@@ -49,6 +49,8 @@ rng = np.random.default_rng(SEED)
 
 P = {}
 P["alpha"]        = rng.uniform(1.0, 1.9, N)     # growth curvature (1=exp-like in C, >1 superexp)
+                                                 # V2_ALPHASUB rescales this draw to a higher ceiling; see the block
+                                                 # near CENTURY_ALPHA_MAX. The draw itself never changes.
 P["k"]            = rng.lognormal(np.log(0.095), 0.60, N)  # base growth rate at C=1
 P["threshold"]    = rng.uniform(0.68, 0.92, N)   # AGI threshold (contested definition)
 P["plateau"]      = rng.random(N) < 0.14         # paradigm-stall regime
@@ -99,6 +101,7 @@ V2_XHAZ    = _v2 or bool(int(os.environ.get("CENTURY_V2_XHAZ", "0")))           
 V2_REBUILD = _v2 or bool(int(os.environ.get("CENTURY_V2_REBUILD", "0")))        # collapse becomes non-absorbing (rebuild + recover)
 V2_BIOUP   = _v2 or bool(int(os.environ.get("CENTURY_V2_BIOUP", "0")))          # post-AGI bio-offence uplift (AGI-grade biotool misuse)
 V2_ERODE   = _v2 or bool(int(os.environ.get("CENTURY_V2_ERODE", "0")))          # capability growth erodes containment/evaluation readiness
+V2_ALPHASUB = _v2 or bool(int(os.environ.get("CENTURY_V2_ALPHASUB", "0")))     # curvature prior reaches the slow worlds the old ceiling excluded
 AUDIT = bool(int(os.environ.get("CENTURY_AUDIT", "0")))                         # emit HAZMASK + saturation diagnostic counters
 CRN = bool(int(os.environ.get("CENTURY_CRN", "0")))                             # common random numbers: pre-draw the stochastic stream (for sobol_century.py)
 
@@ -115,7 +118,9 @@ WEIGHTS_FPR = json.dumps({
     "baseline": BASELINE,
     "rec": [REC_DIVIDEND, REC_WINDOW, REC_REACT],
     "v2": [V2_HAZMASK, V2_NUKE_R, V2_NATPAND, V2_GAPNORM, V2_SUBSTEP, V2_SOFT, V2_STRUCT,
-           V2_CORR, V2_DEMO, V2_CLIMATE, V2_POLICY, V2_XHAZ, V2_REBUILD, V2_BIOUP, V2_ERODE],
+           V2_CORR, V2_DEMO, V2_CLIMATE, V2_POLICY, V2_XHAZ, V2_REBUILD, V2_BIOUP, V2_ERODE,
+           V2_ALPHASUB],
+    "alpha_max": os.environ.get("CENTURY_ALPHA_MAX", "2.40"),
     "policy_scale": POLICY_SCALE,
     "crn": CRN,
     "struct_p_flat": os.environ.get("CENTURY_STRUCT_P_FLAT", "0.5"),
@@ -266,6 +271,53 @@ ERODE_DAMP = float(os.environ.get("CENTURY_ERODE_DAMP", "0.60"))   # share of er
 SHOT_REF   = float(os.environ.get("CENTURY_SHOT_REF", "1.0"))      # warning-shot memory at which institutional learning saturates
 if V2_ERODE:
     P["erode_mag"] = rng.uniform(0.0, ERODE_MAX, N)      # containment-decay coeff on capability growth
+
+# ---- V2_ALPHASUB: let capability growth grind ------------------------------------------
+# Capability runs from 0.35 to a threshold of 0.68-0.92, so the operative regime is entirely
+# below C = 1. In that regime the curvature exponent runs backwards from the intuition its
+# name suggests: because C < 1, a LARGER exponent shrinks C**alpha and therefore SLOWS
+# growth. At C = 0.35 the yearly increment is 0.48k at alpha = 0.7 and 0.14k at alpha = 1.9.
+# So the sampled range U(1.0, 1.9) is not "linear to superexponential" as its comment reads;
+# in the pre-threshold regime it is "fast to slow", and 1.9 is the slowest world the ensemble
+# can build. That ceiling is what truncates the arrival distribution: 8.4% of worlds cross
+# after 2050 and 2.8% after 2060, so slow worlds fail to arrive at all instead of arriving
+# late, which is why an economic-replacement arrival band is infeasible for this ensemble
+# (future.md section 6.3). Pinning the prior to its slow end alone (alpha in [1.85, 1.9])
+# moves the median crossing from 2036 to 2040 and the post-2050 mass from 8.4% to 18.7%,
+# which identifies the ceiling rather than the floor as the binding constraint.
+#
+# The correction raises that ceiling: it rescales the existing draw onto [1.0, ALPHA_MAX]
+# instead of drawing again, so the RNG stream is bit-identical with the switch on or off —
+# the same technique the pre-drawn ceiling variants use above. The map is linear and
+# monotone, so V2_CORR's rank reordering sees the same ranks and the copula is unaffected.
+# Applied before the override loop, so an explicit CENTURY_OVERRIDES alpha still wins.
+#
+# This widens the arrival distribution; it does not by itself move the share of worlds that
+# never reach AGI, which is set by the plateau ceiling rather than by curvature. The
+# ensemble's own design target at the top of this file (10-15% without AGI by 2126, against
+# an actual 5.9%) is therefore a separate correction.
+#
+# ALPHA_MAX is env-tunable and fingerprinted, matching ERODE_MAX and STRUCT_P_FLAT. Setting
+# it to 1.9 reproduces the uncorrected prior exactly. Measured at N=200,000, seed 431:
+#
+#   ALPHA_MAX   median   P(by 2035)   P(by 2050)   never    P(good)   P(bad)
+#   1.90 (off)   2036       42.3%        85.7%      5.9%     38.8%    49.0%
+#   2.40         2038       31.7%        80.1%      6.0%     40.4%    46.4%
+#   2.80         2040       24.6%        73.9%      6.2%     41.6%    44.1%
+#   3.20         2042       19.2%        66.1%      6.6%     42.3%    41.7%
+#   4.00         2047       12.6%        49.9%      9.1%     42.4%    36.1%
+#   5.00         2053        8.6%        35.5%     17.8%     38.6%    29.3%
+#
+# The default is set by this file's own design target at the top ("median in the late
+# 2030s"), which 2.40 meets and 2.80 already overshoots. Every value from 2.40 to 4.00 puts
+# P(AGI by 2050) inside the two-family anchor band of [0.40, 0.85], so the published
+# forecasts do not discriminate between them; the design target does. Reaching the
+# economic-replacement view on its own terms (P(by 2050) near 0.50) needs about 4.00, which
+# would move the median crossing by eleven years and is a modelling decision rather than a
+# correction — it is deliberately not the default.
+ALPHA_MAX = float(os.environ.get("CENTURY_ALPHA_MAX", "2.40"))   # ceiling of the curvature prior under V2_ALPHASUB
+if V2_ALPHASUB:
+    P["alpha"] = 1.0 + (P["alpha"] - 1.0) * (ALPHA_MAX - 1.0) / 0.9
 
 # optional fixed overrides for named-scenario runs: CENTURY_OVERRIDES='{"race":0.9,...}'
 _ov = json.loads(os.environ.get("CENTURY_OVERRIDES", "{}"))
@@ -1332,6 +1384,22 @@ if AUDIT:
             "marginal_q": {nm: [round(float(np.percentile(P[nm].astype(float), _q)), 4)
                                 for _q in (10, 50, 90)] for nm in CORR_VARS},
         }
+    # curvature diagnostic (consumed by check_century.py --alphasub-audit). The realised
+    # marginal is reported rather than the configured ceiling so the audit can see whether
+    # the rescale actually reached the prior, and the mean-vs-midpoint check confirms the
+    # map stayed uniform rather than piling draws at one end. p10/p50/p90 come from the same
+    # array the copula reorders, so a reordering that damaged the marginal would show here.
+    _al = P["alpha"].astype(float)
+    _lo_al, _hi_al = (1.0, ALPHA_MAX if V2_ALPHASUB else 1.9)
+    out["audit_alpha"] = {
+        "alphasub": bool(V2_ALPHASUB),
+        "alpha_max_configured": round(float(ALPHA_MAX), 4),
+        "observed_min": round(float(_al.min()), 4),
+        "observed_max": round(float(_al.max()), 4),
+        "mean": round(float(_al.mean()), 4),
+        "expected_uniform_mean": round((_lo_al + _hi_al) / 2.0, 4),
+        "q10_50_90": [round(float(np.percentile(_al, _q)), 4) for _q in (10, 50, 90)],
+    }
     if V2_POLICY:
         # policy diagnostic (consumed by check_century.py --policy-audit): observed bounds of
         # each state-responsive lever (must stay within the declared clip bounds) and the mean
