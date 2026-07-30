@@ -125,7 +125,8 @@ V2_CONFIGS = [
     ("CENTURY_V2_REBUILD", "collapse becomes non-absorbing (rebuild + recover)"),
     ("CENTURY_V2_BIOUP", "post-AGI bio-offence uplift (AGI-grade biotool misuse)"),
     ("CENTURY_V2_ERODE", "capability growth erodes containment/evaluation readiness"),
-    ("CENTURY_V2", "umbrella: all fifteen corrections together"),
+    ("CENTURY_V2_ALPHASUB", "curvature prior reaches the slow worlds the old ceiling excluded"),
+    ("CENTURY_V2", "umbrella: all sixteen corrections together"),
 ]
 OUTCOME_ORDER = [
     "aligned_abundance", "oligarchic_prosperity", "turbulent_transition",
@@ -246,6 +247,108 @@ DOC_TABLES = [
      "source": 'cmd:{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75,"k":0.06}@800000',
      "precision": 1,
      "rows": {"Feasible choices + pace restraint (compute governance)": _LADDER}},
+
+    # Calibration tables (sections 6.3 and 6.5, and the summary tables realistic-bet.md
+    # builds from them). These quote the max-entropy solve rather than any engine run, so
+    # until the calib: source existed they were the only tables in the documents this gate
+    # could not see. They are also the ones that went stale unnoticed when the arrival
+    # anchors were revised. Column 2 of a fit table is a range cell; _num takes the first
+    # token, so it pins the band's LOWER edge against anchors.json. The upper edge is not
+    # pinned here, which is stated rather than silent: an anchors.json edit that moved only
+    # an upper bound would still change the weighted column and be caught that way.
+    {"id": "s6.3-fit-p", "doc": DOC_PATH, "anchor": "| Target | Unweighted | Acceptable range",
+     "source": "calib:xpt_superforecaster@50000", "precision": 3,
+     "rows": {
+         "P(AGI by 2035)": {1: "fit.p_agi_by_2035.unweighted", 2: "fit.p_agi_by_2035.lo",
+                            3: "fit.p_agi_by_2035.weighted"},
+         "P(AGI by 2050)": {1: "fit.p_agi_by_2050.unweighted", 2: "fit.p_agi_by_2050.lo",
+                            3: "fit.p_agi_by_2050.weighted"},
+         "P(never AGI by 2126)": {1: "fit.p_never_agi_by_2126.unweighted",
+                                  2: "fit.p_never_agi_by_2126.lo",
+                                  3: "fit.p_never_agi_by_2126.weighted"},
+         "P(extinction)": {1: "fit.p_extinction.unweighted", 2: "fit.p_extinction.lo",
+                           3: "fit.p_extinction.weighted"},
+         "Nuclear wars per world": {1: "fit.nuclear_events_per_world.unweighted",
+                                    3: "fit.nuclear_events_per_world.weighted"},
+         "Pandemics per world (COVID-class)": {1: "fit.nat_pandemic_events_per_world.unweighted",
+                                               3: "fit.nat_pandemic_events_per_world.weighted"},
+     }},
+    # Same table, coarser rows: the two endpoint anchors are quoted to 2 dp, and a registry
+    # spec carries a single precision.
+    {"id": "s6.3-fit-endpoints", "doc": DOC_PATH, "anchor": "| Target | Unweighted | Acceptable range",
+     "source": "calib:xpt_superforecaster@50000", "precision": 2,
+     "rows": {
+         "Population 2126, survivors (bn)": {1: "fit.pop_2126_survivors_bn.unweighted",
+                                             3: "fit.pop_2126_survivors_bn.weighted"},
+         "Warming 2126, survivors (°C)": {1: "fit.warming_2126_survivors_C.unweighted",
+                                          3: "fit.warming_2126_survivors_C.weighted"},
+     }},
+    {"id": "s6.3-outcomes", "doc": DOC_PATH, "anchor": "| Outcome | Model priors | Target-weighted",
+     "source": "calib:xpt_superforecaster@50000", "precision": 1,
+     "rows": {
+         "Good (broadly acceptable)": {1: "outcomes.good.prior", 2: "outcomes.good.weighted"},
+         "Aligned abundance": {1: "outcomes.aligned_abundance.prior",
+                               2: "outcomes.aligned_abundance.weighted"},
+         "Disempowerment": {1: "outcomes.disempowerment.prior",
+                            2: "outcomes.disempowerment.weighted"},
+         "Irreversibly bad": {1: "outcomes.bad.prior", 2: "outcomes.bad.weighted"},
+         "Extinction": {1: "outcomes.extinction.prior", 2: "outcomes.extinction.weighted"},
+         "Extinction or collapse": {1: "outcomes.ext_or_collapse.prior",
+                                    2: "outcomes.ext_or_collapse.weighted"},
+         "Unknown catastrophe": {1: "outcomes.unknown_catastrophe.prior",
+                                 2: "outcomes.unknown_catastrophe.weighted"},
+     }},
+    {"id": "s6.5-lever-fit", "doc": DOC_PATH, "anchor": "| Choice | Unweighted | Likelihood range",
+     "source": "calib:levers@800000", "precision": 3,
+     "rows": {
+         "Gains shared": {1: "fit.p_gains_shared.unweighted", 2: "fit.p_gains_shared.lo",
+                          3: "fit.p_gains_shared.weighted"},
+         "Institutions react": {1: "fit.p_institutions_react.unweighted",
+                                2: "fit.p_institutions_react.lo",
+                                3: "fit.p_institutions_react.weighted"},
+         "Safety work funded": {1: "fit.p_safety_funded.unweighted", 2: "fit.p_safety_funded.lo",
+                                3: "fit.p_safety_funded.weighted"},
+         "AI used for safety": {1: "fit.p_ai_helps_safety.unweighted",
+                                2: "fit.p_ai_helps_safety.lo",
+                                3: "fit.p_ai_helps_safety.weighted"},
+         "Race cooled": {1: "fit.p_race_cooled.unweighted", 2: "fit.p_race_cooled.lo",
+                         3: "fit.p_race_cooled.weighted"},
+     }},
+    {"id": "s6.5-lever-outcomes", "doc": DOC_PATH,
+     "anchor": "| Outcome | Model priors | Likelihood-weighted",
+     "source": "calib:levers@800000", "precision": 1,
+     "rows": {
+         "Good (broadly acceptable)": {1: "outcomes.good.prior", 2: "outcomes.good.weighted"},
+         "Aligned abundance": {1: "outcomes.aligned_abundance.prior",
+                               2: "outcomes.aligned_abundance.weighted"},
+         "Disempowerment": {1: "outcomes.disempowerment.prior",
+                            2: "outcomes.disempowerment.weighted"},
+         "Irreversibly bad": {1: "outcomes.bad.prior", 2: "outcomes.bad.weighted"},
+         "Extinction": {1: "outcomes.extinction.prior", 2: "outcomes.extinction.weighted"},
+     }},
+    # realistic-bet.md's two summary tables restate the same three readings for a general
+    # audience. The headline and realistic-bet rows come from the lever solve (its prior IS
+    # the 800,000-world headline); the outside-view row comes from the 50,000-world anchor
+    # solve, which is why that row is a separate spec against a separate source.
+    {"id": "rb-readings-headline", "doc": os.path.join(HERE, "docs", "realistic-bet.md"),
+     "anchor": "| Reading | The question it answers", "source": "calib:levers@800000", "precision": 1,
+     "rows": {"The headline": {2: "outcomes.good.prior", 3: "outcomes.bad.prior"},
+              "The realistic bet": {2: "outcomes.good.weighted", 3: "outcomes.bad.weighted"}}},
+    {"id": "rb-readings-outside", "doc": os.path.join(HERE, "docs", "realistic-bet.md"),
+     "anchor": "| Reading | The question it answers",
+     "source": "calib:xpt_superforecaster@50000", "precision": 1,
+     "rows": {"The outside view": {2: "outcomes.good.weighted", 3: "outcomes.bad.weighted"}}},
+    {"id": "rb-outcomes", "doc": os.path.join(HERE, "docs", "realistic-bet.md"),
+     "anchor": "| Outcome | The headline | The realistic bet",
+     "source": "calib:levers@800000", "precision": 1,
+     "rows": {
+         "Good century": {1: "outcomes.good.prior", 2: "outcomes.good.weighted"},
+         "The best ending (aligned abundance)": {1: "outcomes.aligned_abundance.prior",
+                                                 2: "outcomes.aligned_abundance.weighted"},
+         "Humans lose control quietly (disempowerment)": {1: "outcomes.disempowerment.prior",
+                                                          2: "outcomes.disempowerment.weighted"},
+         "Irreversibly bad century": {1: "outcomes.bad.prior", 2: "outcomes.bad.weighted"},
+     }},
 ]
 
 # --doc-figures prose registry: each entry pins a figure quoted *inline in prose* to the
@@ -335,6 +438,29 @@ DOC_PROSE = [
          {"label": "strat s4: cool the race",
           "pattern": r"Cool the race \(`race`, swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.race.swing"},
+     ]},
+    # The effective sample size of each solve. It is quoted in prose rather than in the
+    # tables above, and it is the number that says whether a reweighting is supported by
+    # the bulk of the ensemble or by a handful of extreme worlds, so leaving it unpinned
+    # would leave the tables' credibility statement free to drift away from the tables.
+    {"id": "s6.3-ess", "doc": DOC_PATH, "source": "calib:xpt_superforecaster@50000", "precision": 1,
+     "figures": [
+         {"label": "s6.3 effective sample size",
+          "pattern": r"\*\*effective sample size of " + _PNUM + r" %\*\*",
+          "path": "ess_pct"},
+     ]},
+    {"id": "s6.5-ess", "doc": DOC_PATH, "source": "calib:levers@800000", "precision": 1,
+     "figures": [
+         {"label": "s6.5 effective sample size",
+          "pattern": r"The tilt keeps an effective sample size of " + _PNUM + r" %",
+          "path": "ess_pct"},
+     ]},
+    {"id": "rb-ess", "doc": os.path.join(HERE, "docs", "realistic-bet.md"),
+     "source": "calib:levers@800000", "precision": 0,
+     "figures": [
+         {"label": "realistic-bet effective sample size",
+          "pattern": _PNUM + r" % of them still count afterwards",
+          "path": "ess_pct"},
      ]},
 ]
 
@@ -939,6 +1065,66 @@ def _get(d, path):
     return cur
 
 
+def _run_calibration(n, levers=False, group="xpt_superforecaster"):
+    """Run a calibration in-process and shape it like an engine output, so the two
+    calibration sections of future.md can be pinned by the same registry that pins
+    everything else. Sections 6.3 and 6.5 quote numbers that no engine run produces:
+    they come out of the max-entropy solve, so before this source existed they were the
+    only tables in the documents that --doc-figures could not see. They are also the
+    tables that went stale unnoticed when the arrival anchors were last revised, which is
+    the whole argument for pinning them.
+
+    Returns {"fit": {feature: {unweighted, lo, hi, weighted}}, "ess_pct": float,
+             "outcomes": {name: {prior, weighted}}}. The band edges are carried through
+    from anchors.json so a document can be checked against the configured range as well
+    as against the solve.
+    """
+    import numpy as np
+    import calibrate_century as cal
+    with open(os.path.join(HERE, "lever-anchors.json" if levers else "anchors.json")) as f:
+        anchors = json.load(f)
+    ns = cal.run_ensemble(n)
+    if levers:
+        names, F, lo, hi = cal.build_lever_features(ns, anchors)
+        t = (lo + hi) / 2.0                      # lever ranges are beliefs: match the middle
+    else:
+        names, F, lo, hi = cal.build_features(ns, anchors, group)
+        t = None                                 # outcome anchors: only correct when outside
+    unweighted = F.mean(axis=0)
+    if t is None:
+        t = np.clip(unweighted, lo, hi)
+    active = ~np.isclose(t, unweighted, atol=1e-6)
+    if active.any():
+        lam = cal.fit_maxent(F[:, active], t[active])
+        z = F[:, active] @ lam
+        z -= z.max()
+        w = np.exp(z)
+    else:
+        w = np.ones(n, dtype=float)
+    w = w / w.sum()
+    ess = float((w.sum() ** 2) / (w ** 2).sum()) / n
+    weighted = w @ F
+    fit = {nm: {"unweighted": float(unweighted[i]), "lo": float(lo[i]),
+                "hi": float(hi[i]), "weighted": float(weighted[i])}
+           for i, nm in enumerate(names)}
+    final = ns["final"]
+
+    def _pair(v):
+        v = v.astype(float)
+        return {"prior": 100.0 * float(v.mean()), "weighted": 100.0 * float(w @ v)}
+
+    outcomes = {
+        "good": _pair(ns["good"]),
+        "bad": _pair(ns["bad"]),
+        "aligned_abundance": _pair(final == "aligned_abundance"),
+        "disempowerment": _pair(final == "disempowerment"),
+        "extinction": _pair(final == "extinction"),
+        "ext_or_collapse": _pair((final == "extinction") | (final == "collapse")),
+        "unknown_catastrophe": _pair(final == "unknown_catastrophe"),
+    }
+    return {"fit": fit, "ess_pct": 100.0 * ess, "outcomes": outcomes}
+
+
 def _run_source(source, cache):
     """Resolve a registry `source` spec to a (cached) engine output."""
     if source in cache:
@@ -952,6 +1138,10 @@ def _run_source(source, cache):
         env_str, n = source[4:].rsplit("@", 1)
         env = dict(kv.split("=", 1) for kv in env_str.split(",") if kv)
         out = run_engine(int(n), env)
+    elif source.startswith("calib:"):
+        arg, n = source[6:].rsplit("@", 1)
+        out = _run_calibration(int(n), levers=(arg == "levers"),
+                               group=(arg if arg != "levers" else None))
     else:
         raise ValueError("unknown --doc-figures source spec: %r" % source)
     cache[source] = out
@@ -1326,6 +1516,109 @@ def _pct_se(pct, n):
     """Standard error of a binomial share, in percentage points."""
     q = pct / 100.0
     return 100.0 * math.sqrt(q * (1.0 - q) / n)
+
+
+def check_alphasub_audit(n=50000):
+    """Gate for the curvature correction (V2_ALPHASUB). Seven assertions: the baseline path
+    is untouched; setting the ceiling back to 1.9 reproduces the uncorrected prior exactly,
+    bit-identically, because the correction rescales the existing draw rather than redrawing;
+    the realised marginal is uniform on [1.0, ALPHA_MAX]; the crossing year is monotone in
+    the ceiling; the correction acts through arrival timing rather than through any hazard;
+    the copula's ranks and marginal quantiles survive the rescale; and the sign is the one
+    the sub-unit regime implies, which is the trap this correction was written to fix."""
+    print("[alphasub-audit] N=%d: V2_ALPHASUB baseline safety, pinned-ceiling reproduction," % n)
+    print("                 marginal shape, monotonicity, timing-only action, copula survival, sign")
+    ok = True
+
+    # 1. Baseline is untouched. V2_ALPHASUB hangs off _v2, so CENTURY_BASELINE=1 must leave
+    #    the old prior in place and the pre-plan golden must still reproduce exactly.
+    base = run_engine(20000, {"CENTURY_BASELINE": "1", "CENTURY_AUDIT": "1"})
+    base_diffs = diff_blocks(base, load_golden(20000, baseline=True))
+    a1 = (not base_diffs) and base["audit_alpha"]["alphasub"] is False \
+        and abs(base["audit_alpha"]["observed_max"] - 1.9) < 0.01
+    ok = ok and a1
+    print("  1. baseline bit-identical to golden and prior still capped at 1.9 (max=%.3f): %s%s"
+          % (base["audit_alpha"]["observed_max"], a1,
+             "" if not base_diffs else "  (%d block(s) drifted)" % len(base_diffs)))
+
+    # 2. Pinning the ceiling to 1.9 reproduces the uncorrected model BIT-IDENTICALLY. This is
+    #    the strongest claim in the audit and the reason the correction rescales P["alpha"]
+    #    instead of redrawing it: an extra rng call would shift every later draw and make the
+    #    two runs different worlds, exactly the trap --erosion-audit has to work around with a
+    #    Monte Carlo bar. Here the streams are the same, so equality is exact.
+    pin19 = run_engine(n, {"CENTURY_ALPHA_MAX": "1.9"})
+    off = run_engine(n, {"CENTURY_V2": "1", "CENTURY_V2_ALPHASUB": "0", "CENTURY_ALPHA_MAX": "1.9"})
+    a2 = not diff_blocks(pin19, off)
+    ok = ok and a2
+    print("  2. ALPHA_MAX pinned to 1.9 reproduces the uncorrected prior bit-identically: %s" % a2)
+
+    # 3. The rescale leaves the marginal uniform. A map that piled draws at one end would
+    #    change the answer without changing the stated range, so the mean is checked against
+    #    the midpoint of [1.0, ALPHA_MAX] rather than only the endpoints being checked.
+    aud = run_engine(n, {"CENTURY_AUDIT": "1"})["audit_alpha"]
+    a3 = (abs(aud["observed_min"] - 1.0) < 0.01
+          and abs(aud["observed_max"] - aud["alpha_max_configured"]) < 0.01
+          and abs(aud["mean"] - aud["expected_uniform_mean"]) < 0.01)
+    ok = ok and a3
+    print("  3. marginal uniform on [1.0, %.2f]: min=%.3f max=%.3f mean=%.4f (expected %.4f): %s"
+          % (aud["alpha_max_configured"], aud["observed_min"], aud["observed_max"],
+             aud["mean"], aud["expected_uniform_mean"], a3))
+
+    # 4. Monotone in the ceiling. Below C = 1 a larger exponent shrinks C**alpha, so raising
+    #    the ceiling must push the crossing later at every step of the grid.
+    grid = [1.9, 2.4, 3.2]
+    meds = [run_engine(n, {"CENTURY_ALPHA_MAX": str(v)})["agi"]["median_year"] for v in grid]
+    a4 = all(b > a for a, b in zip(meds, meds[1:]))
+    ok = ok and a4
+    print("  4. median crossing year rises with the ceiling: %s -> %s: %s"
+          % (grid, meds, a4))
+
+    # 5. The correction acts through timing, not through any hazard. Per-world hazard rates
+    #    are untouched by curvature, so the expected count of nuclear and pandemic events must
+    #    move only as far as the changed exit times drag it, well inside a wide bar. A
+    #    correction that moved these sharply would be reaching into the hazard model.
+    hi = run_engine(n, {"CENTURY_ALPHA_MAX": "3.2"})
+    lo = run_engine(n, {"CENTURY_ALPHA_MAX": "1.9"})
+    dnuc = abs(hi["events_per_world"]["nuclear_war"] - lo["events_per_world"]["nuclear_war"])
+    a5 = dnuc < 0.15
+    ok = ok and a5
+    print("  5. nuclear events per world move only with exit timing: %.3f vs %.3f (|d|=%.3f < 0.15): %s"
+          % (hi["events_per_world"]["nuclear_war"], lo["events_per_world"]["nuclear_war"], dnuc, a5))
+
+    # 6. The copula survives. The rescale is linear and monotone, so it cannot change any
+    #    world's rank; the realised k,alpha rank correlation and alpha's own quantile shape
+    #    (rescaled by the same affine map) must both come through intact.
+    ca = run_engine(n, {"CENTURY_AUDIT": "1"})["audit_corr"]
+    cb = run_engine(n, {"CENTURY_AUDIT": "1", "CENTURY_ALPHA_MAX": "1.9"})["audit_corr"]
+    ra, rb = ca["pairs"]["k,alpha"]["realised_rank"], cb["pairs"]["k,alpha"]["realised_rank"]
+    qa, qb = ca["marginal_q"]["alpha"], cb["marginal_q"]["alpha"]
+    # Read the ceiling from the engine rather than restating it, so changing the default
+    # cannot leave this assertion silently comparing against the wrong affine map.
+    scale = (aud["alpha_max_configured"] - 1.0) / 0.9
+    remapped = [round(1.0 + (q - 1.0) * scale, 3) for q in qb]
+    a6 = abs(ra - rb) < 1e-9 and all(abs(x - round(y, 3)) < 5e-3 for x, y in zip(remapped, qa))
+    ok = ok and a6
+    print("  6. copula intact: k,alpha rank %.3f vs %.3f; alpha quantiles %s vs affine-mapped %s: %s"
+          % (ra, rb, [round(q, 3) for q in qa], remapped, a6))
+
+    # 7. The sign. Recorded as an assertion because the first attempt at this correction
+    #    lowered the floor below 1.0 on the reading that a bigger exponent means faster
+    #    growth. It does above C = 1 and the reverse below it, and the model lives entirely
+    #    below it, so that change made every world faster. A floor-lowering run must arrive
+    #    EARLIER than the default; if this ever flips, the operative regime has moved.
+    lowfloor = run_engine(n, {"CENTURY_ALPHA_MAX": "1.9",
+                              "CENTURY_OVERRIDES": '{"alpha":0.7}'})
+    highfix = run_engine(n, {"CENTURY_ALPHA_MAX": "1.9",
+                             "CENTURY_OVERRIDES": '{"alpha":1.9}'})
+    a7 = lowfloor["agi"]["median_year"] < highfix["agi"]["median_year"]
+    ok = ok and a7
+    print("  7. below C=1 a bigger exponent is slower: alpha=0.7 crosses %d, alpha=1.9 crosses %d: %s"
+          % (lowfloor["agi"]["median_year"], highfix["agi"]["median_year"], a7))
+
+    print("  %s — %s." % ("PASS" if ok else "FAIL",
+          "curvature correction is baseline-safe, exactly revertible, uniform, monotone, "
+          "timing-only, copula-safe and correctly signed" if ok else "see the failing assertion above"))
+    return ok
 
 
 def check_erosion_audit(n=50000):
@@ -1711,6 +2004,9 @@ def main(argv=None):
     ap.add_argument("--erosion-audit", action="store_true",
                     help="check the readiness-erosion correction: baseline safety, pinned-zero reproduction, "
                          "monotonicity, near-orthogonality to respond, clip floor, separability, gating (N=50000)")
+    ap.add_argument("--alphasub-audit", action="store_true",
+                    help="check the curvature correction: baseline safety, exact pinned-ceiling reproduction, "
+                         "uniform marginal, monotonicity, timing-only action, copula survival, sign (N=50000)")
     ap.add_argument("--erode-sweep", action="store_true",
                     help="sweep erode_mag, ERODE_DAMP and SHOT_REF; tabulate outcomes and anchor ESS "
                          "at each, and check the magnitude dominates the other two (N=200000, ~5 min)")
@@ -1753,6 +2049,8 @@ def main(argv=None):
         return 0 if check_cutoff_audit() else 1
     if args.erosion_audit:
         return 0 if check_erosion_audit() else 1
+    if args.alphasub_audit:
+        return 0 if check_alphasub_audit() else 1
     if args.erode_sweep:
         return 0 if check_erode_sweep() else 1
     if args.struct_pflat_sweep:
