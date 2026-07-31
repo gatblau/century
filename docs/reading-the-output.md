@@ -40,8 +40,8 @@ The headline table in the README folds these eleven into three rows.
 
 | Outcome key | In one line | Headline row |
 |---|---|---|
-| `aligned_abundance` | AGI stays under control and its gains reach most people | Broadly good |
-| `oligarchic_prosperity` | AGI is controlled but the gains pool at the top | Broadly good |
+| `aligned_abundance` | AGI arrived and stayed under control as capability grew past us, and its gains reach most people | Broadly good |
+| `oligarchic_prosperity` | AGI arrived and is controlled, but the gains pool at the top | Broadly good |
 | `constrained_flourishing` | No AGI, and the world governs itself well | Broadly good |
 | `turbulent_transition` | AGI arrived but nothing settled by 2126 | Mixed |
 | `muddling_degraded` | No AGI, and weak politics | Mixed |
@@ -58,7 +58,7 @@ The same result summed up: the good share and the irreversibly bad share. These 
 
 ## agi
 
-When the machine arrives. `median_year` is the middle world. `p10_year` and `p90_year` are the early and late edges, and half of all worlds cross the AGI threshold between them.
+When capability crosses the AGI line. `median_year` is the middle world. `p10_year` and `p90_year` are the early and late edges, and half of all worlds cross the AGI threshold between them.
 
 ## events_per_world
 
