@@ -2,6 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+> **NOTE**: _You can read more about the implications of this model's outputs in the Medium article [I asked AI to look into the future](https://thedigitalshipwright.com/i-asked-ai-to-look-into-the-future-ae1a609e808c).
+>  Even though the model itself is constantly being improved, the article preserves the very first figures it produced and will not be updated._
+
 A world model you can run on your laptop.
 
 It plays the next hundred years out 800,000 times. Each run is one possible version of 2026 to 2126: AI improves at some pace, wars and pandemics either happen or do not, governments either cope or do not. Count how all 800,000 versions ended and you have a map of what could happen, and how often.
