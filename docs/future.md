@@ -654,6 +654,7 @@ CENTURY_LEVER_WEIGHTS=weights-levers-800000-seed431.npz \
   python3 century_sim.py 800000                                # + likelihood-weighted ("realistic bet") outcome tables
 python3 sobol_century.py                                       # variance-based Sobol sensitivity indices
 python3 check_century.py --doc-figures                         # verify this document's tables against the engine
+python3 check_century.py --doc-figures-fast                    # the same without the 800,000-world sources (~3 min vs ~13)
 ```
 
 Engine: NumPy only, seed 431, about 50 s for 800,000 worlds. All figures in this document come from the runs described in section 2. Every run's JSON output carries five blocks that sit behind the sections above:

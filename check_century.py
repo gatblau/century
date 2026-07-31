@@ -142,6 +142,8 @@ PINNED_VARS = ["W", "Rd", "G", "Tr", "H"]
 NOTES_PATH = os.path.join(HERE, "notes", "v2-deltas.md")
 DOC_PATH = os.path.join(HERE, "docs", "future.md")
 STRATEGY_PATH = os.path.join(HERE, "docs", "strategy.md")
+README_PATH = os.path.join(HERE, "README.md")
+REALISTIC_PATH = os.path.join(HERE, "docs", "realistic-bet.md")
 
 # --doc-figures verification registry: each entry pins a document table to the engine.
 #   doc       - the document file
@@ -165,6 +167,17 @@ _LADDER = {
     4: "outcomes.disempowerment",
     5: "agi.median_year",
 }
+
+_SPREAD = {1: "audit_timing.agi_p10", 2: "audit_timing.agi_p50", 3: "audit_timing.agi_p90",
+           4: "audit_timing.agi_spread_yr", 5: "agi.p_by_2035", 6: "agi.p_after_2050"}
+_REGIME = {2: "aggregates.good(broadly acceptable)", 3: "aggregates.irreversible_bad",
+           4: "outcomes.extinction", 5: "outcomes.disempowerment",
+           6: "outcomes.aligned_abundance", 7: "agi.median_year"}
+_SWEEP = {1: "agi.median_year", 2: "agi.p_by_2035", 3: "agi.p_by_2050",
+          4: "agi.p_no_agi_by_2126", 5: "aggregates.good(broadly acceptable)",
+          6: "aggregates.irreversible_bad"}
+_WORLD = {1: "aggregates.good(broadly acceptable)", 2: "aggregates.irreversible_bad",
+          3: "outcomes.extinction", 4: "outcomes.aligned_abundance"}
 
 DOC_TABLES = [
     {"id": "s3-outcomes", "doc": DOC_PATH, "anchor": "| Outcome | Probability", "source": "run:800000", "precision": 1,
@@ -339,6 +352,108 @@ DOC_TABLES = [
      "anchor": "| Reading | The question it answers",
      "source": "calib:xpt_superforecaster@50000", "precision": 1,
      "rows": {"The outside view": {2: "outcomes.good.weighted", 3: "outcomes.bad.weighted"}}},
+    # ---- README.md ------------------------------------------------------------------
+    # The front page carried none of its figures in this registry until 2026-07-31, which is
+    # why its headline table and five-worlds table had to be corrected by hand through three
+    # separate model changes. README_PATH tables are pinned like any other from here.
+    {"id": "readme-headline", "doc": README_PATH, "anchor": "| How the century ends |",
+     "source": "calib:levers@800000", "precision": 1,
+     "rows": {
+         "Broadly good (abundance, shared prosperity, or steady flourishing)":
+             {1: "outcomes.good.prior", 2: "outcomes.good.weighted"},
+         "Mixed (rocky transitions, recoveries, muddling through)":
+             {1: "outcomes.mixed.prior", 2: "outcomes.mixed.weighted"},
+         "Irreversibly bad (disempowerment, lock-in, collapse, extinction)":
+             {1: "outcomes.bad.prior", 2: "outcomes.bad.weighted"},
+     }},
+    {"id": "readme-w0", "doc": README_PATH, "anchor": "| World | Good | Irreversibly bad",
+     "source": 'run:800000', "precision": 1,
+     "rows": {'Baseline (no overrides)': _WORLD}},
+    {"id": "readme-w1", "doc": README_PATH, "anchor": "| World | Good | Irreversibly bad",
+     "source": 'cmd:{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75}@800000', "precision": 1,
+     "rows": {'1. Prepared acceleration': _WORLD}},
+    {"id": "readme-w2", "doc": README_PATH, "anchor": "| World | Good | Irreversibly bad",
+     "source": 'cmd:{"race":0.95,"respond":0.25,"safety_eff":0.006}@800000', "precision": 1,
+     "rows": {'2. Race to fragility': _WORLD}},
+    {"id": "readme-w3", "doc": README_PATH, "anchor": "| World | Good | Irreversibly bad",
+     "source": 'cmd:{"concentration0":0.75,"redist_will":0.2}@800000', "precision": 1,
+     "rows": {'3. Concentrated': _WORLD}},
+    {"id": "readme-w4", "doc": README_PATH, "anchor": "| World | Good | Irreversibly bad",
+     "source": 'cmd:{"bio_defense":0.2}@800000', "precision": 1,
+     "rows": {'4. Undefended': _WORLD}},
+    {"id": "readme-w5", "doc": README_PATH, "anchor": "| World | Good | Irreversibly bad",
+     "source": 'cmd:{"plateau":true}@800000', "precision": 1,
+     "rows": {'5. Plateau': _WORLD}},
+    # Section 4.3. Needs CENTURY_DECADAL=1, and its columns are quoted to two different
+    # precisions, so it takes two specs against one cached run.
+    {"id": "s4.3-decadal-1dp", "doc": DOC_PATH, "anchor": "| Year | Ongoing | Capability",
+     "source": "env:CENTURY_DECADAL=1@800000", "precision": 1,
+     "rows": {'2030': {1: 'decadal_by_year.2030.ongoing_%', 9: 'decadal_by_year.2030.pop', 10: 'decadal_by_year.2030.agi_crossed_%'}, '2040': {1: 'decadal_by_year.2040.ongoing_%', 9: 'decadal_by_year.2040.pop', 10: 'decadal_by_year.2040.agi_crossed_%'}, '2050': {1: 'decadal_by_year.2050.ongoing_%', 9: 'decadal_by_year.2050.pop', 10: 'decadal_by_year.2050.agi_crossed_%'}, '2060': {1: 'decadal_by_year.2060.ongoing_%', 9: 'decadal_by_year.2060.pop', 10: 'decadal_by_year.2060.agi_crossed_%'}, '2070': {1: 'decadal_by_year.2070.ongoing_%', 9: 'decadal_by_year.2070.pop', 10: 'decadal_by_year.2070.agi_crossed_%'}, '2080': {1: 'decadal_by_year.2080.ongoing_%', 9: 'decadal_by_year.2080.pop', 10: 'decadal_by_year.2080.agi_crossed_%'}, '2100': {1: 'decadal_by_year.2100.ongoing_%', 9: 'decadal_by_year.2100.pop', 10: 'decadal_by_year.2100.agi_crossed_%'}, '2120': {1: 'decadal_by_year.2120.ongoing_%', 9: 'decadal_by_year.2120.pop', 10: 'decadal_by_year.2120.agi_crossed_%'}}},
+    {"id": "s4.3-decadal-2dp", "doc": DOC_PATH, "anchor": "| Year | Ongoing | Capability",
+     "source": "env:CENTURY_DECADAL=1@800000", "precision": 2,
+     "rows": {'2030': {2: 'decadal_by_year.2030.C', 3: 'decadal_by_year.2030.R', 4: 'decadal_by_year.2030.gap', 5: 'decadal_by_year.2030.W', 6: 'decadal_by_year.2030.H', 7: 'decadal_by_year.2030.G', 8: 'decadal_by_year.2030.temp'}, '2040': {2: 'decadal_by_year.2040.C', 3: 'decadal_by_year.2040.R', 4: 'decadal_by_year.2040.gap', 5: 'decadal_by_year.2040.W', 6: 'decadal_by_year.2040.H', 7: 'decadal_by_year.2040.G', 8: 'decadal_by_year.2040.temp'}, '2050': {2: 'decadal_by_year.2050.C', 3: 'decadal_by_year.2050.R', 4: 'decadal_by_year.2050.gap', 5: 'decadal_by_year.2050.W', 6: 'decadal_by_year.2050.H', 7: 'decadal_by_year.2050.G', 8: 'decadal_by_year.2050.temp'}, '2060': {2: 'decadal_by_year.2060.C', 3: 'decadal_by_year.2060.R', 4: 'decadal_by_year.2060.gap', 5: 'decadal_by_year.2060.W', 6: 'decadal_by_year.2060.H', 7: 'decadal_by_year.2060.G', 8: 'decadal_by_year.2060.temp'}, '2070': {2: 'decadal_by_year.2070.C', 3: 'decadal_by_year.2070.R', 4: 'decadal_by_year.2070.gap', 5: 'decadal_by_year.2070.W', 6: 'decadal_by_year.2070.H', 7: 'decadal_by_year.2070.G', 8: 'decadal_by_year.2070.temp'}, '2080': {2: 'decadal_by_year.2080.C', 3: 'decadal_by_year.2080.R', 4: 'decadal_by_year.2080.gap', 5: 'decadal_by_year.2080.W', 6: 'decadal_by_year.2080.H', 7: 'decadal_by_year.2080.G', 8: 'decadal_by_year.2080.temp'}, '2100': {2: 'decadal_by_year.2100.C', 3: 'decadal_by_year.2100.R', 4: 'decadal_by_year.2100.gap', 5: 'decadal_by_year.2100.W', 6: 'decadal_by_year.2100.H', 7: 'decadal_by_year.2100.G', 8: 'decadal_by_year.2100.temp'}, '2120': {2: 'decadal_by_year.2120.C', 3: 'decadal_by_year.2120.R', 4: 'decadal_by_year.2120.gap', 5: 'decadal_by_year.2120.W', 6: 'decadal_by_year.2120.H', 7: 'decadal_by_year.2120.G', 8: 'decadal_by_year.2120.temp'}}},
+    # Section 6.1 named regimes, at the 30,000 worlds section 2 declares for them.
+    {"id": 's6.1-race', "doc": DOC_PATH, "anchor": "| Scenario | Pinned assumptions |",
+     "source": 'cmd:{"race":0.95,"respond":0.25,"safety_eff":0.006,"redist_will":0.30}@30000', "precision": 1,
+     "rows": {'Race world': _REGIME}},
+    {"id": 's6.1-prepared', "doc": DOC_PATH, "anchor": "| Scenario | Pinned assumptions |",
+     "source": 'cmd:{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75}@30000', "precision": 1,
+     "rows": {'Prepared world': _REGIME}},
+    {"id": 's6.1-plateau', "doc": DOC_PATH, "anchor": "| Scenario | Pinned assumptions |",
+     "source": 'cmd:{"plateau":true}@30000', "precision": 1,
+     "rows": {'Plateau world': _REGIME}},
+    {"id": 's6.1-fast', "doc": DOC_PATH, "anchor": "| Scenario | Pinned assumptions |",
+     "source": 'cmd:{"alpha":1.7,"k":0.15}@30000', "precision": 1,
+     "rows": {'Fast takeoff': _REGIME}},
+    {"id": 's6.1-slow', "doc": DOC_PATH, "anchor": "| Scenario | Pinned assumptions |",
+     "source": 'cmd:{"alpha":1.1,"k":0.06}@30000', "precision": 1,
+     "rows": {'Slow lane': _REGIME}},
+    # Section 6.6 curvature sweep, one cached run per ceiling.
+    {"id": 's6.6-190', "doc": DOC_PATH, "anchor": "| Curvature ceiling | Median |",
+     "source": "env:CENTURY_ALPHA_MAX=1.90@200000", "precision": 1,
+     "rows": {'1.90 (before)': _SWEEP}},
+    {"id": 's6.6-240', "doc": DOC_PATH, "anchor": "| Curvature ceiling | Median |",
+     "source": "env:CENTURY_ALPHA_MAX=2.40@200000", "precision": 1,
+     "rows": {'2.40 (now)': _SWEEP}},
+    {"id": 's6.6-280', "doc": DOC_PATH, "anchor": "| Curvature ceiling | Median |",
+     "source": "env:CENTURY_ALPHA_MAX=2.80@200000", "precision": 1,
+     "rows": {'2.80': _SWEEP}},
+    {"id": 's6.6-320', "doc": DOC_PATH, "anchor": "| Curvature ceiling | Median |",
+     "source": "env:CENTURY_ALPHA_MAX=3.20@200000", "precision": 1,
+     "rows": {'3.20': _SWEEP}},
+    {"id": 's6.6-400', "doc": DOC_PATH, "anchor": "| Curvature ceiling | Median |",
+     "source": "env:CENTURY_ALPHA_MAX=4.00@200000", "precision": 1,
+     "rows": {'4.00': _SWEEP}},
+    # Section 6.7 before/after. One row spans two engine configurations, so each column is
+    # its own spec, and the overshoot row is quoted to two decimals while the rest are not.
+    {"id": "s6.7-before-2dp", "doc": DOC_PATH, "anchor": "| | Before | After |",
+     "source": 'v2without:CENTURY_V2_PLATDRAG;CENTURY_AUDIT=1@200000', "precision": 2,
+     "rows": {"Ceiling overshoot (90th percentile, stalled worlds)": {1: "audit_plateau.overshoot_p90_stalled"}}},
+    {"id": "s6.7-before-1dp", "doc": DOC_PATH, "anchor": "| | Before | After |",
+     "source": 'v2without:CENTURY_V2_PLATDRAG;CENTURY_AUDIT=1@200000', "precision": 1,
+     "rows": {'Median crossing, stalled worlds that cross': {1: 'audit_plateau.median_crossing_stalled'}, 'Lag behind the ensemble median': {1: 'audit_plateau.stall_lag_years'}, 'Share of stalled worlds reaching AGI': {1: 'audit_plateau.share_stalled_crossing_pct'}, 'No AGI by 2126, whole ensemble': {1: 'agi.p_no_agi_by_2126'}}},
+    {"id": "s6.7-after-2dp", "doc": DOC_PATH, "anchor": "| | Before | After |",
+     "source": 'env:CENTURY_AUDIT=1@200000', "precision": 2,
+     "rows": {"Ceiling overshoot (90th percentile, stalled worlds)": {2: "audit_plateau.overshoot_p90_stalled"}}},
+    {"id": "s6.7-after-1dp", "doc": DOC_PATH, "anchor": "| | Before | After |",
+     "source": 'env:CENTURY_AUDIT=1@200000', "precision": 1,
+     "rows": {'Median crossing, stalled worlds that cross': {2: 'audit_plateau.median_crossing_stalled'}, 'Lag behind the ensemble median': {2: 'audit_plateau.stall_lag_years'}, 'Share of stalled worlds reaching AGI': {2: 'audit_plateau.share_stalled_crossing_pct'}, 'No AGI by 2126, whole ensemble': {2: 'agi.p_no_agi_by_2126'}}},
+    # Section 6.8. The rank correlations are read with the coupling switched off, which is
+    # how the document states them; the spread table is one cached run per sign.
+    {"id": "s6.8-ranks", "doc": DOC_PATH,
+     "anchor": "| Parameter | Rank correlation with the crossing year |",
+     "source": "env:CENTURY_CORR_JSON=identity;CENTURY_AUDIT=1@200000", "precision": 3,
+     "rows": {"Base growth rate `k`": {1: "audit_timing.spearman_k_vs_crossing_year"},
+              "Curvature `alpha`": {1: "audit_timing.spearman_alpha_vs_crossing_year"}}},
+    {"id": 's6.8-pos', "doc": DOC_PATH, "anchor": "| `k,alpha` | 10th | Median |",
+     "source": 'env:CENTURY_CORR_JSON={"k,alpha": 0.3};CENTURY_AUDIT=1@200000', "precision": 1,
+     "rows": {'+0.3 (before)': _SPREAD}},
+    {"id": 's6.8-zero', "doc": DOC_PATH, "anchor": "| `k,alpha` | 10th | Median |",
+     "source": 'env:CENTURY_CORR_JSON={"k,alpha": 0.0};CENTURY_AUDIT=1@200000', "precision": 1,
+     "rows": {'0.0': _SPREAD}},
+    {"id": 's6.8-neg', "doc": DOC_PATH, "anchor": "| `k,alpha` | 10th | Median |",
+     "source": 'env:CENTURY_AUDIT=1@200000', "precision": 1,
+     "rows": {'−0.3 (now)': _SPREAD}},
     {"id": "rb-outcomes", "doc": os.path.join(HERE, "docs", "realistic-bet.md"),
      "anchor": "| Outcome | The headline | The realistic bet",
      "source": "calib:levers@800000", "precision": 1,
@@ -459,6 +574,80 @@ DOC_PROSE = [
          {"label": "realistic-bet effective sample size",
           "pattern": _PNUM + r" % of them still count afterwards",
           "path": "ess_pct"},
+     ]},
+    # ---- README.md prose. The front page quotes the same figures as the documents but in
+    # rounded, sentence form, and none of it was pinned until 2026-07-31.
+    {"id": "readme-prose-run", "doc": README_PATH, "source": "run:800000", "precision": 0,
+     "figures": [
+         {"label": "readme: headline good share",
+          "pattern": r"the good share rises from " + _PNUM + r" % to",
+          "path": "aggregates.good(broadly acceptable)"},
+     ]},
+    {"id": "readme-prose-swings", "doc": README_PATH, "source": "run:800000", "precision": 1,
+     "figures": [
+         {"label": "readme: redistribution swing",
+          "pattern": r"`redist_will` at " + _PNUM + r" points",
+          "path": "sensitivity_P_good.redist_will.swing"},
+         {"label": "readme: responsiveness swing",
+          "pattern": r"`respond` at " + _PNUM + r"\.",
+          "path": "sensitivity_P_good.respond.swing"},
+         {"label": "readme: growth-rate swing",
+          "pattern": r"`k`, comes third and pulls the other way at " + _PNUM,
+          "path": "sensitivity_P_good.k.swing"},
+         {"label": "readme: plateau swing",
+          "pattern": r"`plateau` sixth at " + _PNUM,
+          "path": "sensitivity_P_good.plateau.swing"},
+         {"label": "readme: baseline engineered pandemics",
+          "pattern": r"from " + _PNUM + r" to 0\.\d+ events per world",
+          "path": "events_per_world.eng_pandemic"},
+     ]},
+    {"id": "readme-prose-prepared", "doc": README_PATH, "source": 'cmd:{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75}@800000', "precision": 0,
+     "figures": [
+         {"label": "readme: prepared good share",
+          "pattern": r"the good share rises from \d+ % to " + _PNUM + r" %",
+          "path": "aggregates.good(broadly acceptable)"},
+     ]},
+    {"id": "readme-prose-prepared1", "doc": README_PATH, "source": 'cmd:{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75}@800000', "precision": 1,
+     "figures": [
+         {"label": "readme: prepared world in the distance sentence",
+          "pattern": r"and a prepared world \(" + _PNUM + r" %\)",
+          "path": "aggregates.good(broadly acceptable)"},
+     ]},
+    {"id": "readme-prose-extremes", "doc": README_PATH, "source": 'cmd:{"race":0.25,"respond":1.0,"safety_eff":0.020,"assist":0.65,"redist_will":0.90}@800000', "precision": 1,
+     "figures": [
+         {"label": "readme: extremes good share",
+          "pattern": r"to their extremes and it reaches " + _PNUM + r" %",
+          "path": "aggregates.good(broadly acceptable)"},
+     ]},
+    {"id": "readme-prose-pace", "doc": README_PATH, "source": 'cmd:{"race":0.35,"respond":0.90,"safety_eff":0.018,"assist":0.45,"redist_will":0.75,"k":0.06}@800000', "precision": 1,
+     "figures": [
+         {"label": "readme: pace-restraint bad share",
+          "pattern": r"the bad share falls furthest, to " + _PNUM + r" %",
+          "path": "aggregates.irreversible_bad"},
+         {"label": "readme: pace-restraint good share",
+          "pattern": r"for a good share of " + _PNUM + r" %",
+          "path": "aggregates.good(broadly acceptable)"},
+     ]},
+    {"id": "readme-prose-bio", "doc": README_PATH, "source": 'cmd:{"bio_defense":0.2}@800000', "precision": 2,
+     "figures": [
+         {"label": "readme: undefended engineered pandemics",
+          "pattern": r"from 0\.\d+ to " + _PNUM + r" events per world",
+          "path": "events_per_world.eng_pandemic"},
+     ]},
+    {"id": "readme-prose-holds", "doc": README_PATH, "source": 'cmd:{"erode_mag":0.0}@800000', "precision": 1,
+     "figures": [
+         {"label": "readme: containment-holds good",
+          "pattern": r"the same worlds give " + _PNUM + r" % good",
+          "path": "aggregates.good(broadly acceptable)"},
+         {"label": "readme: containment-holds bad",
+          "pattern": r"good against " + _PNUM + r" % bad",
+          "path": "aggregates.irreversible_bad"},
+     ]},
+    {"id": "readme-prose-levers", "doc": README_PATH, "source": "calib:levers@800000", "precision": 1,
+     "figures": [
+         {"label": "readme: realistic-bet good share",
+          "pattern": r"where we are heading \(" + _PNUM + r" %\)",
+          "path": "outcomes.good.weighted"},
      ]},
 ]
 
@@ -1119,6 +1308,10 @@ def _run_calibration(n, levers=False, group="xpt_superforecaster"):
         "extinction": _pair(final == "extinction"),
         "ext_or_collapse": _pair((final == "extinction") | (final == "collapse")),
         "unknown_catastrophe": _pair(final == "unknown_catastrophe"),
+        # The undecided middle. Not an engine aggregate, so it is composed here from the three
+        # fate classes that end without a verdict, matching the row README.md and section 3 use.
+        "mixed": _pair((final == "turbulent_transition") | (final == "muddling_degraded")
+                       | (final == "recovered")),
     }
     return {"fit": fit, "ess_pct": 100.0 * ess, "outcomes": outcomes}
 
@@ -1133,24 +1326,75 @@ def _run_source(source, cache):
         overrides, n = source[4:].rsplit("@", 1)
         out = run_engine(int(n), {"CENTURY_OVERRIDES": overrides})
     elif source.startswith("env:"):
+        # Variables are separated by ";" rather than "," because one of the values is JSON
+        # whose key contains a comma (CENTURY_CORR_JSON='{"k,alpha": 0.3}', section 6.8).
         env_str, n = source[4:].rsplit("@", 1)
-        env = dict(kv.split("=", 1) for kv in env_str.split(",") if kv)
+        env = dict(kv.split("=", 1) for kv in env_str.split(";") if kv)
         out = run_engine(int(n), env)
     elif source.startswith("calib:"):
         arg, n = source[6:].rsplit("@", 1)
         out = _run_calibration(int(n), levers=(arg == "levers"),
                                group=(arg if arg != "levers" else None))
+    elif source.startswith("v2without:"):
+        # The v2 path with one correction suppressed. Needed because a V2_* flag reads
+        # `_v2 or <own var>`, so it cannot be turned off by setting its own variable to 0;
+        # see _v2_without. Used by the before/after tables of the correction sections.
+        spec, n = source[10:].rsplit("@", 1)
+        parts = [q for q in spec.split(";") if q]
+        env = _v2_without(parts[0])
+        env.update(dict(kv.split("=", 1) for kv in parts[1:]))
+        out = run_engine(int(n), env)
     else:
         raise ValueError("unknown --doc-figures source spec: %r" % source)
+    if isinstance(out, dict) and isinstance(out.get("decadal"), list):
+        # Reshape the decadal snapshots into {year: row} so the section 4.3 table can be
+        # addressed by dotted path; _get walks dict keys and cannot index a list.
+        out["decadal_by_year"] = {str(r["year"]): r for r in out["decadal"] if "year" in r}
     cache[source] = out
     return out
 
 
-def _check_doc_tables(cache):
+FAST_MAX_WORLDS = 200000     # --doc-figures-fast runs only sources at or below this size
+
+
+def _source_worlds(source):
+    """Ensemble size a registry source will simulate, for the --doc-figures-fast filter."""
+    m = re.search(r"@(\d+)$", source)
+    if m:
+        return int(m.group(1))
+    if source.startswith("run:"):
+        return int(source[4:])
+    return 0
+
+
+def _select(specs, fast):
+    """Split specs into (to run, skipped) for the given mode."""
+    if not fast:
+        return list(specs), []
+    keep, drop = [], []
+    for sp in specs:
+        (keep if _source_worlds(sp["source"]) <= FAST_MAX_WORLDS else drop).append(sp)
+    return keep, drop
+
+
+def _report_skipped(dropped, kind):
+    """Name what fast mode did not check. A gate that quietly covers less than it did
+    yesterday is worse than a slow one, so the skipped ids are listed rather than counted."""
+    if not dropped:
+        return
+    print("  [fast] %d %s spec(s) NOT checked (source above %s worlds): %s"
+          % (len(dropped), kind, f"{FAST_MAX_WORLDS:,}",
+             ", ".join(sp["id"] for sp in dropped)))
+
+
+def _check_doc_tables(cache, fast=False):
     """Every registered document table matches a fresh v2 engine run."""
-    print("[doc-figures] %d registered table(s) vs fresh v2 engine runs" % len(DOC_TABLES))
+    specs, dropped = _select(DOC_TABLES, fast)
+    print("[doc-figures] %d of %d registered table(s) vs fresh v2 engine runs"
+          % (len(specs), len(DOC_TABLES)))
+    _report_skipped(dropped, "table")
     ok = True
-    for spec in DOC_TABLES:
+    for spec in specs:
         out = _run_source(spec["source"], cache)
         parsed = _parse_doc_table(spec["doc"], spec["anchor"])
         prec = spec["precision"]
@@ -1179,14 +1423,17 @@ def _check_doc_tables(cache):
     return ok
 
 
-def _check_doc_prose(cache):
+def _check_doc_prose(cache, fast=False):
     """Every registered inline prose figure matches a fresh v2 engine run. Tables and prose
     drift independently: a document can regenerate its tables and leave the sentences around
     them quoting the previous run."""
-    n_figs = sum(len(spec["figures"]) for spec in DOC_PROSE)
-    print("[doc-prose] %d registered prose figure(s) vs fresh v2 engine runs" % n_figs)
+    specs, dropped = _select(DOC_PROSE, fast)
+    n_figs = sum(len(spec["figures"]) for spec in specs)
+    print("[doc-prose] %d of %d registered prose figure(s) vs fresh v2 engine runs"
+          % (n_figs, sum(len(spec["figures"]) for spec in DOC_PROSE)))
+    _report_skipped(dropped, "prose")
     ok = True
-    for spec in DOC_PROSE:
+    for spec in specs:
         out = _run_source(spec["source"], cache)
         prec = spec["precision"]
         tol = 0.5 * 10 ** (-prec) + 1e-9
@@ -1209,16 +1456,18 @@ def _check_doc_prose(cache):
     return ok
 
 
-def check_doc_figures():
+def check_doc_figures(fast=False):
     """Phase 12+ gate: every registered document table and inline prose figure matches a
     fresh v2 engine run. The registries (DOC_TABLES, DOC_PROSE) grow section by section as
     the documents are regenerated."""
     cache = {}
-    ok = _check_doc_tables(cache)
-    ok = _check_doc_prose(cache) and ok
+    ok = _check_doc_tables(cache, fast)
+    ok = _check_doc_prose(cache, fast) and ok
+    scope = ("every registered doc table and prose figure at or below %s worlds matches the "
+             "v2 engine; the larger sources were NOT checked" % f"{FAST_MAX_WORLDS:,}") if fast \
+        else "all registered doc tables and prose figures match the v2 engine"
     print("  %s — %s." % ("PASS" if ok else "FAIL",
-          "all registered doc tables and prose figures match the v2 engine"
-          if ok else "see MISMATCH/MISSING/AMBIGUOUS rows"))
+          scope if ok else "see MISMATCH/MISSING/AMBIGUOUS rows"))
     return ok
 
 
@@ -2104,6 +2353,10 @@ def main(argv=None):
                     help="check fate accounting, unknown-unknowns rate, and rebuild penalties (N=50000)")
     ap.add_argument("--readability", action="store_true",
                     help="prose gate: sentence length, unexplained jargon and document openers")
+    ap.add_argument("--doc-figures-fast", action="store_true",
+                    help="as --doc-figures but only the sources at or below %d worlds; names the "
+                         "specs it skips. About three minutes against thirteen, and it does NOT "
+                         "cover the headline tables, which the documents quote at 800,000." % 200000)
     ap.add_argument("--doc-figures", action="store_true",
                     help="check every registered doc table and inline prose figure against fresh v2 engine runs")
     ap.add_argument("--cutoff-audit", action="store_true",
@@ -2151,6 +2404,8 @@ def main(argv=None):
         return 0 if check_policy_audit() else 1
     if args.hazard_audit:
         return 0 if check_hazard_audit() else 1
+    if args.doc_figures_fast:
+        return 0 if check_doc_figures(fast=True) else 1
     if args.doc_figures:
         return 0 if check_doc_figures() else 1
     if args.readability:

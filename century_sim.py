@@ -1095,6 +1095,10 @@ out["agi"] = {
     "p_by_2040": rnd(pct(has_agi & (agi_year <= 2040)), 1),
     "p_by_2050": rnd(pct(has_agi & (agi_year <= 2050)), 1),
     "p_by_2075": rnd(pct(has_agi & (agi_year <= 2075)), 1),
+    # Two complements the documents quote directly. Emitted rather than left to be derived in
+    # prose so --doc-figures can pin them like every other cell.
+    "p_no_agi_by_2126": rnd(pct(~has_agi), 1),
+    "p_after_2050": rnd(pct(has_agi & (agi_year >= 2050)), 1),
 }
 g = gap_at_agi[has_agi]
 out["gap_at_agi"] = {
@@ -1461,6 +1465,26 @@ if AUDIT:
     # array the copula reorders, so a reordering that damaged the marginal would show here.
     _al = P["alpha"].astype(float)
     _lo_al, _hi_al = (1.0, ALPHA_MAX if V2_ALPHASUB else 1.9)
+    # timing diagnostic (consumed by check_century.py --doc-figures for section 6.8). The two
+    # rank correlations are the evidence that the growth rate and the curvature exponent push
+    # the crossing in opposite directions, which is why their copula coupling is negative.
+    # Emitted so that argument is pinned to the engine rather than to a number typed once into
+    # the document. Run with CENTURY_CORR_JSON=identity to read them uncoupled.
+    _mx = agi_year > 0
+    def _spear(_x, _y):
+        _rx = np.argsort(np.argsort(_x)); _ry = np.argsort(np.argsort(_y))
+        return round(float(np.corrcoef(_rx, _ry)[0, 1]), 3)
+    out["audit_timing"] = {
+        "spearman_k_vs_crossing_year": _spear(P["k"][_mx].astype(float), agi_year[_mx].astype(float)) if _mx.any() else None,
+        "spearman_alpha_vs_crossing_year": _spear(P["alpha"][_mx].astype(float), agi_year[_mx].astype(float)) if _mx.any() else None,
+        "spearman_alpha_vs_final_capability": _spear(P["alpha"][_mx].astype(float), C[_mx]) if _mx.any() else None,
+        "agi_p10": int(np.percentile(agi_year[_mx], 10)) if _mx.any() else None,
+        "agi_p50": int(np.percentile(agi_year[_mx], 50)) if _mx.any() else None,
+        "agi_p90": int(np.percentile(agi_year[_mx], 90)) if _mx.any() else None,
+        # p90 - p10, the width the coupling sign controls. Emitted rather than derived in the
+        # document so the spread column of section 6.8 is pinned like every other cell.
+        "agi_spread_yr": int(np.percentile(agi_year[_mx], 90) - np.percentile(agi_year[_mx], 10)) if _mx.any() else None,
+    }
     out["audit_alpha"] = {
         "alphasub": bool(V2_ALPHASUB),
         "alpha_max_configured": round(float(ALPHA_MAX), 4),
@@ -1491,6 +1515,11 @@ if AUDIT:
         "median_crossing_stalled": _med_cross(_pl),
         "median_crossing_unstalled": _med_cross(~_pl),
         "share_stalled_crossing_pct": round(100.0 * float((agi_year[_pl] > 0).mean()), 2) if _pl.any() else None,
+        # How far behind the rest of the ensemble a stalled world that still crosses now lands.
+        # This is the number that distinguishes a stall from a mild delay, so it is emitted
+        # rather than subtracted in the document.
+        "stall_lag_years": (_med_cross(_pl) - _med_cross(~_pl))
+                           if (_med_cross(_pl) is not None and _med_cross(~_pl) is not None) else None,
     }
     if V2_POLICY:
         # policy diagnostic (consumed by check_century.py --policy-audit): observed bounds of

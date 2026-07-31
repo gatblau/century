@@ -105,7 +105,7 @@ Every assumption is a setting you can override. These are the ones that matter m
 | `plateau` | whether the current AI paradigm stalls | true in 14 % of worlds |
 | `erode_mag` | how fast new capability makes existing safety work stale | 0 to 0.30 |
 
-Rank the dials by how much each one swings the odds of a good century and the top two are both choices: `redist_will` at 22.0 points and `respond` at 21.1. The fastest fact of nature, `k`, comes third at 17.2, and `plateau` sixth at 13.9.
+Rank the dials by how much each one swings the odds of a good century and the top two are both choices: `redist_will` at 22.0 points and `respond` at 21.1. The fastest fact of nature, `k`, comes third and pulls the other way at −17.2, and `plateau` sixth at 13.9.
 
 That ordering changed when the plateau was corrected to slow growth rather than only cap it. A working plateau is a weaker lever than a broken one, because a stalled world now grinds on for decades and reaches more mixed endings instead of stopping cleanly in a good one. The strongest choice available to us is whether we are politically capable of sharing the proceeds, which is not where most AI policy is currently looking.
 
@@ -134,11 +134,12 @@ The repo checks itself. `check_century.py` is the gate.
 ```bash
 python3 check_century.py                     # regression against stored golden outputs
 python3 check_century.py --doc-figures      # every table in the documents vs fresh engine runs
+python3 check_century.py --doc-figures-fast # the same, minus the 800,000-world sources (~3 min vs ~13)
 python3 check_century.py --readability      # are the documents still readable by a person
 python3 check_century.py --negative-control # plants a bug on purpose; the checker must catch it
 ```
 
-Every figure quoted in `future.md`, in the strategy ladder of `strategy.md` and in the summary tables of `realistic-bet.md` is machine-checked against the engine, so the documents cannot silently drift from the code. That includes the calibration tables, whose numbers come from the reweighting rather than from any single run and so are checked against a fresh calibration instead. The readability check measures the documents themselves: how long the sentences run, whether every technical word is explained somewhere, and whether each document opens in plain language.
+Every figure quoted in `future.md`, in the strategy ladder of `strategy.md` and in the summary tables of `realistic-bet.md` is machine-checked against the engine, so the documents cannot silently drift from the code. That includes the calibration tables, whose numbers come from the reweighting rather than from any single run and so are checked against a fresh calibration instead. The full check simulates about ten million worlds and takes roughly thirteen minutes. `--doc-figures-fast` drops the 800,000-world sources and runs in about three. It names every spec it skipped, since a gate that quietly covers less than it did yesterday is worse than a slow one. The readability check measures the documents themselves: how long the sentences run, whether every technical word is explained somewhere, and whether each document opens in plain language.
 
 Further audits cover the accounting for wars and pandemics, the calibration, the policy feedbacks, the curvature of capability growth, and the way the input ranges are correlated. Run `python3 check_century.py --help` to see them all. The sensitivity tool in `sobol_century.py` tests itself against a textbook case with a known answer before it touches the model.
 
