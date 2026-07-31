@@ -50,6 +50,14 @@ The ranges are judgement calls. They are anchored to today's best estimates, and
 
 It cannot model a surprise nobody has thought of. Real history is full of those.
 
+**The biggest assumption is a coin flip, and it is deliberate.** Suppose an AI ends up more capable than anyone can control. Does that danger ever pass? Perhaps people catch up, or the moment goes, or the situation settles. Or perhaps it never passes, and the risk simply sits there for as long as the gap is open.
+
+Nobody knows. So the model tosses a coin. Half the futures say the danger fades after some years. Half say it never does.
+
+That single coin flip matters more than every policy choice in the model put together. In the futures where the danger fades quickly, 29.5 % end irreversibly badly. In the futures where it never fades, 59.1 % do. The headline number is just the average of those two halves.
+
+This is why the model's extinction figure sits above what most expert surveys give. It is not a separate belief about extinction. It is this coin flip, and nothing more. Section 6.1 of [`future.md`](future.md) shows the full split, and `CENTURY_STRUCT_P_FLAT` lets you weight the coin if you think one side is likelier.
+
 The structure is one way of seeing the world. Someone else would wire the pieces together differently and get different numbers. That is fine. The job is to make the disagreement concrete enough to argue about.
 
 ## What to use it for

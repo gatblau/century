@@ -169,6 +169,8 @@ Runs are seeded, so the same command gives the same numbers on your machine as i
 
 ## Honest limits
 
+**One assumption dominates, and it is a coin flip.** Suppose an AI ends up more capable than anyone can control. Does that danger ever pass, or does it sit there for as long as the gap is open? Nobody knows, so the model tosses a coin: half the futures say the danger fades, half say it never does. In the futures where it fades quickly 29.5 % end irreversibly badly, and in the futures where it never fades 59.1 % do. Every headline number on this page is the average of those two halves. That coin flip moves the century further than any choice in the table above, and it is the main reason the extinction figure here sits above most expert surveys. `CENTURY_STRUCT_P_FLAT` weights the coin if you think one side is likelier.
+
 This is a model, and a hundred years is a long time. The outcome categories are simplifications. The ranges are judgement calls anchored to today's estimates. The model cannot contain surprises nobody has imagined. Section 8 of [`future.md`](docs/future.md) spells out the caveats properly.
 
 Read the numbers as a disciplined way to reason about which choices matter, under assumptions you can inspect and change. You can see which choices move the century from bad to good, and you can test them yourself today.

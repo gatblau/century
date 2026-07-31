@@ -763,6 +763,49 @@ DOC_PROSE = [
           "pattern": r'"swing": ' + _PNUM,
           "path": 'sensitivity_P_good.respond.swing'},
      ]},
+    # The coin-flip explanation in README.md and how-it-works.md. Both quote the two sides of
+    # the takeover-window split, which is the assumption the extinction figure mostly rests on,
+    # so both are pinned rather than left as prose a reader has to take on trust.
+    {"id": "readme-coinflip", "doc": README_PATH, "source": "run:800000", "precision": 1,
+     "figures": [
+         {"label": "readme: danger fades quickly",
+          "pattern": r"where it fades quickly " + _PNUM + r" % end irreversibly badly",
+          "path": ["structure_conditional", "P(irreversible_bad)|tau<8yr"]},
+         {"label": "readme: danger never fades",
+          "pattern": r"where it never fades " + _PNUM + r" % do",
+          "path": ["structure_conditional", "P(irreversible_bad)|flat_window"]},
+     ]},
+    {"id": "hiw-coinflip", "doc": os.path.join(HERE, "docs", "how-it-works.md"),
+     "source": "run:800000", "precision": 1,
+     "figures": [
+         {"label": "how-it-works: danger fades quickly",
+          "pattern": r"where the danger fades quickly, " + _PNUM + r" % end irreversibly badly",
+          "path": ["structure_conditional", "P(irreversible_bad)|tau<8yr"]},
+         {"label": "how-it-works: danger never fades",
+          "pattern": r"where it never fades, " + _PNUM + r" % do",
+          "path": ["structure_conditional", "P(irreversible_bad)|flat_window"]},
+     ]},
+    # The two k-pinned figures in the section 8 capability-index caveat. They are the measure
+    # of what is at stake in the model's dominant parameter, so they are pinned like any other
+    # quoted result rather than left as a number typed once into a caveat.
+    {"id": "s8-k-low", "doc": DOC_PATH, "source": 'cmd:{"k":0.044}@200000', "precision": 1,
+     "figures": [
+         {"label": "s8: good century at k p10",
+          "pattern": r"gives a " + _PNUM + r" % good century with the median crossing in",
+          "path": "aggregates.good(broadly acceptable)"},
+         {"label": "s8: median crossing at k p10",
+          "pattern": r"good century with the median crossing in " + _PNUM,
+          "path": "agi.median_year"},
+     ]},
+    {"id": "s8-k-high", "doc": DOC_PATH, "source": 'cmd:{"k":0.205}@200000', "precision": 1,
+     "figures": [
+         {"label": "s8: good century at k p90",
+          "pattern": r"against " + _PNUM + r" % and \d+ at the ninetieth",
+          "path": "aggregates.good(broadly acceptable)"},
+         {"label": "s8: median crossing at k p90",
+          "pattern": r"against [\d.]+ % and " + _PNUM + r" at the ninetieth",
+          "path": "agi.median_year"},
+     ]},
 ]
 
 # --readability gate: the documents are the product, and until now nothing checked whether
