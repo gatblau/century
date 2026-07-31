@@ -32,6 +32,16 @@ Mixed worlds are the ones that end without a verdict. Still shaken by the arriva
 
 So the century could go either way, and it is currently heading the wrong way.
 
+One number is doing a lot of averaging, though. The single biggest unknown in the model is how fast AI capability grows, and nothing pins it down. Split the same 800,000 futures into thirds by that speed and the answer moves a long way:
+
+| If capability grows... | Broadly good | Mixed | Irreversibly bad | AGI arrives |
+|---|---:|---:|---:|---:|
+| slowly (bottom third) | 44.8 % | 20.3 % | 34.9 % | 2048 |
+| at the middle rate | 36.3 % | 13.7 % | 50.0 % | 2037 |
+| fast (top third) | 30.9 % | 12.2 % | 56.9 % | 2031 |
+
+Fourteen points of good century, and seventeen years of arrival, ride on a number nobody can currently measure. That is wider than any choice in this repository. If you hold a view about how fast AI will scale, read the row that matches it rather than the average. Section 8 of [`future.md`](docs/future.md) explains why the model cannot narrow it.
+
 ## What changes the outcome
 
 Preparation does. Take only the social and political choices we could realistically reach: institutions ready to react, real money in safety, countries cooperating, gains shared. Do that and the good share rises from 37 % to 64 %. Technology keeps racing ahead in that world. Nothing about the pace of AI changes.

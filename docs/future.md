@@ -70,6 +70,8 @@ A world ends in exactly one of eleven outcomes. Four are absorbing: the world's 
 - Companion ensemble: the same 800,000 worlds and the same seed with `erode_mag` pinned to 0, the "containment holds" reading of section 3.
 - Five named scenario ensembles of 30,000 worlds each, holding chosen parameters fixed and sampling the rest (section 5).
 - Recovery-structure sensitivity ensembles of 50,000 worlds each (section 6.1).
+- Correction sweeps of 200,000 worlds each, one per setting, behind the before-and-after tables of sections 6.6 to 6.9.
+- Variance-based sensitivity at a Saltelli base sample of 8,192, which is `sobol_century.py` rather than the engine's own quartile swings (`notes/sobol.md`).
 - Engine: `century_sim.py` (NumPy, fully vectorised across worlds). Reproduction commands in section 9.
 
 ---
@@ -88,6 +90,16 @@ The headline is therefore reported as two readings of the same 800,000 worlds un
 The two are not interchangeable and should not be averaged. The holds column is what the model published before the correction, when it silently assumed that no containment measure ever goes stale. That is the most optimistic point on the whole range, and it was never argued for anywhere, so the pair reveals uncertainty that was always in the model rather than adding new uncertainty to it.
 
 What the pair does not move is the advice. The erosion coefficient is close to orthogonal to the socio-political choices: its effect on P(good) is about the same size whatever the world does about racing or redistribution, so it changes how good the century is without changing what is worth doing about it. Every ranking in sections 3.2, 6 and `strategy.md` survives the correction. What would settle the coefficient is the rate at which real evaluation and containment regimes have been invalidated by capability jumps: eval-gaming and jailbreak half-lives, sandbox escapes, the July 2026 incident. That evidence base is thin today and grows every year.
+
+**The headline also averages over its own dominant uncertainty, and this table says by how much.** The base growth rate `k` has the largest total-order index in section 6 and the widest reach of any input, and nothing constrains it: the arrival bands of section 6.3 are the only check on it and all three currently read "already in range" (section 8). Splitting the same 800,000 worlds into thirds of `k`'s own prior gives:
+
+| Third of the `k` prior | Good | Mixed | Irreversibly bad | Extinction | Median AGI |
+|---|---:|---:|---:|---:|---:|
+| Slowest third | 44.8 % | 20.3 % | 34.9 % | 8.0 % | 2048 |
+| Middle third | 36.3 % | 13.7 % | 50.0 % | 12.0 % | 2037 |
+| Fastest third | 30.9 % | 12.2 % | 56.9 % | 13.4 % | 2031 |
+
+Fourteen points of good century, twenty-two points of bad, and seventeen years of arrival, which is wider than any socio-political choice in `strategy.md`. Unlike the containment pair above, this one is not a disagreement about a coefficient that could be settled by evidence the model already names. It is the growth rate itself, and section 8 explains why no backcast can narrow it inside this model. A reader who holds a view about how fast capability will scale should read the row that matches it rather than the average.
 
 The rest of this document reports the containment-decays reading, which is the model's default. To read any figure under the other assumption, run `CENTURY_OVERRIDES='{"erode_mag":0}'` (section 9) or `make run-paired`.
 

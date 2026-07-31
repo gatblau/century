@@ -1334,6 +1334,31 @@ sens_d["plateau"] = {
 out["sensitivity_P_disempowerment"] = dict(sorted(sens_d.items(), key=lambda kv: float("inf") if kv[1]["swing"] is None else -abs(kv[1]["swing"])))
 
 # conditional structure
+# The headline split three ways by the base growth rate. k is the input with the largest
+# total-order index and the widest reach in the model, and nothing constrains it except the
+# arrival bands of the calibration, which currently sit loose enough to be inactive (section
+# 8). Averaging over its prior therefore reports a single number that hides the model's
+# dominant uncertainty, so the tertile split is emitted alongside it and quoted in section 3.
+# Conditioning on the existing ensemble rather than pinning k keeps the within-tertile spread.
+_kt1, _kt2 = np.quantile(P["k"], [1.0 / 3.0, 2.0 / 3.0])
+_mixed = (final == "turbulent_transition") | (final == "muddling_degraded") | (final == "recovered")
+def _k_slice(_m):
+    _h = agi_year[_m]
+    _c = _h > 0
+    return {
+        "good": rnd(pct(good[_m]), 1),
+        "mixed": rnd(pct(_mixed[_m]), 1),
+        "irreversible_bad": rnd(pct(bad[_m]), 1),
+        "extinction": rnd(pct((final == "extinction")[_m]), 1),
+        "median_agi_year": int(np.median(_h[_c])) if _c.any() else None,
+    }
+out["headline_by_k_tertile"] = {
+    "k_cuts": [round(float(_kt1), 4), round(float(_kt2), 4)],
+    "slowest_third": _k_slice(P["k"] < _kt1),
+    "middle_third": _k_slice((P["k"] >= _kt1) & (P["k"] < _kt2)),
+    "fastest_third": _k_slice(P["k"] >= _kt2),
+}
+
 out["conditionals"] = {
     "P(bad)|gap>0.35_at_agi": rnd(pct(bad[has_agi & (gap_at_agi > 0.35)]), 1),
     "P(bad)|gap<0.15_at_agi": rnd(pct(bad[has_agi & (gap_at_agi < 0.15)]), 1),
