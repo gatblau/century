@@ -111,6 +111,7 @@ V2_BIOUP   = _v2 or bool(int(os.environ.get("CENTURY_V2_BIOUP", "0")))          
 V2_ERODE   = _v2 or bool(int(os.environ.get("CENTURY_V2_ERODE", "0")))          # capability growth erodes containment/evaluation readiness
 V2_ALPHASUB = _v2 or bool(int(os.environ.get("CENTURY_V2_ALPHASUB", "0")))     # curvature prior reaches the slow worlds the old ceiling excluded
 V2_PLATDRAG = _v2 or bool(int(os.environ.get("CENTURY_V2_PLATDRAG", "0")))     # a stalled paradigm slows growth instead of only capping it
+V2_CAPASSIST = _v2 or bool(int(os.environ.get("CENTURY_V2_CAPASSIST", "0")))   # deployed capability accelerates capability research, not only safety research
 AUDIT = bool(int(os.environ.get("CENTURY_AUDIT", "0")))                         # emit HAZMASK + saturation diagnostic counters
 CRN = bool(int(os.environ.get("CENTURY_CRN", "0")))                             # common random numbers: pre-draw the stochastic stream (for sobol_century.py)
 
@@ -128,10 +129,11 @@ WEIGHTS_FPR = json.dumps({
     "rec": [REC_DIVIDEND, REC_WINDOW, REC_REACT],
     "v2": [V2_HAZMASK, V2_NUKE_R, V2_NATPAND, V2_GAPNORM, V2_SUBSTEP, V2_SOFT, V2_STRUCT,
            V2_CORR, V2_DEMO, V2_CLIMATE, V2_POLICY, V2_XHAZ, V2_REBUILD, V2_BIOUP, V2_ERODE,
-           V2_ALPHASUB, V2_PLATDRAG],
+           V2_ALPHASUB, V2_PLATDRAG, V2_CAPASSIST],
     "alpha_max": os.environ.get("CENTURY_ALPHA_MAX", "2.40"),
     "plateau_exp": os.environ.get("CENTURY_PLATEAU_EXP", "2.0"),
     "plateau_coef": os.environ.get("CENTURY_PLATEAU_COEF", "0.90"),
+    "capassist_max": os.environ.get("CENTURY_CAPASSIST_MAX", "0.65"),
     "policy_scale": POLICY_SCALE,
     "crn": CRN,
     "struct_p_flat": os.environ.get("CENTURY_STRUCT_P_FLAT", "0.5"),
@@ -327,6 +329,46 @@ if V2_ERODE:
 # would move the median crossing by eleven years and is a modelling decision rather than a
 # correction — it is deliberately not the default.
 ALPHA_MAX = float(os.environ.get("CENTURY_ALPHA_MAX", "2.40"))   # ceiling of the curvature prior under V2_ALPHASUB
+
+# ---- V2_CAPASSIST: let AI accelerate capability research, not only safety research -----
+# The readiness step gives deployed capability two routes into safety: a share of this
+# year's capability growth and an ongoing dividend from already-deployed capability
+# ("aligned-ish systems doing safety research"). The capability step has no counterpart.
+# Capability feeds readiness in two directions and feeds itself in none, beyond the fixed
+# curvature, so the model contains AI that helps align its successors and never AI that
+# helps build them. That asymmetry runs one way: it flatters every outcome that depends on
+# readiness keeping pace, which is most of them.
+#
+# The correction mirrors the readiness dividend on the capability side: growth is multiplied
+# by (1 + cap_assist * C), so more deployed capability means faster capability growth. It is
+# NOT degraded by racing the way ai_assist is: a racing world cuts corners on safety work and
+# hoards results, but racing is exactly when capability research gets the most compute, and
+# k_eff already carries a (1 + 0.25 * race) term that would double-count it.
+#
+# The magnitude is drawn from a SIDE stream rather than the main generator, so the main RNG
+# sequence is bit-identical whether the switch is on or off and the correction is exactly
+# attributable. (V2_ERODE draws its coefficient from the main stream and therefore shifts
+# every later draw, which is why --erosion-audit has to compare against a Monte Carlo bar
+# instead of asserting equality.) Set before the override loop, so a run can pin it.
+# The ceiling is 0.65, the same ceiling `assist` uses for the readiness side above. That is
+# a stated assumption rather than a tuned number: whatever share of capability a world can
+# turn to safety research, it can also turn to capability research. Nothing anchors it, so it
+# joins erode_mag as an input with no published source behind it (section 8). Measured at
+# N=200,000, seed 431:
+#
+#   CAPASSIST_MAX   median   P(by 2035)   uncontrolled at crossing   P(good)   P(bad)
+#   0.00 (off)       2039       32.7%              61.9%              39.2%    44.6%
+#   0.20             2038       34.9%              64.0%              38.6%    45.5%
+#   0.40             2037       37.0%              66.0%              38.0%    46.3%
+#   0.65 (default)   2037       39.5%              68.0%              37.5%    47.3%
+#   0.80             2036       40.9%              69.3%              37.0%    47.7%
+#
+# P(good) is close to linear across the range and spans about 2 points end to end, against
+# about 4.6 points for erode_mag, so the headline is not reported as a second pair; the sweep
+# is recorded in section 6.9 instead.
+CAPASSIST_MAX = float(os.environ.get("CENTURY_CAPASSIST_MAX", "0.65"))   # ceiling of the per-world capability-assist coefficient
+P["cap_assist"] = (np.random.default_rng(SEED + 977).uniform(0.0, CAPASSIST_MAX, N)
+                   if V2_CAPASSIST else np.zeros(N))
 if V2_ALPHASUB:
     P["alpha"] = 1.0 + (P["alpha"] - 1.0) * (ALPHA_MAX - 1.0) / 0.9
 
@@ -652,7 +694,10 @@ for ti, year in enumerate(YEARS):
     respond_a = resp_t[a] if V2_POLICY else P["respond"][a]
 
     # ---------- 3.1 capability growth (curvature law + bottleneck + drag) ----
-    k_eff = P["k"][a] * (1 + 0.25 * race_a) * (1 - 0.5 * reg_drag[a])
+    k_base = P["k"][a] * (1 + 0.25 * race_a) * (1 - 0.5 * reg_drag[a])
+    # V2_CAPASSIST: deployed capability accelerates capability research. Zero when the
+    # switch is off, so k_eff is exactly the previous expression.
+    k_eff = k_base * (1 + P["cap_assist"][a] * C[a])
     growth = k_eff * np.maximum(C[a], 0.05) ** P["alpha"][a]
     bottleneck = (np.maximum(0.0, (C[a] / P["ceiling"][a])) ** P["bneck_exp"][a]) * P["bneck_coef"][a]
     dC = growth - bottleneck * growth + (_crnC[ti][a] if CRN else rng.normal(0, 0.008, a.sum()))
@@ -666,11 +711,12 @@ for ti, year in enumerate(YEARS):
         big = dC > 0.06
         if big.any():
             Cq = C[a][big]
-            ke = k_eff[big]; al = P["alpha"][a][big]; ce = P["ceiling"][a][big]
+            kb = k_base[big]; al = P["alpha"][a][big]; ce = P["ceiling"][a][big]
             bex = P["bneck_exp"][a][big]; bco = P["bneck_coef"][a][big]
+            ca = P["cap_assist"][a][big]
             noise_big = dC[big] - (growth[big] - bottleneck[big] * growth[big])
             for _q in range(4):
-                gq = ke * np.maximum(Cq, 0.05) ** al
+                gq = kb * (1 + ca * Cq) * np.maximum(Cq, 0.05) ** al
                 bq = (np.maximum(0.0, (Cq / ce)) ** bex) * bco
                 Cq = Cq + (gq - bq * gq) / 4.0
             dC[big] = np.maximum((Cq - C[a][big]) + noise_big, -0.01)
@@ -1507,6 +1553,19 @@ if AUDIT:
     # world's capability gets before growth stops. Reported for stalled and unstalled worlds
     # separately so the audit can confirm the correction touched only the first group, and
     # the crossing years confirm a stall now costs decades rather than a year.
+    # capability-assist diagnostic (consumed by check_century.py --capassist-audit). The
+    # realised multiplier is the quantity the correction adds: how much faster capability
+    # research runs because capability is already deployed. Reported next to the readiness
+    # assist it mirrors, so the audit can show the two sides are no longer one-directional.
+    _ca = P["cap_assist"].astype(float)
+    out["audit_capassist"] = {
+        "capassist": bool(V2_CAPASSIST),
+        "capassist_max": round(float(CAPASSIST_MAX), 4),
+        "coef_mean": round(float(_ca.mean()), 4),
+        "coef_max": round(float(_ca.max()), 4),
+        "readiness_assist_ceiling": 0.65,
+        "growth_multiplier_at_threshold_mean": round(float((1.0 + _ca * P["threshold"]).mean()), 4),
+    }
     _pl = P["plateau"].astype(bool)
     def _ovr(_m):
         return round(float(np.percentile(C[_m] / P["ceiling"][_m], 90)), 4) if _m.any() else None

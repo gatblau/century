@@ -8,26 +8,26 @@ Here is a trimmed run, so you can find your way around a real one.
 {
   "N": 800000,
   "outcomes": {
-    "aligned_abundance": 17.35,
-    "oligarchic_prosperity": 17.48,
-    "turbulent_transition": 8.76,
-    "constrained_flourishing": 4.22,
-    "muddling_degraded": 4.94,
-    "disempowerment": 30.06,
-    "lockin": 1.30,
-    "collapse": 0.45,
-    "extinction": 10.43,
-    "unknown_catastrophe": 2.39,
-    "recovered": 2.59
+    "aligned_abundance": 16.25,
+    "oligarchic_prosperity": 16.78,
+    "turbulent_transition": 8.18,
+    "constrained_flourishing": 4.30,
+    "muddling_degraded": 4.71,
+    "disempowerment": 32.09,
+    "lockin": 1.33,
+    "collapse": 0.44,
+    "extinction": 11.12,
+    "unknown_catastrophe": 2.29,
+    "recovered": 2.52
   },
   "aggregates": {
-    "good(broadly acceptable)": 39.1,
-    "irreversible_bad": 44.6
+    "good(broadly acceptable)": 37.3,
+    "irreversible_bad": 47.3
   },
-  "agi": { "median_year": 2038, "p10_year": 2030, "p90_year": 2060 },
-  "events_per_world": { "nuclear_war": 0.507, "eng_pandemic": 0.619 },
+  "agi": { "median_year": 2037, "p10_year": 2030, "p90_year": 2056 },
+  "events_per_world": { "nuclear_war": 0.490, "eng_pandemic": 0.610 },
   "sensitivity_P_good": {
-    "respond": { "P(good)|bottom_quartile": 28.0, "P(good)|top_quartile": 49.1, "swing": 21.1 }
+    "respond": { "P(good)|bottom_quartile": 28.0, "P(good)|top_quartile": 49.1, "swing": 20.4 }
   }
 }
 ```

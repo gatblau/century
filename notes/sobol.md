@@ -6,38 +6,38 @@ Variance-based first-order (S_i) and total-order (S_Ti) Sobol indices for P(good
 
 | parameter | S_i | S_Ti | interaction (S_Ti - S_i) |
 |---|---:|---:|---:|
-| k | 0.113 | 0.290 | +0.177 |
-| redist_will | 0.056 | 0.181 | +0.125 |
-| concentration0 | 0.028 | 0.157 | +0.128 |
-| safety_eff | 0.026 | 0.135 | +0.109 |
-| respond | 0.023 | 0.107 | +0.084 |
-| race | 0.032 | 0.107 | +0.075 |
-| alpha | 0.008 | 0.107 | +0.099 |
-| threshold | 0.013 | 0.080 | +0.067 |
-| climate_eff | 0.020 | 0.073 | +0.053 |
-| erode_mag | 0.015 | 0.070 | +0.055 |
-| assist | 0.012 | 0.060 | +0.048 |
-| R0 | 0.006 | 0.043 | +0.037 |
-| bio_defense | -0.003 | 0.031 | +0.034 |
-| fragility | 0.006 | 0.021 | +0.016 |
+| k | 0.087 | 0.269 | +0.183 |
+| redist_will | 0.060 | 0.184 | +0.124 |
+| concentration0 | 0.042 | 0.168 | +0.126 |
+| safety_eff | 0.022 | 0.120 | +0.098 |
+| respond | 0.019 | 0.111 | +0.092 |
+| race | 0.023 | 0.106 | +0.083 |
+| alpha | 0.007 | 0.103 | +0.096 |
+| climate_eff | 0.020 | 0.077 | +0.057 |
+| threshold | 0.010 | 0.071 | +0.062 |
+| erode_mag | 0.009 | 0.059 | +0.050 |
+| assist | 0.010 | 0.058 | +0.048 |
+| R0 | 0.001 | 0.039 | +0.039 |
+| bio_defense | 0.001 | 0.033 | +0.033 |
+| fragility | 0.001 | 0.027 | +0.026 |
 
 ## P(disempowerment)
 
 | parameter | S_i | S_Ti | interaction (S_Ti - S_i) |
 |---|---:|---:|---:|
-| k | 0.130 | 0.371 | +0.241 |
-| safety_eff | 0.036 | 0.181 | +0.146 |
-| alpha | -0.001 | 0.139 | +0.140 |
-| concentration0 | 0.040 | 0.139 | +0.099 |
-| race | 0.008 | 0.118 | +0.110 |
-| erode_mag | 0.009 | 0.102 | +0.094 |
-| threshold | 0.002 | 0.094 | +0.093 |
-| assist | 0.012 | 0.087 | +0.075 |
-| R0 | -0.006 | 0.060 | +0.066 |
-| redist_will | 0.007 | 0.058 | +0.051 |
-| respond | -0.007 | 0.039 | +0.046 |
-| fragility | 0.001 | 0.005 | +0.005 |
-| bio_defense | 0.000 | 0.003 | +0.003 |
+| k | 0.120 | 0.344 | +0.224 |
+| safety_eff | 0.041 | 0.154 | +0.113 |
+| concentration0 | 0.037 | 0.139 | +0.102 |
+| alpha | -0.002 | 0.134 | +0.135 |
+| race | 0.009 | 0.111 | +0.102 |
+| erode_mag | 0.005 | 0.088 | +0.082 |
+| assist | 0.007 | 0.082 | +0.075 |
+| threshold | 0.004 | 0.082 | +0.078 |
+| redist_will | 0.004 | 0.057 | +0.053 |
+| R0 | -0.001 | 0.053 | +0.054 |
+| respond | -0.008 | 0.038 | +0.046 |
+| fragility | 0.000 | 0.005 | +0.005 |
+| bio_defense | -0.001 | 0.002 | +0.002 |
 | climate_eff | 0.000 | 0.000 | +0.000 |
 
-**Interaction finding.** For `safety_eff` on P(good), S_i=0.026 and S_Ti=0.135. The total-order index exceeds the first-order index, confirming that safety effort acts partly through interactions (e.g. safety-effort-given-race) that the marginal quartile swings cannot see.
+**Interaction finding.** For `safety_eff` on P(good), S_i=0.022 and S_Ti=0.120. The total-order index exceeds the first-order index, confirming that safety effort acts partly through interactions (e.g. safety-effort-given-race) that the marginal quartile swings cannot see.

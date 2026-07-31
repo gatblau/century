@@ -127,7 +127,8 @@ V2_CONFIGS = [
     ("CENTURY_V2_ERODE", "capability growth erodes containment/evaluation readiness"),
     ("CENTURY_V2_ALPHASUB", "curvature prior reaches the slow worlds the old ceiling excluded"),
     ("CENTURY_V2_PLATDRAG", "a stalled paradigm slows growth instead of only capping it"),
-    ("CENTURY_V2", "umbrella: all seventeen corrections together"),
+    ("CENTURY_V2_CAPASSIST", "deployed capability accelerates capability research, not only safety research"),
+    ("CENTURY_V2", "umbrella: all eighteen corrections together"),
 ]
 OUTCOME_ORDER = [
     "aligned_abundance", "oligarchic_prosperity", "turbulent_transition",
@@ -464,6 +465,19 @@ DOC_TABLES = [
     {"id": "strat2-swings", "doc": STRATEGY_PATH, "anchor": "| Input | Sobol",
      "source": "run:800000", "precision": 1,
      "rows": {'`k` growth rate': {2: 'sensitivity_P_good.k.swing'}, '`redist_will`': {2: 'sensitivity_P_good.redist_will.swing'}, '`concentration0`': {2: 'sensitivity_P_good.concentration0.swing'}, '`safety_eff`': {2: 'sensitivity_P_good.safety_eff.swing'}, '`respond`': {2: 'sensitivity_P_good.respond.swing'}, '`race`': {2: 'sensitivity_P_good.race.swing'}, '`alpha` curvature': {2: 'sensitivity_P_good.alpha.swing'}, '`threshold`': {2: 'sensitivity_P_good.threshold.swing'}, '`climate_eff`': {2: 'sensitivity_P_good.climate_eff.swing'}, '`erode_mag`': {2: 'sensitivity_P_good.erode_mag.swing'}, '`assist`': {2: 'sensitivity_P_good.assist.swing'}, '`R0`': {2: 'sensitivity_P_good.R0.swing'}}},
+    # The two sensitivity rankings. Only the swing column is pinned: the quartile columns
+    # carry a key whose name differs for the plateau row (no_plateau/plateau rather than
+    # bottom/top quartile), and the swing is the figure the prose and strategy.md use.
+    # The two sensitivity rankings. Keyed by rank, not by lever: the rank is the first
+    # cell and therefore the row label, and pinning "rank N has swing X" checks the
+    # ordering and the figure in one assertion. Only the swing column is pinned; the
+    # quartile columns carry a different key name for the plateau row.
+    {"id": "s6-rank-swings", "doc": DOC_PATH, "anchor": "| Rank | Lever | P(good)",
+     "source": "run:800000", "precision": 1,
+     "rows": {'1': {4: 'sensitivity_P_good.redist_will.swing'}, '2': {4: 'sensitivity_P_good.respond.swing'}, '3': {4: 'sensitivity_P_good.plateau.swing'}, '4': {4: 'sensitivity_P_good.k.swing'}, '5': {4: 'sensitivity_P_good.concentration0.swing'}, '6': {4: 'sensitivity_P_good.race.swing'}, '7': {4: 'sensitivity_P_good.safety_eff.swing'}, '8': {4: 'sensitivity_P_good.alpha.swing'}, '9': {4: 'sensitivity_P_good.climate_eff.swing'}, '10': {4: 'sensitivity_P_good.erode_mag.swing'}, '11': {4: 'sensitivity_P_good.assist.swing'}, '12': {4: 'sensitivity_P_good.threshold.swing'}}},
+    {"id": "s3.2-rank-swings", "doc": DOC_PATH, "anchor": "| Rank | Lever | P(disemp)",
+     "source": "run:800000", "precision": 1,
+     "rows": {'1': {4: 'sensitivity_P_disempowerment.plateau.swing'}, '2': {4: 'sensitivity_P_disempowerment.k.swing'}, '3': {4: 'sensitivity_P_disempowerment.safety_eff.swing'}, '4': {4: 'sensitivity_P_disempowerment.alpha.swing'}, '5': {4: 'sensitivity_P_disempowerment.concentration0.swing'}, '6': {4: 'sensitivity_P_disempowerment.race.swing'}, '7': {4: 'sensitivity_P_disempowerment.respond.swing'}, '8': {4: 'sensitivity_P_disempowerment.erode_mag.swing'}, '9': {4: 'sensitivity_P_disempowerment.assist.swing'}, '10': {4: 'sensitivity_P_disempowerment.redist_will.swing'}, '11': {4: 'sensitivity_P_disempowerment.threshold.swing'}}},
     {"id": "rb-outcomes", "doc": os.path.join(HERE, "docs", "realistic-bet.md"),
      "anchor": "| Outcome | The headline | The realistic bet",
      "source": "calib:levers@800000", "precision": 1,
@@ -508,10 +522,10 @@ DOC_PROSE = [
           "pattern": r"human-paced safety effort \(" + _PNUM + r"\) further back",
           "path": "sensitivity_P_good.safety_eff.swing"},
          {"label": "s6 time: plateau",
-          "pattern": r"the plateau \(" + _PNUM + r"\) sits just behind them",
+          "pattern": r"The plateau \(" + _PNUM + r"\) now sits just above",
           "path": "sensitivity_P_good.plateau.swing"},
          {"label": "s6 time: growth rate k",
-          "pattern": r"Faster growth \(" + _PNUM + r"\)",
+          "pattern": r"faster growth \(" + _PNUM + r"\)",
           "path": "sensitivity_P_good.k.swing"},
          {"label": "s6 time: racing",
           "pattern": r"racing \(" + _PNUM + r"\)",
@@ -547,7 +561,7 @@ DOC_PROSE = [
           "pattern": r"the largest swing \(" + _PNUM + r"\)",
           "path": "sensitivity_P_good.redist_will.swing"},
          {"label": "strat s2: responsiveness",
-          "pattern": r"Institutional responsiveness \(`S_Ti` 0\.107, swing " + _PNUM + r"\)",
+          "pattern": r"Institutional responsiveness \(`S_Ti` [\d.]+, swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.respond.swing"},
          {"label": "strat s2: safety effort",
           # The index in this anchor is itself pinned (strat-sobol-prose), so match it
@@ -605,10 +619,10 @@ DOC_PROSE = [
           "pattern": r"`respond` at " + _PNUM + r"\.",
           "path": "sensitivity_P_good.respond.swing"},
          {"label": "readme: growth-rate swing",
-          "pattern": r"`k`, comes third and pulls the other way at " + _PNUM,
+          "pattern": r"`k`, fourth at " + _PNUM,
           "path": "sensitivity_P_good.k.swing"},
          {"label": "readme: plateau swing",
-          "pattern": r"`plateau` sixth at " + _PNUM,
+          "pattern": r"A stalled paradigm comes third at " + _PNUM,
           "path": "sensitivity_P_good.plateau.swing"},
          {"label": "readme: baseline engineered pandemics",
           "pattern": r"from " + _PNUM + r" to 0\.\d+ events per world",
@@ -1896,6 +1910,78 @@ def _v2_without(switch):
     return env
 
 
+def check_capassist_audit(n=50000):
+    """Gate for the capability-assist correction (V2_CAPASSIST). Six assertions: the baseline
+    path is untouched; pinning the coefficient to zero reproduces the uncorrected model
+    bit-identically, because the coefficient comes from a side stream and the main RNG
+    sequence never moves; the prior is uniform on [0, CAPASSIST_MAX]; arrival is monotone in
+    the ceiling; the correction moves the outcome in the pessimistic direction, which is the
+    point of it; and it is symmetric with the readiness assist it mirrors."""
+    print("[capassist-audit] N=%d: V2_CAPASSIST baseline safety, exact pinned-zero reproduction," % n)
+    print("                  uniform prior, monotonicity, direction, symmetry with the readiness assist")
+    ok = True
+
+    base = run_engine(20000, {"CENTURY_BASELINE": "1", "CENTURY_AUDIT": "1"})
+    base_diffs = diff_blocks(base, load_golden(20000, baseline=True))
+    a1 = (not base_diffs) and base["audit_capassist"]["capassist"] is False
+    ok = ok and a1
+    print("  1. baseline bit-identical to golden/baseline-20k-seed431.json: %s%s"
+          % (a1, "" if not base_diffs else "  (%d block(s) drifted)" % len(base_diffs)))
+
+    # 2. Exact, not within a bar. The coefficient is drawn from np.random.default_rng(SEED+977)
+    #    rather than the main generator, so switching the correction off cannot shift any other
+    #    draw. V2_ERODE takes its coefficient from the main stream and therefore cannot make
+    #    this claim; --erosion-audit compares against a Monte Carlo bar instead.
+    pin0 = run_engine(n, {"CENTURY_CAPASSIST_MAX": "0"})
+    off = run_engine(n, _v2_without("CENTURY_V2_CAPASSIST"))
+    a2 = not diff_blocks(pin0, off)
+    ok = ok and a2
+    print("  2. coefficient pinned to 0 reproduces the uncorrected model bit-identically: %s" % a2)
+
+    # 3. Uniform on [0, ceiling]: a map that piled the coefficient at one end would change the
+    #    answer without changing the stated range.
+    aud = run_engine(n, {"CENTURY_AUDIT": "1"})["audit_capassist"]
+    a3 = (abs(aud["coef_max"] - aud["capassist_max"]) < 0.01
+          and abs(aud["coef_mean"] - aud["capassist_max"] / 2.0) < 0.01)
+    ok = ok and a3
+    print("  3. coefficient uniform on [0, %.2f]: max=%.4f mean=%.4f (expected %.4f): %s"
+          % (aud["capassist_max"], aud["coef_max"], aud["coef_mean"], aud["capassist_max"] / 2.0, a3))
+
+    # 4. Monotone: more capability turned to capability research means an earlier crossing.
+    grid = ["0", "0.65", "1.2"]
+    meds = [run_engine(n, {"CENTURY_CAPASSIST_MAX": v})["agi"]["median_year"] for v in grid]
+    a4 = all(b_ <= a_ for a_, b_ in zip(meds, meds[1:])) and meds[-1] < meds[0]
+    ok = ok and a4
+    print("  4. crossing year falls as the ceiling rises: %s -> %s: %s" % (grid, meds, a4))
+
+    # 5. Direction. The asymmetry this corrects was optimistic, so correcting it must cost
+    #    good century and widen the capability-readiness gap. An implementation that improved
+    #    the outcome would mean the term had been wired into the wrong side.
+    on = run_engine(n, {})
+    g_on, g_off = on["aggregates"]["good(broadly acceptable)"], off["aggregates"]["good(broadly acceptable)"]
+    u_on = on["gap_at_agi"]["p_uncontrolled(>0.35)"]
+    u_off = off["gap_at_agi"]["p_uncontrolled(>0.35)"]
+    a5 = g_on < g_off and u_on > u_off
+    ok = ok and a5
+    print("  5. correcting the asymmetry costs good century and widens the gap: "
+          "good %.1f%% -> %.1f%%, uncontrolled %.1f%% -> %.1f%%: %s"
+          % (g_off, g_on, u_off, u_on, a5))
+
+    # 6. Symmetry with the side it mirrors. The ceiling is the readiness assist's ceiling, and
+    #    the point of the correction is that the two sides now share it; a later edit that
+    #    moves one without the other should show up here.
+    a6 = abs(aud["capassist_max"] - aud["readiness_assist_ceiling"]) < 1e-9
+    ok = ok and a6
+    print("  6. capability ceiling equals the readiness-assist ceiling (%.2f): %s"
+          % (aud["readiness_assist_ceiling"], a6))
+
+    print("  %s — %s." % ("PASS" if ok else "FAIL",
+          "capability assist is baseline-safe, exactly revertible, uniform, monotone, "
+          "correctly signed and symmetric with the readiness assist"
+          if ok else "see the failing assertion above"))
+    return ok
+
+
 def check_platdrag_audit(n=50000):
     """Gate for the plateau-drag correction (V2_PLATDRAG). Seven assertions: the baseline
     path is untouched; restoring the global throttle shape reproduces the uncorrected model
@@ -2486,6 +2572,9 @@ def main(argv=None):
     ap.add_argument("--erosion-audit", action="store_true",
                     help="check the readiness-erosion correction: baseline safety, pinned-zero reproduction, "
                          "monotonicity, near-orthogonality to respond, clip floor, separability, gating (N=50000)")
+    ap.add_argument("--capassist-audit", action="store_true",
+                    help="check the capability-assist correction: baseline safety, exact pinned-zero "
+                         "reproduction, uniform prior, monotonicity, direction, symmetry (N=50000)")
     ap.add_argument("--platdrag-audit", action="store_true",
                     help="check the plateau-drag correction: baseline safety, exact pinned-shape reproduction, "
                          "unstalled worlds untouched, ceiling overshoot, stall depth, knob coupling, override (N=50000)")
@@ -2536,6 +2625,8 @@ def main(argv=None):
         return 0 if check_cutoff_audit() else 1
     if args.erosion_audit:
         return 0 if check_erosion_audit() else 1
+    if args.capassist_audit:
+        return 0 if check_capassist_audit() else 1
     if args.platdrag_audit:
         return 0 if check_platdrag_audit() else 1
     if args.alphasub_audit:

@@ -3,47 +3,47 @@
   "seed": 431,
   "baseline": false,
   "outcomes": {
-    "aligned_abundance": 17.35,
-    "oligarchic_prosperity": 17.48,
-    "turbulent_transition": 8.76,
-    "constrained_flourishing": 4.22,
-    "muddling_degraded": 4.94,
-    "disempowerment": 30.06,
-    "lockin": 1.3,
-    "collapse": 0.45,
-    "extinction": 10.43,
-    "unknown_catastrophe": 2.39,
-    "recovered": 2.59
+    "aligned_abundance": 16.25,
+    "oligarchic_prosperity": 16.78,
+    "turbulent_transition": 8.18,
+    "constrained_flourishing": 4.3,
+    "muddling_degraded": 4.71,
+    "disempowerment": 32.09,
+    "lockin": 1.33,
+    "collapse": 0.44,
+    "extinction": 11.12,
+    "unknown_catastrophe": 2.29,
+    "recovered": 2.52
   },
   "aggregates": {
-    "good(broadly acceptable)": 39.1,
-    "aligned_abundance_only": 17.4,
-    "irreversible_bad": 44.6,
-    "extinction_or_collapse": 10.9
+    "good(broadly acceptable)": 37.3,
+    "aligned_abundance_only": 16.2,
+    "irreversible_bad": 47.3,
+    "extinction_or_collapse": 11.6
   },
   "agi": {
-    "p_agi_by_2126": 89.6,
-    "median_year": 2038,
+    "p_agi_by_2126": 89.8,
+    "median_year": 2037,
     "p10_year": 2030,
-    "p90_year": 2060,
-    "p_by_2035": 32.8,
-    "p_by_2040": 51.6,
-    "p_by_2050": 72.2,
-    "p_by_2075": 86.1,
-    "p_no_agi_by_2126": 10.4,
-    "p_after_2050": 18.8
+    "p90_year": 2056,
+    "p_by_2035": 39.5,
+    "p_by_2040": 58.2,
+    "p_by_2050": 76.5,
+    "p_by_2075": 87.4,
+    "p_no_agi_by_2126": 10.2,
+    "p_after_2050": 14.5
   },
   "gap_at_agi": {
-    "median": 0.407,
-    "p_controlled(gap<0.15)": 14.4,
-    "p_contested(0.15-0.35)": 23.8,
-    "p_uncontrolled(>0.35)": 61.8
+    "median": 0.438,
+    "p_controlled(gap<0.15)": 11.0,
+    "p_contested(0.15-0.35)": 21.0,
+    "p_uncontrolled(>0.35)": 68.0
   },
   "events_per_world": {
-    "nuclear_war": 0.507,
-    "eng_pandemic": 0.619,
-    "nat_pandemic": 1.175,
-    "warning_shot": 4.699,
-    "regional_war": 3.82
+    "nuclear_war": 0.493,
+    "eng_pandemic": 0.613,
+    "nat_pandemic": 1.118,
+    "warning_shot": 4.632,
+    "regional_war": 3.686
   }
 }

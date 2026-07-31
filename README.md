@@ -19,9 +19,9 @@ Two questions, side by side: what the century could be, and where it is actually
 
 | How the century ends | If every choice stays open | On its expected course |
 |---|---:|---:|
-| Broadly good (abundance, shared prosperity, or steady flourishing) | 39.1 % | 34.4 % |
-| Mixed (rocky transitions, recoveries, muddling through) | 16.3 % | 17.4 % |
-| Irreversibly bad (disempowerment, lock-in, collapse, extinction) | 44.6 % | 48.2 % |
+| Broadly good (abundance, shared prosperity, or steady flourishing) | 37.3 % | 32.8 % |
+| Mixed (rocky transitions, recoveries, muddling through) | 15.4 % | 16.4 % |
+| Irreversibly bad (disempowerment, lock-in, collapse, extinction) | 47.3 % | 50.8 % |
 
 The first column treats every good decision as available. The second weighs each decision by how likely it is to actually be taken. Both columns come from the same 800,000 worlds, and the rows cover every world, so each column adds up to 100 %.
 
@@ -31,15 +31,15 @@ So the century could go either way, and it is currently heading the wrong way.
 
 ## What changes the outcome
 
-Preparation does. Take only the social and political choices we could realistically reach: institutions ready to react, real money in safety, countries cooperating, gains shared. Do that and the good share rises from 39 % to 66 %. Technology keeps racing ahead in that world. Nothing about the pace of AI changes.
+Preparation does. Take only the social and political choices we could realistically reach: institutions ready to react, real money in safety, countries cooperating, gains shared. Do that and the good share rises from 37 % to 64 %. Technology keeps racing ahead in that world. Nothing about the pace of AI changes.
 
-Push those same choices to their extremes and it reaches 74.5 %. Add limits on large computing runs and the bad share falls furthest, to 15.4 %, for a good share of 73.5 %. In the model that last combination also delays AGI by about nine years.
+Push those same choices to their extremes and it reaches 73.2 %. Add limits on large computing runs and the bad share falls furthest, to 18.2 %, for a good share of 71.3 %. In the model that last combination also delays AGI by about nine years.
 
-The distance between where we are heading (34.4 %) and a prepared world (65.6 %) is the point of this whole project. More than 30 points of century, blocked by nothing except how unlikely those choices currently are.
+The distance between where we are heading (32.8 %) and a prepared world (63.8 %) is the point of this whole project. More than 30 points of century, blocked by nothing except how unlikely those choices currently are.
 
 Two things are worth knowing about those numbers. First, the estimates behind the second column of the table are judgements rather than survey data. They live in `lever-anchors.json` with the reasoning written next to each one, and [`realistic-bet.md`](docs/realistic-bet.md) walks through them one by one.
 
-Second, the model assumes by default that safety testing goes stale as AI grows more capable. Turn that assumption off and the same worlds give 43.7 % good against 38.3 % bad. Nothing published settles how fast the staleness really sets in, so both readings stand. Every other figure on this page uses the default.
+Second, the model assumes by default that safety testing goes stale as AI grows more capable. Turn that assumption off and the same worlds give 41.9 % good against 40.9 % bad. Nothing published settles how fast the staleness really sets in, so both readings stand. Every other figure on this page uses the default.
 
 ## Why this exists
 
@@ -72,20 +72,20 @@ CENTURY_OVERRIDES='{"plateau":true}' python3 century_sim.py 800000
 
 | World | Good | Irreversibly bad | Extinction | Shared abundance |
 |---|---:|---:|---:|---:|
-| Baseline (no overrides) | 39.1 % | 44.6 % | 10.4 % | 17.4 % |
-| 1. Prepared acceleration | 65.6 % | 23.7 % | 5.9 % | 58.2 % |
-| 2. Race to fragility | 21.3 % | 63.4 % | 15.0 % | 9.0 % |
-| 3. Concentrated | 16.1 % | 54.1 % | 9.9 % | 0.0 % |
-| 4. Undefended | 36.5 % | 45.0 % | 10.7 % | 16.3 % |
-| 5. Plateau | 51.0 % | 6.0 % | 0.7 % | 11.0 % |
+| Baseline (no overrides) | 37.3 % | 47.3 % | 11.1 % | 16.2 % |
+| 1. Prepared acceleration | 63.8 % | 26.2 % | 6.6 % | 56.3 % |
+| 2. Race to fragility | 20.4 % | 65.2 % | 15.4 % | 8.4 % |
+| 3. Concentrated | 15.0 % | 57.0 % | 10.6 % | 0.0 % |
+| 4. Undefended | 34.8 % | 47.7 % | 11.2 % | 15.3 % |
+| 5. Plateau | 51.8 % | 6.4 % | 0.8 % | 11.1 % |
 
 World 1 is the prepared world from the section above, reached here from a standing start. It is the cheapest reproducibility check in the repo.
 
 Two rows are worth staring at.
 
-The worst world is number 3, and it touches no technical setting at all. Nobody races and nobody cuts a safety corner. Capability and wealth simply start out concentrated, and the will to share them is pinned to its floor. That costs 23 points of good century, more than hard racing does. Read the extinction column and it looks harmless, barely off the baseline. Read the last column and shared abundance is 0.0 %, which is a wall rather than bad luck. The model only calls a world shared abundance once concentration falls below 0.62, and concentration only falls when there is political will to share. Take that will away and the best ending has no path from here, in any of the 800,000 worlds.
+The worst world is number 3, and it touches no technical setting at all. Nobody races and nobody cuts a safety corner. Capability and wealth simply start out concentrated, and the will to share them is pinned to its floor. That costs 22 points of good century, more than hard racing does. Read the extinction column and it looks harmless, barely off the baseline. Read the last column and shared abundance is 0.0 %, which is a wall rather than bad luck. The model only calls a world shared abundance once concentration falls below 0.62, and concentration only falls when there is political will to share. Take that will away and the best ending has no path from here, in any of the 800,000 worlds.
 
-World 4 hurts far less than expected. Letting biodefence collapse raises engineered pandemics by 42 %, from 0.62 to 0.88 events per world, and still costs under 3 points of good century. In this model pandemics do real damage along the way and rarely decide how the story ends. What decides the century is what happens to capability and to power.
+World 4 hurts far less than expected. Letting biodefence collapse raises engineered pandemics by 41 %, from 0.61 to 0.86 events per world, and still costs under 3 points of good century. In this model pandemics do real damage along the way and rarely decide how the story ends. What decides the century is what happens to capability and to power.
 
 ## The dials
 
@@ -105,7 +105,7 @@ Every assumption is a setting you can override. These are the ones that matter m
 | `plateau` | whether the current AI paradigm stalls | true in 14 % of worlds |
 | `erode_mag` | how fast new capability makes existing safety work stale | 0 to 0.30 |
 
-Rank the dials by how much each one swings the odds of a good century and the top two are both choices: `redist_will` at 22.0 points and `respond` at 21.1. The fastest fact of nature, `k`, comes third and pulls the other way at −17.2, and `plateau` sixth at 13.9.
+Rank the dials by how much each one swings the odds of a good century and the top two are both choices: `redist_will` at 21.1 points and `respond` at 20.4. A stalled paradigm comes third at 16.5, and the fastest fact of nature, `k`, fourth at −16.0, pulling the other way.
 
 That ordering changed when the plateau was corrected to slow growth rather than only cap it. A working plateau is a weaker lever than a broken one, because a stalled world now grinds on for decades and reaches more mixed endings instead of stopping cleanly in a good one. The strongest choice available to us is whether we are politically capable of sharing the proceeds, which is not where most AI policy is currently looking.
 
