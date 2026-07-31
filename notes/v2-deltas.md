@@ -67,7 +67,7 @@ Survivor concentration W (median across still-ongoing worlds) by decade:
 
 ## Correlated priors (Phase 6, `CENTURY_V2_CORR`)
 
-Headline v2 outcomes with the Gaussian copula ON (default matrix: race-respond -0.4, redist_will-respond +0.3, k-alpha +0.3) vs OFF (identity), every other v2 correction held on, N=50000. The marginals are identical in both (Iman-Conover reordering preserves them exactly), so only the joint structure differs.
+Headline v2 outcomes with the Gaussian copula ON (default matrix: k-alpha -0.3, race-respond -0.4, redist_will-respond +0.3) vs OFF (identity), every other v2 correction held on, N=50000. The marginals are identical in both (Iman-Conover reordering preserves them exactly), so only the joint structure differs.
 
 | Outcome class | corr OFF % | corr ON % | delta |
 |---|---:|---:|---:|

@@ -48,9 +48,17 @@ rng = np.random.default_rng(SEED)
 #    output can be compared against them as a sanity check.
 
 P = {}
-P["alpha"]        = rng.uniform(1.0, 1.9, N)     # growth curvature (1=exp-like in C, >1 superexp)
-                                                 # V2_ALPHASUB rescales this draw to a higher ceiling; see the block
-                                                 # near CENTURY_ALPHA_MAX. The draw itself never changes.
+P["alpha"]        = rng.uniform(1.0, 1.9, N)     # growth curvature. BELOW C=1, WHICH IS THE WHOLE
+                                                 # RUN-UP, A HIGHER EXPONENT IS SLOWER: it shrinks
+                                                 # C**alpha. The finite-time-singularity reading of
+                                                 # alpha > 1 is true of the equation and false of
+                                                 # this model, whose capability starts at 0.35 and
+                                                 # whose threshold is 0.68-0.92, so nothing ever
+                                                 # reaches the accelerating regime. Misreading this
+                                                 # produced three separate defects (future.md 6.6,
+                                                 # 6.7, 6.8). V2_ALPHASUB rescales the draw to a
+                                                 # higher ceiling; see near CENTURY_ALPHA_MAX. The
+                                                 # draw itself never changes.
 P["k"]            = rng.lognormal(np.log(0.095), 0.60, N)  # base growth rate at C=1
 P["threshold"]    = rng.uniform(0.68, 0.92, N)   # AGI threshold (contested definition)
 P["plateau"]      = rng.random(N) < 0.14         # paradigm-stall regime

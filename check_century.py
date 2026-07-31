@@ -454,6 +454,16 @@ DOC_TABLES = [
     {"id": 's6.8-neg', "doc": DOC_PATH, "anchor": "| `k,alpha` | 10th | Median |",
      "source": 'env:CENTURY_AUDIT=1@200000', "precision": 1,
      "rows": {'−0.3 (now)': _SPREAD}},
+    # strategy.md ranks its recommendations on the Sobol indices, and quotes four of
+    # them. Both columns of its lever table are pinned: the index against a fresh Sobol
+    # run, the swing against the engine. They come from different computations, so each
+    # column is its own spec.
+    {"id": "strat2-sobol", "doc": STRATEGY_PATH, "anchor": "| Input | Sobol",
+     "source": "sobol:8192", "precision": 3,
+     "rows": {'`k` growth rate': {1: 'good.k.S_Ti'}, '`redist_will`': {1: 'good.redist_will.S_Ti'}, '`concentration0`': {1: 'good.concentration0.S_Ti'}, '`safety_eff`': {1: 'good.safety_eff.S_Ti'}, '`respond`': {1: 'good.respond.S_Ti'}, '`race`': {1: 'good.race.S_Ti'}, '`alpha` curvature': {1: 'good.alpha.S_Ti'}, '`threshold`': {1: 'good.threshold.S_Ti'}, '`climate_eff`': {1: 'good.climate_eff.S_Ti'}, '`erode_mag`': {1: 'good.erode_mag.S_Ti'}, '`assist`': {1: 'good.assist.S_Ti'}, '`R0`': {1: 'good.R0.S_Ti'}}},
+    {"id": "strat2-swings", "doc": STRATEGY_PATH, "anchor": "| Input | Sobol",
+     "source": "run:800000", "precision": 1,
+     "rows": {'`k` growth rate': {2: 'sensitivity_P_good.k.swing'}, '`redist_will`': {2: 'sensitivity_P_good.redist_will.swing'}, '`concentration0`': {2: 'sensitivity_P_good.concentration0.swing'}, '`safety_eff`': {2: 'sensitivity_P_good.safety_eff.swing'}, '`respond`': {2: 'sensitivity_P_good.respond.swing'}, '`race`': {2: 'sensitivity_P_good.race.swing'}, '`alpha` curvature': {2: 'sensitivity_P_good.alpha.swing'}, '`threshold`': {2: 'sensitivity_P_good.threshold.swing'}, '`climate_eff`': {2: 'sensitivity_P_good.climate_eff.swing'}, '`erode_mag`': {2: 'sensitivity_P_good.erode_mag.swing'}, '`assist`': {2: 'sensitivity_P_good.assist.swing'}, '`R0`': {2: 'sensitivity_P_good.R0.swing'}}},
     {"id": "rb-outcomes", "doc": os.path.join(HERE, "docs", "realistic-bet.md"),
      "anchor": "| Outcome | The headline | The realistic bet",
      "source": "calib:levers@800000", "precision": 1,
@@ -540,13 +550,16 @@ DOC_PROSE = [
           "pattern": r"Institutional responsiveness \(`S_Ti` 0\.107, swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.respond.swing"},
          {"label": "strat s2: safety effort",
-          "pattern": r"human-paced safety effort \(`S_Ti` 0\.139, swing " + _PNUM + r"\)",
+          # The index in this anchor is itself pinned (strat-sobol-prose), so match it
+          # loosely here: a pattern that hardcodes one pinned figure to locate another breaks
+          # every time the first one legitimately moves.
+          "pattern": r"human-paced safety effort \(`S_Ti` [\d.]+, swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.safety_eff.swing"},
          {"label": "strat s2: climate effort",
           "pattern": r"climate effort, for all its " + _PNUM + r" swing",
           "path": "sensitivity_P_good.climate_eff.swing"},
          {"label": "strat s4: share the gains early",
-          "pattern": r"share the gains early \(`redist_will`, `S_Ti` 0\.174; swing " + _PNUM + r"\)",
+          "pattern": r"share the gains early \(`redist_will`, `S_Ti` [\d.]+; swing " + _PNUM + r"\)",
           "path": "sensitivity_P_good.redist_will.swing"},
          {"label": "strat s4: cool the race",
           "pattern": r"Cool the race \(`race`, swing " + _PNUM + r"\)",
@@ -648,6 +661,93 @@ DOC_PROSE = [
          {"label": "readme: realistic-bet good share",
           "pattern": r"where we are heading \(" + _PNUM + r" %\)",
           "path": "outcomes.good.weighted"},
+     ]},
+    {"id": "strat-sobol-prose", "doc": STRATEGY_PATH, "source": "sobol:8192", "precision": 3,
+     "figures": [
+         {"label": "strat: k total-order index",
+          "pattern": r"the pace of capability, `k` \(`S_Ti` " + _PNUM + r"\)",
+          "path": "good.k.S_Ti"},
+         {"label": "strat: redistribution total-order index",
+          "pattern": r"is redistribution \(`S_Ti` " + _PNUM + r"\)",
+          "path": "good.redist_will.S_Ti"},
+         {"label": "strat: responsiveness total-order index",
+          "pattern": r"Institutional responsiveness \(`S_Ti` " + _PNUM + r",",
+          "path": "good.respond.S_Ti"},
+         {"label": "strat: safety-effort total-order index",
+          "pattern": r"human-paced safety effort \(`S_Ti` " + _PNUM + r",",
+          "path": "good.safety_eff.S_Ti"},
+         {"label": "strat: safety-effort first-order index",
+          "pattern": r"its on-its-own index \(" + _PNUM + r" rising to",
+          "path": "good.safety_eff.S_i"},
+     ]},
+    {"id": "s6-sobol-prose", "doc": DOC_PATH, "source": "sobol:8192", "precision": 3,
+     "figures": [
+         {"label": "s6: containment-decay total-order index",
+          "pattern": r"at a total-order index of " + _PNUM + r", tenth of fourteen",
+          "path": "good.erode_mag.S_Ti"},
+     ]},
+    # docs/reading-the-output.md presents "a trimmed run", so it is a real run and had
+    # gone three model changes out of date. Pinned at the precision it prints.
+    {"id": "reading-output", "doc": os.path.join(HERE, "docs", "reading-the-output.md"),
+     "source": "run:800000", "precision": 2,
+     "figures": [
+         {"label": "reading-output: aligned_abundance",
+          "pattern": r'"aligned_abundance": ' + _PNUM,
+          "path": 'outcomes.aligned_abundance'},
+         {"label": "reading-output: oligarchic_prosperity",
+          "pattern": r'"oligarchic_prosperity": ' + _PNUM,
+          "path": 'outcomes.oligarchic_prosperity'},
+         {"label": "reading-output: turbulent_transition",
+          "pattern": r'"turbulent_transition": ' + _PNUM,
+          "path": 'outcomes.turbulent_transition'},
+         {"label": "reading-output: constrained_flourishing",
+          "pattern": r'"constrained_flourishing": ' + _PNUM,
+          "path": 'outcomes.constrained_flourishing'},
+         {"label": "reading-output: muddling_degraded",
+          "pattern": r'"muddling_degraded": ' + _PNUM,
+          "path": 'outcomes.muddling_degraded'},
+         {"label": "reading-output: disempowerment",
+          "pattern": r'"disempowerment": ' + _PNUM,
+          "path": 'outcomes.disempowerment'},
+         {"label": "reading-output: lockin",
+          "pattern": r'"lockin": ' + _PNUM,
+          "path": 'outcomes.lockin'},
+         {"label": "reading-output: collapse",
+          "pattern": r'"collapse": ' + _PNUM,
+          "path": 'outcomes.collapse'},
+         {"label": "reading-output: extinction",
+          "pattern": r'"extinction": ' + _PNUM,
+          "path": 'outcomes.extinction'},
+         {"label": "reading-output: unknown_catastrophe",
+          "pattern": r'"unknown_catastrophe": ' + _PNUM,
+          "path": 'outcomes.unknown_catastrophe'},
+         {"label": "reading-output: recovered",
+          "pattern": r'"recovered": ' + _PNUM,
+          "path": 'outcomes.recovered'},
+         {"label": "reading-output: good",
+          "pattern": r'"good\(broadly acceptable\)": ' + _PNUM,
+          "path": 'aggregates.good(broadly acceptable)'},
+         {"label": "reading-output: irreversible_bad",
+          "pattern": r'"irreversible_bad": ' + _PNUM,
+          "path": 'aggregates.irreversible_bad'},
+         {"label": "reading-output: median_year",
+          "pattern": r'"median_year": ' + _PNUM,
+          "path": 'agi.median_year'},
+         {"label": "reading-output: p10_year",
+          "pattern": r'"p10_year": ' + _PNUM,
+          "path": 'agi.p10_year'},
+         {"label": "reading-output: p90_year",
+          "pattern": r'"p90_year": ' + _PNUM,
+          "path": 'agi.p90_year'},
+         {"label": "reading-output: nuclear_war",
+          "pattern": r'"nuclear_war": ' + _PNUM,
+          "path": 'events_per_world.nuclear_war'},
+         {"label": "reading-output: eng_pandemic",
+          "pattern": r'"eng_pandemic": ' + _PNUM,
+          "path": 'events_per_world.eng_pandemic'},
+         {"label": "reading-output: respond_swing",
+          "pattern": r'"swing": ' + _PNUM,
+          "path": 'sensitivity_P_good.respond.swing'},
      ]},
 ]
 
@@ -1335,6 +1435,22 @@ def _run_source(source, cache):
         arg, n = source[6:].rsplit("@", 1)
         out = _run_calibration(int(n), levers=(arg == "levers"),
                                group=(arg if arg != "levers" else None))
+    elif source.startswith("sobol:"):
+        # Fresh Sobol indices, keyed by parameter. strategy.md ranks its recommendations on
+        # these and quotes four of them, and future.md quotes a fifth; none was pinned until
+        # 2026-07-31, so notes/sobol.md sat four model changes out of date while the documents
+        # pointed readers at it as the honest ranking. The driver takes about nine seconds at
+        # the default base, so this checks the documents against a fresh computation rather
+        # than against the stored artefact.
+        import sobol_century as sob
+        res = sob.engine_sobol(int(source[6:]))
+        out = {}
+        for key, (S, ST) in res.items():
+            out[key] = {nm: {"S_i": round(float(S[i]), 3), "S_Ti": round(float(ST[i]), 3)}
+                        for i, nm in enumerate(sob.SOBOL_VARS)}
+            order = sorted(sob.SOBOL_VARS, key=lambda nm: -out[key][nm]["S_Ti"])
+            for rank, nm in enumerate(order, 1):
+                out[key][nm]["rank"] = rank
     elif source.startswith("v2without:"):
         # The v2 path with one correction suppressed. Needed because a V2_* flag reads
         # `_v2 or <own var>`, so it cannot be turned off by setting its own variable to 0;
@@ -1682,11 +1798,17 @@ def gen_v2_deltas(n=50000):
     corr_off = run_engine(n, {"CENTURY_V2": "1", "CENTURY_CORR_JSON": "identity"})
     lines.append("## Correlated priors (Phase 6, `CENTURY_V2_CORR`)")
     lines.append("")
-    lines.append("Headline v2 outcomes with the Gaussian copula ON (default matrix: "
-                 "race-respond -0.4, redist_will-respond +0.3, k-alpha +0.3) vs OFF (identity), "
-                 "every other v2 correction held on, N=%d. The marginals are identical in both "
-                 "(Iman-Conover reordering preserves them exactly), so only the joint structure "
-                 "differs." % n)
+    # Read the matrix off the engine rather than restating it. This sentence carried
+    # "k-alpha +0.3" for a day after the sign was corrected to -0.3, because a generated note
+    # that hardcodes a model constant goes stale exactly like a document does, and
+    # regenerating it does not help when the generator is what is wrong.
+    _pairs = run_engine(2000, {"CENTURY_V2": "1", "CENTURY_AUDIT": "1"})["audit_corr"]["pairs"]
+    _matrix = ", ".join("%s %+g" % (pr.replace(",", "-"), _pairs[pr]["target"])
+                        for pr in sorted(_pairs))
+    lines.append("Headline v2 outcomes with the Gaussian copula ON (default matrix: %s) vs OFF "
+                 "(identity), every other v2 correction held on, N=%d. The marginals are "
+                 "identical in both (Iman-Conover reordering preserves them exactly), so only "
+                 "the joint structure differs." % (_matrix, n))
     lines.append("")
     lines.append("| Outcome class | corr OFF % | corr ON % | delta |")
     lines.append("|---|---:|---:|---:|")
