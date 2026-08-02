@@ -201,7 +201,7 @@ This is not a choice you can make. It is the deepest uncertainty in the whole mo
 
 ### The question, stated simply
 
-Suppose a misaligned superintelligence exists, a system more capable than us whose goals are not quite ours, and suppose there is still a gap between how capable it is and how ready we are to control it. **Is the danger front-loaded or flat?**
+Suppose a misaligned AI exists, a system whose goals are not quite ours, and suppose there is still a gap between how capable it is and how ready we are to control it. The danger begins the moment the AGI line is crossed, and the system keeps growing after that, so by the time it might act it is far beyond us. That is why the two views below call it a superintelligence. **Is the danger front-loaded or flat?**
 
 - **Front-loaded ("there is a deadline").** The danger is greatest in the first years after AGI arrives, and fades as time passes. As we use these systems we get better at watching and understanding them, so a rogue system that does not grab control while its lead is largest watches that lead shrink. On this view, getting safely through the first decade is real evidence that our safeguards work.
 - **Flat ("there is no deadline").** A superintelligence does not age and does not die. It loses almost nothing by waiting. The clever move for a misaligned system that is not yet sure it would win is to look aligned, quietly build up resources and position, and strike only when success is certain. On this view, a calm and prosperous decade after AGI proves nothing. It is exactly what a patient rogue system would produce.
